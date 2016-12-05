@@ -1,0 +1,19 @@
+Package: flipTime
+Type: Package
+Title: Tools for Manipulating Time Series
+Version: 0.1.0
+Author: Tim Bock
+Maintainer: Tim Bock <tim.bock@numbers.net.au>
+Description: Aggregating time series into strings, converting strings back into
+    dates.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports:
+    flipFormat,
+    lubridate,
+    plotly,
+    stats
+Suggests:
+    testthat
+RoxygenNote: 5.0.1
