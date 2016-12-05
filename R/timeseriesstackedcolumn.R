@@ -11,7 +11,6 @@
 #' @return A plotly plot.
 #' @importFrom stats supsmu
 #' @importFrom plotly config plot_ly add_trace layout
-#' @importFrom flipFormat Names
 #' @examples
 #' z = matrix(runif(27), nrow = 3, dimnames = list(LETTERS[1:3],
 #' seq(as.Date("2010/1/1"), as.Date("2018/1/1"), "years")))
