@@ -57,10 +57,13 @@ Period <- function(x, by)
 #'
 #' @description The average number of dates in a period. E.g., 7 for a day, 365.25 for a year.
 #' @param by The period used in the conversion (e.g., "week", "year").
+#' @examples
+#' DaysPerPeriod("month")
 #' @export
 DaysPerPeriod <- function(by)
 {
     switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7, day = 1)
 
 }
+
 
