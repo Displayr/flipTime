@@ -53,6 +53,26 @@ Period <- function(x, by)
     format(floor_date(x, by),"%Y-%m-%d")
 }
 
+#' \code{Periods}
+#'
+#' @description Quickly cretes period objects.
+#' @param x A numeric value of the number of units to be contained in the period. With the exception of seconds(), x must be an integer.
+#' @param by The period used in the conversion (e.g., "week", "year").
+#' @importFrom lubridate floor_date seconds minutes hours days weeks years
+#' @export
+Periods <- function(x = 1, by)
+{
+    switch(by,
+           second = seconds(x),
+           minute = minutes(x),
+           hour = hours(x),
+           day = days(x),
+           week = weeks(x),
+           month = months(x),
+           quarter = months(x * 3),
+           year = years(x))
+}
+
 #' \code{DaysPerPeriod}
 #'
 #' @description The average number of dates in a period. E.g., 7 for a day, 365.25 for a year.
@@ -65,5 +85,7 @@ DaysPerPeriod <- function(by)
     switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7, day = 1)
 
 }
+
+
 
 
