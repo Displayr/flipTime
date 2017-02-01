@@ -9,7 +9,6 @@ warnings_are_errors: false
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y libgdal-dev libproj-dev python-protobuf libprotoc-dev libprotobuf-dev libv8-dev librsvg2-dev
-  - sudo Rscript -e 'update.packages(ask = FALSE)'
 
 # last stable version of devtools does not support private depositories
 r_github_packages: hadley/devtools#1263
