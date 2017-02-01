@@ -85,7 +85,3 @@ DaysPerPeriod <- function(by)
     switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7, day = 1)
 
 }
-
-
-
-
