@@ -9,14 +9,16 @@ PeriodNameToDate(x, by)
 \arguments{
 \item{x}{The vector of \code{char} to convert.}
 
-\item{by}{The time aggregation.}
+\item{by}{The time aggregation. Deprecated as this can be deduced from x.}
 }
 \description{
 Converts a vector of period names in format
-yyyy, yyyy-mm-dd, or yyyy-mm into a Date.
+yyyy, yyyy-mm, yyyy-mm-dd, mmm-mmm yy, mmm yyyy, dd/mm/yyyy and
+dd/mm/yyyy-dd/mm/yyyy into a Date.
 }
 \examples{
-PeriodNameToDate(2010:2014, "year")
-PeriodNameToDate(c("2010-01", "2010-02"), "month")
+PeriodNameToDate(2010:2014)
+PeriodNameToDate(c("2010-01", "2010-02"))
+PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
 }
 

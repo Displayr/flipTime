@@ -1,11 +1,18 @@
 context("period")
 
-test_that("period",{
-
-    expect_equal(class(PeriodNameToDate(2010:2014, "year")), "Date")
+test_that("period", {
+    expect_equal(class(PeriodNameToDate(2010:2014)), "Date")
+    expect_equal(as.character(PeriodNameToDate(2010:2014))[1], "2010-01-01")
     expect_equal(as.character(PeriodNameToDate(2010:2014, "year"))[1], "2010-01-01")
-    expect_equal(as.character(PeriodNameToDate(c("2010-01", "2010-02"), "month"))[1], "2010-01-01")
-    library(lubridate)
+    expect_equal(as.character(PeriodNameToDate(c("2010-01", "2010-02")))[1], "2010-01-01")
+    expect_equal(class(PeriodNameToYMD(2010:2014)), "character")
+    expect_equal(PeriodNameToYMD(c("2016", "2017"))[2], "2017-01-01")
+    expect_equal(PeriodNameToYMD(c("Jan-Mar 12", "Oct-Dec 15"))[2], "2015-10-01")
+    expect_equal(PeriodNameToYMD(c("March 2012", "October 2015"))[2], "2015-10-01")
+    expect_equal(PeriodNameToYMD(c("8/09/2012-15/09/2012", "12/07/2015-19/07/2015"))[2], "2015-07-12")
+    expect_equal(PeriodNameToYMD(c("8/09/2012", "16/07/2015"))[1], "2012-09-08")
+    expect_equal(PeriodNameToYMD(c("2010-01", "2010-02"))[1], "2010-01-01")
+    expect_equal(PeriodNameToYMD(c("2010-01-05", "2010-02-08"))[1], "2010-01-05")
     expect_equal(Periods(1, "second"), seconds(1))
     expect_equal(Periods(1, "minute"), minutes(1))
     expect_equal(Periods(1, "hour"), hours(1))
@@ -14,7 +21,4 @@ test_that("period",{
     expect_equal(Periods(1, "month"), months(1))
     expect_equal(Periods(1, "quarter"), months(3))
     expect_equal(Periods(1, "year"), years(1))
-}
-
-    )
-
+})
