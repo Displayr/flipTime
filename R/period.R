@@ -5,28 +5,13 @@
 #' dd/mm/yyyy-dd/mm/yyyy into a Date.
 #' @param x The vector of \code{char} to convert.
 #' @param by The time aggregation. Deprecated as this can be deduced from x.
-#' @importFrom lubridate ymd
+#' @importFrom lubridate ymd parse_date_time
 #' @examples
 #' PeriodNameToDate(2010:2014)
 #' PeriodNameToDate(c("2010-01", "2010-02"))
 #' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
 #' @export
 PeriodNameToDate <- function(x, by)
-{
-    ymd(PeriodNameToYMD(x))
-}
-
-#' \code{PeriodNameToYMD}
-#'
-#' @description Converts a vector of period names in format
-#' yyyy, yyyy-mm-dd, yyyy-mm,  into a Date.
-#' @param x The vector of \code{char} to convert.
-#' @examples
-#' PeriodNameToYMD(2010:2014)
-#' PeriodNameToYMD(c("2010-01", "2010-02"))
-#' PeriodNameToYMD(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
-#' @export
-PeriodNameToYMD <- function(x)
 {
     year.regex <- "^[[:digit:]]{4}$" # e.g.: 2017
     quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$" # e.g.: Apr-Jun 08
@@ -36,17 +21,17 @@ PeriodNameToYMD <- function(x)
     yyyymmdd.regex <- "^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}$" # e.g.: 2013-01-31
 
     if (all(grepl(year.regex, x))) # year
-        result <- paste0(x, "-01-01")
+        result <- ymd(paste0(x, "-01-01"))
     else if (all(grepl(quarter.regex, x))) # quarter
-        result <- as.character(ParseDateTime(paste(substr(x, 1, 3), substr(x, 9, 10))))
+        result <- parse_date_time(paste("1", substr(x, 1, 3), substr(x, 9, 10)), "dby")
     else if (all(grepl(month.regex, x))) # month
-        result <- as.character(ParseDateTime(x))
+        result <- parse_date_time(paste("1", x), "dbY")
     else if (all(grepl(day.regex, x))) # day, week
-        result <- as.character(ParseDateTime(regmatches(x, regexec(day.regex, x)), us.format = FALSE))
+        result <- parse_date_time(unlist(regmatches(x, regexec(day.regex, x))), "dmY")
     else if (all(grepl(yyyymm.regex, x))) # yyyy-mm
-        result <- paste0(x, "-01")
+        result <- ymd(paste0(x, "-01"))
     else if (all(grepl(yyyymmdd.regex, x))) # yyyy-mm-dd
-        result <- as.character(x)
+        result <- ymd(x)
     else
         result <- rep(NA, length(x))
     result
