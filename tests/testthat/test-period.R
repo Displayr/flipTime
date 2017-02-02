@@ -14,6 +14,7 @@ test_that("period", {
     expect_equal(PeriodNameToYMD(c("2010-01", "2010-02"))[1], "2010-01-01")
     expect_equal(PeriodNameToYMD(c("2010-01-05", "2010-02-08"))[1], "2010-01-05")
     expect_equal(PeriodNameToYMD(c("a", "2010-02-08"))[1], NA)
+    library(lubridate)
     expect_equal(Periods(1, "second"), seconds(1))
     expect_equal(Periods(1, "minute"), minutes(1))
     expect_equal(Periods(1, "hour"), hours(1))
