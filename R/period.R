@@ -48,7 +48,7 @@ PeriodNameToYMD <- function(x)
     else if (all(grepl(yyyymmdd.regex, x))) # yyyy-mm-dd
         result <- as.character(x)
     else
-        stop("The period name(s) could not be converted.")
+        result <- rep(NA, length(x))
     result
 }
 
