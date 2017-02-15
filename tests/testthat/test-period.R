@@ -8,6 +8,7 @@ test_that("period", {
     expect_equal(as.character(PeriodNameToDate(c("Jan-Mar 12", "Oct-Dec 15"))[2]), "2015-10-01")
     expect_equal(as.character(PeriodNameToDate(c("March 2012", "October 2015"))[2]), "2015-10-01")
     expect_equal(as.character(PeriodNameToDate(c("8/09/2012-15/09/2012", "12/07/2015-19/07/2015"))[2]), "2015-07-12")
+    expect_equal(as.character(PeriodNameToDate(c("9/8/2012-9/15/2012", "7/12/2015-7/19/2015"))[2]), "2015-07-12")
     expect_equal(as.character(PeriodNameToDate(c("8/09/2012", "16/07/2015"))[1]), "2012-09-08")
     expect_equal(as.character(PeriodNameToDate(c("2010-01", "2010-02"))[1]), "2010-01-01")
     expect_equal(as.character(PeriodNameToDate(c("2010-01-05", "2010-02-08"))[1]), "2010-01-05")

@@ -16,7 +16,7 @@ PeriodNameToDate <- function(x, by)
     year.regex <- "^[[:digit:]]{4}$" # e.g.: 2017
     quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$" # e.g.: Apr-Jun 08
     month.regex <- "^[[:alpha:]]+ [[:digit:]]{4}$" # e.g.: February 2004
-    day.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{2}/[[:digit:]]{4}" # e.g.: 1/02/1999-8/02/1999
+    day.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}" # e.g.: 1/02/1999-8/02/1999
     yyyymm.regex <- "^[[:digit:]]{4}-[[:digit:]]{2}$" # e.g.: 2011-06
     yyyymmdd.regex <- "^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}$" # e.g.: 2013-01-31
 
@@ -27,7 +27,28 @@ PeriodNameToDate <- function(x, by)
     else if (all(grepl(month.regex, x))) # month
         result <- parse_date_time(paste("1", x), "dbY")
     else if (all(grepl(day.regex, x))) # day, week
-        result <- parse_date_time(unlist(regmatches(x, regexec(day.regex, x))), "dmY")
+    {
+        extracted <- unlist(regmatches(x, regexec(day.regex, x)))
+        result.au <- parse_date_time(extracted, "dmY", quiet = TRUE)
+        result.us <- parse_date_time(extracted, "mdY", quiet = TRUE)
+        if (!any(is.na(result.au)) && !any(is.na(result.us)))
+        {
+            week.regex <- "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
+            extracted <- unlist(regmatches(x, regexec(week.regex, x)))
+            result.week.au <- parse_date_time(extracted, "dmY", quiet = TRUE)
+            result.week.us <- parse_date_time(extracted, "mdY", quiet = TRUE)
+            if (!any(is.na(result.week.au)) && !any(is.na(result.week.us)))
+                warning("Date formats are ambiguous, US format has been used.")
+            if (!any(is.na(result.week.us)))
+                result <- result.us
+            else
+                result <- result.au
+        }
+        else if (!any(is.na(result.us)))
+            result <- result.us
+        else
+            result <- result.au
+    }
     else if (all(grepl(yyyymm.regex, x))) # yyyy-mm
         result <- ymd(paste0(x, "-01"))
     else if (all(grepl(yyyymmdd.regex, x))) # yyyy-mm-dd
