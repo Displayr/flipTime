@@ -2,14 +2,16 @@
 % Please edit documentation in R/period.R
 \name{PeriodNameToDate}
 \alias{PeriodNameToDate}
-\title{\code{PeriodNameToDate}}
+\title{{PeriodNameToDate}}
 \usage{
-PeriodNameToDate(x, by)
+PeriodNameToDate(x, by, us.format = NULL)
 }
 \arguments{
 \item{x}{The vector of \code{char} to convert.}
 
 \item{by}{The time aggregation. Deprecated as this can be deduced from x.}
+
+\item{us.format}{Whether to assume US date format when parsing.}
 }
 \description{
 Converts a vector of period names in format

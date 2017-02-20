@@ -1,60 +1,75 @@
-#' \code{PeriodNameToDate}
+#' @title{PeriodNameToDate}
 #'
 #' @description Converts a vector of period names in format
 #' yyyy, yyyy-mm, yyyy-mm-dd, mmm-mmm yy, mmm yyyy, dd/mm/yyyy and
 #' dd/mm/yyyy-dd/mm/yyyy into a Date.
 #' @param x The vector of \code{char} to convert.
 #' @param by The time aggregation. Deprecated as this can be deduced from x.
-#' @importFrom lubridate ymd parse_date_time
+#' @param us.format Whether to assume US date format when parsing.
+#' @importFrom lubridate parse_date_time2
 #' @examples
 #' PeriodNameToDate(2010:2014)
 #' PeriodNameToDate(c("2010-01", "2010-02"))
 #' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
 #' @export
-PeriodNameToDate <- function(x, by)
+PeriodNameToDate <- function(x, by, us.format = NULL)
 {
-    year.regex <- "^[[:digit:]]{4}$" # e.g.: 2017
-    quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$" # e.g.: Apr-Jun 08
-    month.regex <- "^[[:alpha:]]+ [[:digit:]]{4}$" # e.g.: February 2004
-    day.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}" # e.g.: 1/02/1999-8/02/1999
-    yyyymm.regex <- "^[[:digit:]]{4}-[[:digit:]]{2}$" # e.g.: 2011-06
-    yyyymmdd.regex <- "^[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}$" # e.g.: 2013-01-31
+    if (is.numeric(x))
+        x <- as.character(x)
 
-    if (all(grepl(year.regex, x))) # year
-        result <- ymd(paste0(x, "-01-01"))
-    else if (all(grepl(quarter.regex, x))) # quarter
-        result <- parse_date_time(paste("1", substr(x, 1, 3), substr(x, 9, 10)), "dby")
-    else if (all(grepl(month.regex, x))) # month
-        result <- parse_date_time(paste("1", x), "dbY")
-    else if (all(grepl(day.regex, x))) # day, week
+    # e.g.: Apr-Jun 08
+    quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
+    # e.g.: 1/02/1999-8/02/1999
+    week.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
+
+    if (all(grepl(quarter.regex, x))) # Q quarters, e.g.: Apr-Jun 08
+        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)), "my", exact = TRUE)
+    else if (all(grepl(week.regex, x))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
+        result <- weeklyPeriodsToDate(x, us.format)
+    else
     {
-        extracted <- unlist(regmatches(x, regexec(day.regex, x)))
-        result.au <- parse_date_time(extracted, "dmY", quiet = TRUE)
-        result.us <- parse_date_time(extracted, "mdY", quiet = TRUE)
-        if (!any(is.na(result.au)) && !any(is.na(result.us)))
+        suppressWarnings(parsed.numeric <- as.numeric(x))
+        result <- if (any(is.na(parsed.numeric)) || all(parsed.numeric >= 1900 & parsed.numeric < 2100))
+            ParseDates(x, us.format)
+        else
+            rep(NA, length(x))
+    }
+    if (any(is.na(result)))
+        result <- rep(NA, length(x))
+    result
+}
+
+#' @importFrom lubridate parse_date_time2
+weeklyPeriodsToDate <- function(x, us.format = NULL)
+{
+    start.of.week.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}"
+    extracted.start <- unlist(regmatches(x, regexec(start.of.week.regex, x)))
+    if (is.null(us.format))
+    {
+        result.int <- parse_date_time2(extracted.start, "dmY", exact = TRUE)
+        result.us <- parse_date_time2(extracted.start, "mdY", exact = TRUE)
+        if (!any(is.na(result.int)) && !any(is.na(result.us)))
         {
-            week.regex <- "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
-            extracted <- unlist(regmatches(x, regexec(week.regex, x)))
-            result.week.au <- parse_date_time(extracted, "dmY", quiet = TRUE)
-            result.week.us <- parse_date_time(extracted, "mdY", quiet = TRUE)
-            if (!any(is.na(result.week.au)) && !any(is.na(result.week.us)))
+            end.of.week.regex <- "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
+            extracted.end <- unlist(regmatches(x, regexec(end.of.week.regex, x)))
+            result.end.int <- parse_date_time2(extracted.end, "dmY", exact = TRUE)
+            result.end.us <- parse_date_time2(extracted.end, "mdY", exact = TRUE)
+            if (!any(is.na(result.end.int)) && !any(is.na(result.end.us)))
                 warning("Date formats are ambiguous, US format has been used.")
-            if (!any(is.na(result.week.us)))
+            if (!any(is.na(result.end.us)))
                 result <- result.us
             else
-                result <- result.au
+                result <- result.int
         }
         else if (!any(is.na(result.us)))
             result <- result.us
         else
-            result <- result.au
+            result <- result.int
     }
-    else if (all(grepl(yyyymm.regex, x))) # yyyy-mm
-        result <- ymd(paste0(x, "-01"))
-    else if (all(grepl(yyyymmdd.regex, x))) # yyyy-mm-dd
-        result <- ymd(x)
+    else if (us.format)
+        result <- parse_date_time2(extracted.start, "mdY", exact = TRUE)
     else
-        result <- rep(NA, length(x))
+        result <- parse_date_time2(extracted.start, "dmY", exact = TRUE)
     result
 }
 
