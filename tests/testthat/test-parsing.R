@@ -94,10 +94,15 @@ test_that("Parse date", {
     expect_equal(ParseDates("2010"), dt5)
 
     # US format
-    expect_equal(ParseDates("2/3/2010"), dt6)
-    expect_equal(ParseDates("2/3/10"), dt6)
+    expect_equal(ParseDates("2/3/2010", us.format = TRUE), dt6)
+    expect_equal(ParseDates("2/3/10", us.format = TRUE), dt6)
 
     # International date format
     expect_equal(ParseDates("3/2/2010", us.format = FALSE), dt6)
     expect_equal(ParseDates("3/2/10", us.format = FALSE), dt6)
+
+    # No format specified
+    expect_warning(ParseDates("2/3/10"), "Date formats are ambiguous, US format has been used.")
+    expect_warning(ParseDates(c("3/2/10", "13/2/10")), NA)
+    expect_equal(ParseDates(c("3/2/10", "13/2/10"))[1], dt6)
 })

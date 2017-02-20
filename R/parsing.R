@@ -74,6 +74,11 @@ ParseDates <- function(x, us.format = NULL)
         if (!any(is.na(parsed)))
         {
             result <- parsed
+            if (is.null(us.format) &&
+                ord %in% c("mdY", "mdy") &&
+                (!any(is.na(parse_date_time2(x, "dmY", exact = TRUE))) ||
+                !any(is.na(parse_date_time2(x, "dmy", exact = TRUE)))))
+                warning("Date formats are ambiguous, US format has been used.")
             break
         }
     }
