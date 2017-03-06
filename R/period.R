@@ -14,6 +14,9 @@
 #' @export
 PeriodNameToDate <- function(x, by, us.format = NULL)
 {
+    if (any(c("POSIXct", "POSIXt") %in% class(x)))
+        return(x)
+
     if (is.numeric(x))
         x <- as.character(x)
 

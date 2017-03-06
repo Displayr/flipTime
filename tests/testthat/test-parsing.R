@@ -6,6 +6,7 @@ dt3 <- lubridate::parse_date_time("2016-01-02", "Ymd")
 dt4 <- lubridate::parse_date_time("2010-02", "Ym")
 dt5 <- lubridate::parse_date_time("2010", "Y")
 dt6 <- lubridate::parse_date_time("2010-02-03", "Ymd")
+dt7 <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
 v <- c(dt1, dt4)
 attr(v, "tzone") <- "UTC"
 
@@ -105,4 +106,7 @@ test_that("Parse date", {
     expect_warning(ParseDates("2/3/10"), "Date formats are ambiguous, US format has been used.")
     expect_warning(ParseDates(c("3/2/10", "13/2/10")), NA)
     expect_equal(ParseDates(c("3/2/10", "13/2/10"))[1], dt6)
+
+    # Date input
+    expect_equal(ParseDates(dt7), dt7)
 })

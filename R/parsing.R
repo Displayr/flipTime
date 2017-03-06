@@ -55,6 +55,9 @@ ParseDateTime <- function(x, us.format = TRUE)
 #' @export
 ParseDates <- function(x, us.format = NULL)
 {
+    if (any(c("POSIXct", "POSIXt") %in% class(x)))
+        return(x)
+
     result <- rep(NA, length(x))
 
     # The order of orders has been carefully selected.

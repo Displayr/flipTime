@@ -1,5 +1,7 @@
 context("period")
 
+dt <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
+
 test_that("period", {
     expect_equal(as.character(PeriodNameToDate(2010:2014)[1]), "2010-01-01")
     expect_equal(as.character(PeriodNameToDate(2010:2014, "year")[1]), "2010-01-01")
@@ -14,6 +16,7 @@ test_that("period", {
     expect_equal(as.character(PeriodNameToDate(c("2010-01", "2010-02"))[1]), "2010-01-01")
     expect_equal(as.character(PeriodNameToDate(c("2010-01-05", "2010-02-08"))[1]), "2010-01-05")
     expect_equal(PeriodNameToDate(c("a", "2010-02-08"))[1], NA)
+    expect_equal(PeriodNameToDate(dt), dt)
     library(lubridate)
     expect_equal(Periods(1, "second"), seconds(1))
     expect_equal(Periods(1, "minute"), minutes(1))
