@@ -18,7 +18,7 @@
 #' TimeSeriesStackedColumnChart(z, "year")
 #' @export
 TimeSeriesColumnChart <- function(x,
-                                  by = "day",
+                                  by,
                                   title = "",
                                   xtitle = "",
                                   ytitle = "",
