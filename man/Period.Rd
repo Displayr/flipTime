@@ -14,4 +14,3 @@ Period(x, by)
 \description{
 Converts a date into a character.
 }
-

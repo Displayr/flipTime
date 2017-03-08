@@ -14,4 +14,3 @@ Periods(x = 1, by)
 \description{
 Quickly cretes period objects.
 }
-

@@ -14,4 +14,3 @@ CompleteListPeriodNames(x, by)
 \description{
 Returns a vector that contains all the possible period dates.
 }
-

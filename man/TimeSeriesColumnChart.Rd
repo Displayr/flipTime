@@ -4,8 +4,8 @@
 \alias{TimeSeriesColumnChart}
 \title{\code{TimeSeriesColumnChart}}
 \usage{
-TimeSeriesColumnChart(x, by = "day", title = "", xtitle = "",
-  ytitle = "", series.name = "", tickformat = NULL, smooth = TRUE)
+TimeSeriesColumnChart(x, by, title = "", xtitle = "", ytitle = "",
+  series.name = "", tickformat = NULL, smooth = TRUE)
 }
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}
@@ -35,4 +35,3 @@ z = runif(9)
 names(z) = seq(as.Date("2010/1/1"), as.Date("2018/1/1"), "years")
 TimeSeriesStackedColumnChart(z, "year")
 }
-

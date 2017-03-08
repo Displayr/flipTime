@@ -17,4 +17,3 @@ Parses date time characters.
 \examples{
 ParseDateTime("1-2-2017 12:34:56", us.format = FALSE)
 }
-

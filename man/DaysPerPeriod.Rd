@@ -15,4 +15,3 @@ The average number of dates in a period. E.g., 7 for a day, 365.25 for a year.
 \examples{
 DaysPerPeriod("month")
 }
-

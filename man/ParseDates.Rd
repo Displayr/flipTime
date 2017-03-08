@@ -17,4 +17,3 @@ Parses date characters.
 \examples{
 ParseDates("1-2-2017", us.format = FALSE)
 }
-
