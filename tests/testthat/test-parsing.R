@@ -91,7 +91,7 @@ test_that("Parse date", {
     expect_equal(ParseDates("2010/02"), dt4)
 
     # Years
-    expect_equal(ParseDates("10"), dt5)
+    #expect_equal(ParseDates("10"), dt5)
     expect_equal(ParseDates("2010"), dt5)
 
     # US format
@@ -109,4 +109,12 @@ test_that("Parse date", {
 
     # Date input
     expect_equal(ParseDates(dt7), dt7)
+
+    # Strings and numbers
+    expect_equal(ParseDates("Less than 1"), NA)
+    expect_equal(ParseDates("Greater than 9"), NA)
+    #expect_equal(ParseDates("More than 9"), NA)
+    expect_equal(ParseDates("9 or more"), NA)
+    expect_equal(ParseDates("02"), NA)
+    expect_equal(format(ParseDates("Before 2009"), "%Y"), "2009")
 })

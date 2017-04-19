@@ -69,7 +69,8 @@ ParseDates <- function(x, us.format = NULL)
         c(orders, "mdY", "mdy")
     else
         c(orders, "dmY", "dmy")
-    orders <- c(orders, c("my", "Ymd", "y", "Y"))
+    #orders <- c(orders, c("my", "Ymd", "y", "Y"))
+    orders <- c(orders, c("my", "Ymd", "Y"))
 
     for (ord in orders)
     {
