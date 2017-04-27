@@ -4,7 +4,8 @@ Title: Tools for Manipulating Time Series
 Version: 0.1.0
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
-Description: Functions to aggregate time series into strings, and convert strings back into dates.
+Description: Functions to aggregate time series into strings, and convert
+    strings back into dates.
 License: GPL-3
 LazyData: true
 Imports:
@@ -14,6 +15,5 @@ Imports:
     stats
 Suggests:
     testthat
-Remotes:
-    Displayr/flipFormat
+Remotes: Displayr/flipFormat
 RoxygenNote: 6.0.1

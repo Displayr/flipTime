@@ -113,7 +113,7 @@ Period <- function(x, by)
 
 #' \code{Periods}
 #'
-#' @description Quickly cretes period objects.
+#' @description Quickly creates period objects.
 #' @param x A numeric value of the number of units to be contained in the period. With the exception of seconds(), x must be an integer.
 #' @param by The period used in the conversion (e.g., "week", "year").
 #' @importFrom lubridate floor_date seconds minutes hours days weeks years

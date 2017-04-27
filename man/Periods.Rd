@@ -12,5 +12,5 @@ Periods(x = 1, by)
 \item{by}{The period used in the conversion (e.g., "week", "year").}
 }
 \description{
-Quickly cretes period objects.
+Quickly creates period objects.
 }
