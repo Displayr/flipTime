@@ -4,12 +4,15 @@
 \alias{ParseDateTime}
 \title{{ParseDateTime}}
 \usage{
-ParseDateTime(x, us.format = TRUE)
+ParseDateTime(x, us.format = TRUE, time.zone = "UTC")
 }
 \arguments{
 \item{x}{Character vector to be parsed.}
 
 \item{us.format}{Whether to use the US convention for dates.}
+
+\item{time.zone}{An optional time zone, or else default of 'UTC' applies.
+See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.}
 }
 \description{
 Parses date time characters.
