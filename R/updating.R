@@ -37,7 +37,7 @@ UpdateEvery <- function(x, units = "seconds") {
 
     seconds <- TimeUnitsToSeconds(x, units)
     message.string <- paste0("R output expires in ", seconds, " seconds with wakeup")
-    return(message(message.string))
+    message(message.string)
 }
 
 
@@ -67,7 +67,8 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     if (now < first.update)
     {
         secs.to.first <- round(difftime(first.update, now, units = "secs"))
-        return(message("R output expires in ", secs.to.first, " seconds with wakeup"))
+        message("R output expires in ", secs.to.first, " seconds with wakeup")
+        return
     }
 
     # first.update is in the past
@@ -76,7 +77,8 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     {
         secs.frequency <- round(TimeUnitsToSeconds(frequency, units))
         secs.to.next <- secs.frequency - (secs.since.first %% secs.frequency)
-        return(message("R output expires in ", secs.to.next, " seconds with wakeup"))
+        message("R output expires in ", secs.to.next, " seconds with wakeup")
+        return
     }
 
     next.update <- first.update
@@ -87,5 +89,5 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
         next.update <- first.update %m+% months(step)
     }
     secs.to.next <- round(difftime(next.update, now, units = "secs"))
-    return(message("R output expires in ", secs.to.next, " seconds with wakeup"))
+    message("R output expires in ", secs.to.next, " seconds with wakeup")
 }
