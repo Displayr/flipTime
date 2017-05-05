@@ -61,14 +61,14 @@ UpdateEvery <- function(x, units = "seconds") {
 UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1) {
 
     first.update <- ParseDateTime(x, us.format = us.format, time.zone = time.zone)
-    attr(first.update, "tzone") <- time.zone
-    now <- as.POSIXlt(Sys.time())
+    now <- Sys.time()
+    attr(now, "tzone") <- time.zone
 
     if (now < first.update)
     {
         secs.to.first <- round(difftime(first.update, now, units = "secs"))
         message("R output expires in ", secs.to.first, " seconds with wakeup")
-        return
+        return()
     }
 
     # first.update is in the past
@@ -78,7 +78,7 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
         secs.frequency <- round(TimeUnitsToSeconds(frequency, units))
         secs.to.next <- secs.frequency - (secs.since.first %% secs.frequency)
         message("R output expires in ", secs.to.next, " seconds with wakeup")
-        return
+        return()
     }
 
     next.update <- first.update
