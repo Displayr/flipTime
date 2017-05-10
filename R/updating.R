@@ -26,6 +26,7 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' @description Sets a period of time, after which an R object is woken and updated.
 #' @param x The period expressed in \code{units} units.
 #' @param units The time unit, which can be seconds, minutes, days, weeks or months.
+#' @param wakeup Whether to update even if document containing the R object is closed.
 #' @details If \code{units} = "months" then \code{x} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists \code{x} months
 #' forward from today.
@@ -33,10 +34,12 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' UpdateEvery(5, "days")
 #' UpdateEvery(1, "months")
 #' @export
-UpdateEvery <- function(x, units = "seconds") {
+UpdateEvery <- function(x, units = "seconds", wakeup = TRUE) {
 
     seconds <- TimeUnitsToSeconds(x, units)
-    message.string <- paste0("R output expires in ", seconds, " seconds with wakeup")
+    message.string <- paste0("R output expires in ", seconds, " seconds")
+    if (wakeup)
+        message.string <- paste0(message.string, " with wakeup")
     message(message.string)
 }
 
@@ -49,6 +52,7 @@ UpdateEvery <- function(x, units = "seconds") {
 #' See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
 #' @param units The time unit for regular updates, which can be seconds, minutes, days, weeks or months.
 #' @param frequency The period of regular updates, expressed in \code{units} units.
+#' @param wakeup Whether to update even if document containing the R object is closed.
 #' @details If \code{units} = "months" then \code{frequency} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists after stepping
 #' forwards a multiple of \code{frequency} months.
@@ -58,7 +62,7 @@ UpdateEvery <- function(x, units = "seconds") {
 #' units = "days", frequency = 3)
 #' @importFrom lubridate %m+%
 #' @export
-UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1) {
+UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, wakeup = TRUE) {
 
     first.update <- ParseDateTime(x, us.format = us.format, time.zone = time.zone)
     now <- Sys.time()
@@ -66,28 +70,31 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
 
     if (now < first.update)
     {
-        secs.to.first <- round(difftime(first.update, now, units = "secs"))
-        message("R output expires in ", secs.to.first, " seconds with wakeup")
-        return()
+        secs <- round(difftime(first.update, now, units = "secs"))
+    }
+    else    # first.update is in the past
+    {
+        secs.since.first <- as.numeric(round(difftime(now, first.update, units = "secs")))
+        if (units != "months")
+        {
+            secs.frequency <- round(TimeUnitsToSeconds(frequency, units))
+            secs <- secs.frequency - (secs.since.first %% secs.frequency)
+        }
+        else
+        {
+            next.update <- first.update
+            step <- 0
+            while (next.update < now)
+            {
+                step <- step + frequency
+                next.update <- first.update %m+% months(step)
+            }
+            secs <- round(difftime(next.update, now, units = "secs"))
+        }
     }
 
-    # first.update is in the past
-    secs.since.first <- as.numeric(round(difftime(now, first.update, units = "secs")))
-    if (units != "months")
-    {
-        secs.frequency <- round(TimeUnitsToSeconds(frequency, units))
-        secs.to.next <- secs.frequency - (secs.since.first %% secs.frequency)
-        message("R output expires in ", secs.to.next, " seconds with wakeup")
-        return()
-    }
-
-    next.update <- first.update
-    step <- 0
-    while (next.update < now)
-    {
-        step <- step + frequency
-        next.update <- first.update %m+% months(step)
-    }
-    secs.to.next <- round(difftime(next.update, now, units = "secs"))
-    message("R output expires in ", secs.to.next, " seconds with wakeup")
+    message.string <- paste0("R output expires in ", secs, " seconds")
+    if (wakeup)
+        message.string <- paste0(message.string, " with wakeup")
+    message(message.string)
 }

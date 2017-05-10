@@ -4,12 +4,14 @@
 \alias{UpdateEvery}
 \title{{UpdateEvery}}
 \usage{
-UpdateEvery(x, units = "seconds")
+UpdateEvery(x, units = "seconds", wakeup = TRUE)
 }
 \arguments{
 \item{x}{The period expressed in \code{units} units.}
 
 \item{units}{The time unit, which can be seconds, minutes, days, weeks or months.}
+
+\item{wakeup}{Whether to update even if document containing the R object is closed.}
 }
 \description{
 Sets a period of time, after which an R object is woken and updated.

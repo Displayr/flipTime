@@ -5,7 +5,7 @@
 \title{{UpdateAt}}
 \usage{
 UpdateAt(x, us.format = FALSE, time.zone = "UTC", units = "days",
-  frequency = 1)
+  frequency = 1, wakeup = TRUE)
 }
 \arguments{
 \item{x}{Character vector to be parsed into a date and time.}
@@ -18,6 +18,8 @@ See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of t
 \item{units}{The time unit for regular updates, which can be seconds, minutes, days, weeks or months.}
 
 \item{frequency}{The period of regular updates, expressed in \code{units} units.}
+
+\item{wakeup}{Whether to update even if document containing the R object is closed.}
 }
 \description{
 Sets date and time after which an R object is woken and updated, then a frequency for periodic updates.
