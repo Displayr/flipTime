@@ -31,8 +31,8 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' will roll back to the last day of the previous month if no such day exists \code{x} months
 #' forward from today.
 #' @examples
-#' UpdateEvery(5, "days")
-#' UpdateEvery(1, "months")
+#' UpdateEvery(5, "days", FALSE)
+#' UpdateEvery(1, "months", TRUE)
 #' @export
 UpdateEvery <- function(x, units = "seconds", wakeup = TRUE) {
 
@@ -57,9 +57,9 @@ UpdateEvery <- function(x, units = "seconds", wakeup = TRUE) {
 #' will roll back to the last day of the previous month if no such day exists after stepping
 #' forwards a multiple of \code{frequency} months.
 #' @examples
-#' UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1)
+#' UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1, wakeup = FALSE)
 #' UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
-#' units = "days", frequency = 3)
+#' units = "days", frequency = 3, wakeup = TRUE)
 #' @importFrom lubridate %m+%
 #' @export
 UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, wakeup = TRUE) {
