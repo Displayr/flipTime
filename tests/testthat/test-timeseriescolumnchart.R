@@ -9,6 +9,7 @@ for (by in c("week", "month", "quarter", "year"))
                   temp.x = runif(k)*100
                   names(temp.x) = d
                   expect_error(p <- TimeSeriesColumnChart(temp.x, by, ytitle = "New customers", xtitle = "Start"),NA)
+                  expect_error(p <- TimeSeriesColumnChart(temp.x, by, ytitle = "New customers", xtitle = "Start", ignore.last.period.from.smooth = TRUE),NA)
                   expect_error(capture.output(print(p)), NA)
               }
 )
