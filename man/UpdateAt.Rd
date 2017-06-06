@@ -30,7 +30,7 @@ will roll back to the last day of the previous month if no such day exists after
 forwards a multiple of \code{frequency} months.
 }
 \examples{
-UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1)
+UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1, wakeup = FALSE)
 UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
-units = "days", frequency = 3)
+units = "days", frequency = 3, wakeup = TRUE)
 }
