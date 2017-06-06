@@ -22,6 +22,6 @@ will roll back to the last day of the previous month if no such day exists \code
 forward from today.
 }
 \examples{
-UpdateEvery(5, "days")
-UpdateEvery(1, "months")
+UpdateEvery(5, "days", FALSE)
+UpdateEvery(1, "months", TRUE)
 }
