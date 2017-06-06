@@ -5,7 +5,8 @@
 \title{\code{TimeSeriesColumnChart}}
 \usage{
 TimeSeriesColumnChart(x, by, title = "", xtitle = "", ytitle = "",
-  series.name = "", tickformat = NULL, smooth = TRUE)
+  series.name = "", tickformat = NULL, smooth = TRUE,
+  ignore.last.period.from.smooth = FALSE)
 }
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}
@@ -23,6 +24,8 @@ TimeSeriesColumnChart(x, by, title = "", xtitle = "", ytitle = "",
 \item{tickformat}{Plotlytickformat \code{tickformat}.}
 
 \item{smooth}{Smooth the data using \code{supmsu}.}
+
+\item{ignore.last.period.from.smooth}{If \code{TRUE}, the last period is ignored from the smoothing.}
 }
 \value{
 A plotly plot.
