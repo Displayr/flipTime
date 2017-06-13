@@ -5,7 +5,7 @@
 \title{{UpdateAt}}
 \usage{
 UpdateAt(x, us.format = FALSE, time.zone = "UTC", units = "days",
-  frequency = 1, wakeup = TRUE)
+  frequency = 1, options = "snapshot")
 }
 \arguments{
 \item{x}{Character vector to be parsed into a date and time.}
@@ -19,7 +19,8 @@ See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of t
 
 \item{frequency}{The period of regular updates, expressed in \code{units} units.}
 
-\item{wakeup}{Whether to update even if document containing the R object is closed.}
+\item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
+or \code{"snapshot"} which also updates any embedded snapshots of the document.}
 }
 \description{
 Sets date and time after which an R object is woken and updated, then a frequency for periodic updates.
@@ -30,7 +31,8 @@ will roll back to the last day of the previous month if no such day exists after
 forwards a multiple of \code{frequency} months.
 }
 \examples{
-UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1)
+UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1,
+options = "wakeup")
 UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
-units = "days", frequency = 3)
+units = "days", frequency = 3, options = "snapshot")
 }

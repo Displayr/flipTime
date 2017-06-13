@@ -25,21 +25,31 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' @title{UpdateEvery}
 #' @description Sets a period of time, after which an R object is woken and updated.
 #' @param x The period expressed in \code{units} units.
-#' @param units The time unit, which can be seconds, minutes, days, weeks or months.
-#' @param wakeup Whether to update even if document containing the R object is closed.
-#' @details If \code{units} = "months" then \code{x} must be an integer. The update time
+#' @param units The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"days"},
+#' \code{"weeks"} or \code{"months"}.
+#' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
+#' or \code{"snapshot"} which also updates any embedded snapshots of the document.
+#' @details If \code{units} = \code{"months"}, then \code{x} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists \code{x} months
 #' forward from today.
 #' @examples
-#' UpdateEvery(5, "days", FALSE)
-#' UpdateEvery(1, "months", TRUE)
+#' UpdateEvery(5, "days", "snapshot")
+#' UpdateEvery(1, "months", NULL)
 #' @export
-UpdateEvery <- function(x, units = "seconds", wakeup = TRUE) {
+UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 
     seconds <- TimeUnitsToSeconds(x, units)
     message.string <- paste0("R output expires in ", seconds, " seconds")
-    if (wakeup)
-        message.string <- paste0(message.string, " with wakeup")
+
+    if (!is.null(options)) {
+        if (options == "wakeup")
+            message.string <- paste0(message.string, " with wakeup")
+        else if (options == "snapshot")
+            message.string <- paste0(message.string, " with wakeup and snapshot")
+        else
+            stop("Unrecognized options.")
+    }
+
     message(message.string)
 }
 
@@ -52,17 +62,19 @@ UpdateEvery <- function(x, units = "seconds", wakeup = TRUE) {
 #' See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
 #' @param units The time unit for regular updates, which can be seconds, minutes, days, weeks or months.
 #' @param frequency The period of regular updates, expressed in \code{units} units.
-#' @param wakeup Whether to update even if document containing the R object is closed.
+#' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
+#' or \code{"snapshot"} which also updates any embedded snapshots of the document.
 #' @details If \code{units} = "months" then \code{frequency} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists after stepping
 #' forwards a multiple of \code{frequency} months.
 #' @examples
-#' UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1, wakeup = FALSE)
+#' UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1,
+#' options = "wakeup")
 #' UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
-#' units = "days", frequency = 3, wakeup = TRUE)
+#' units = "days", frequency = 3, options = "snapshot")
 #' @importFrom lubridate %m+%
 #' @export
-UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, wakeup = TRUE) {
+UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, options = "snapshot") {
 
     first.update <- ParseDateTime(x, us.format = us.format, time.zone = time.zone)
     now <- Sys.time()
@@ -94,7 +106,15 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     }
 
     message.string <- paste0("R output expires in ", secs, " seconds")
-    if (wakeup)
-        message.string <- paste0(message.string, " with wakeup")
+
+    if (!is.null(options)) {
+        if (options == "wakeup")
+            message.string <- paste0(message.string, " with wakeup")
+        else if (options == "snapshot")
+            message.string <- paste0(message.string, " with wakeup and snapshot")
+        else
+            stop("Unrecognized options.")
+    }
+
     message(message.string)
 }

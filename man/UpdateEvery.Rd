@@ -4,24 +4,26 @@
 \alias{UpdateEvery}
 \title{{UpdateEvery}}
 \usage{
-UpdateEvery(x, units = "seconds", wakeup = TRUE)
+UpdateEvery(x, units = "seconds", options = "snapshot")
 }
 \arguments{
 \item{x}{The period expressed in \code{units} units.}
 
-\item{units}{The time unit, which can be seconds, minutes, days, weeks or months.}
+\item{units}{The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"days"},
+\code{"weeks"} or \code{"months"}.}
 
-\item{wakeup}{Whether to update even if document containing the R object is closed.}
+\item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
+or \code{"snapshot"} which also updates any embedded snapshots of the document.}
 }
 \description{
 Sets a period of time, after which an R object is woken and updated.
 }
 \details{
-If \code{units} = "months" then \code{x} must be an integer. The update time
+If \code{units} = \code{"months"}, then \code{x} must be an integer. The update time
 will roll back to the last day of the previous month if no such day exists \code{x} months
 forward from today.
 }
 \examples{
-UpdateEvery(5, "days")
-UpdateEvery(1, "months")
+UpdateEvery(5, "days", "snapshot")
+UpdateEvery(1, "months", NULL)
 }
