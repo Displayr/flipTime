@@ -7,8 +7,9 @@
 #' @param xtitle The title to show on the x-axis.
 #' @param ytitle The title to show on the y-axis.
 #' @param series.name E.g., "churn".
-#' @param smooth Smooth the data using \code{supmsu}.
 #' @param tickformat Plotlytickformat \code{tickformat}.
+#' @param smooth Smooth the data using \code{supmsu}.
+#' @param ignore.last.period.from.smooth If \code{TRUE}, the last period is ignored from the smoothing.
 #' @return A plotly plot.
 #' @importFrom stats supsmu
 #' @importFrom plotly config plot_ly add_trace layout
@@ -24,7 +25,8 @@ TimeSeriesColumnChart <- function(x,
                                   ytitle = "",
                                   series.name = "",
                                   tickformat = NULL,
-                                  smooth = TRUE)
+                                  smooth = TRUE,
+                                  ignore.last.period.from.smooth = FALSE)
 {
     period.names <- if(by == "year") as.integer(names(x)) else PeriodNameToDate(names(x), by)
     # Creating the initial plot.
@@ -36,7 +38,8 @@ TimeSeriesColumnChart <- function(x,
     # Smoothing.
     if (smooth)
     {
-        y.fitted <- supsmu(period.names, x)$y
+        n <- length(x)
+        y.fitted <- if (ignore.last.period.from.smooth) c(supsmu(period.names[-n], x[-n])$y, NA) else supsmu(period.names, x)$y
         p <- add_trace(p,
             x = period.names,
             y = y.fitted,
