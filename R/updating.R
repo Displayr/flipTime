@@ -39,6 +39,9 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 
     seconds <- TimeUnitsToSeconds(x, units)
+    if (seconds < 600)
+        stop("Update frequency must be at least 600 seconds.")
+
     message.string <- paste0("R output expires in ", seconds, " seconds")
 
     if (!is.null(options)) {
@@ -75,6 +78,9 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 #' @importFrom lubridate %m+%
 #' @export
 UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, options = "snapshot") {
+
+    if (TimeUnitsToSeconds(frequency, units) < 600)
+        stop("Update frequency must be at least 600 seconds.")
 
     first.update <- ParseDateTime(x, us.format = us.format, time.zone = time.zone)
     now <- Sys.time()
