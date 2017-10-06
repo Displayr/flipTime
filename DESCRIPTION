@@ -9,11 +9,9 @@ Description: Functions to aggregate time series into strings, and convert
 License: GPL-3
 LazyData: true
 Imports:
-    flipFormat,
     lubridate,
     plotly,
     stats
 Suggests:
     testthat
-Remotes: Displayr/flipFormat
 RoxygenNote: 6.0.1
