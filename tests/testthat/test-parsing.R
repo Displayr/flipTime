@@ -69,6 +69,82 @@ test_that("Parse date time",
               expect_equal(ParseDateTime(c("1/2/2016 12:34:56 AM", "Feb 2010")), v)
           })
 
+test_that("Parse date time",
+          {
+              # US date format
+              expect_equal(AsDateTime("1/2/2016 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("1/2/2016 00:34:56"), dt1)
+              expect_equal(AsDateTime("1/2/2016 12:34 AM"), dt2)
+              expect_equal(AsDateTime("1/2/2016 00:34"), dt2)
+              expect_equal(AsDateTime("1/2/2016"), dt3)
+
+              # Non-US date format
+              expect_equal(AsDateTime("2/1/2016 12:34:56 AM", us.format = FALSE), dt1)
+              expect_equal(AsDateTime("2/1/2016 00:34:56", us.format = FALSE), dt1)
+              expect_equal(AsDateTime("2/1/2016 12:34 AM", us.format = FALSE), dt2)
+              expect_equal(AsDateTime("2/1/2016 00:34", us.format = FALSE), dt2)
+              expect_equal(AsDateTime("2/1/2016", us.format = FALSE), dt3)
+
+              # Year first
+              expect_equal(AsDateTime("2016/1/2 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("2016/1/2 00:34:56"), dt1)
+              expect_equal(AsDateTime("2016/1/2 12:34 AM"), dt2)
+              expect_equal(AsDateTime("2016/1/2 00:34"), dt2)
+              expect_equal(AsDateTime("2016/1/2"), dt3)
+              expect_equal(AsDateTime("2010/2"), dt4)
+              expect_equal(AsDateTime("2/2010"), dt4)
+              expect_equal(AsDateTime("2010"), dt5)
+
+              # Month names
+              expect_equal(AsDateTime("2016-Jan-2 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("2016-Jan-2 00:34:56"), dt1)
+              expect_equal(AsDateTime("2016-Jan-2 12:34 AM"), dt2)
+              expect_equal(AsDateTime("2016-Jan-2 00:34"), dt2)
+              expect_equal(AsDateTime("2016-Jan-2"), dt3)
+              expect_equal(AsDateTime("2010-Feb"), dt4)
+
+              expect_equal(AsDateTime("Jan-2-2016 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("Jan-2-2016 00:34:56"), dt1)
+              expect_equal(AsDateTime("Jan-2-2016 12:34 AM"), dt2)
+              expect_equal(AsDateTime("Jan-2-2016 00:34"), dt2)
+              expect_equal(AsDateTime("Jan-2-2016"), dt3)
+
+              expect_equal(AsDateTime("2 January 2016 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("2 January 2016 00:34:56"), dt1)
+              expect_equal(AsDateTime("2 January 2016 12:34 AM"), dt2)
+              expect_equal(AsDateTime("2 January 2016 00:34"), dt2)
+              expect_equal(AsDateTime("2 January 2016"), dt3)
+              expect_equal(AsDateTime("February 2010"), dt4)
+
+              # Shortened year
+              expect_equal(AsDateTime("2 January 16 12:34:56 AM"), dt1)
+              expect_equal(AsDateTime("2 January 16 00:34:56"), dt1)
+              expect_equal(AsDateTime("2 January 16 12:34 AM"), dt2)
+              expect_equal(AsDateTime("2 January 16 00:34"), dt2)
+              expect_equal(AsDateTime("2 January 16"), dt3)
+              expect_equal(AsDateTime("February 10"), dt4)
+
+              ## Vector input in __multiple__ formats not supported by AsDateTime
+              ## Both will parse separately in vectors where all elements are same format
+              expect_equal(AsDateTime("1/2/2016 12:34:56 AM"), v[1])
+              expect_equal(AsDateTime("Feb 2010"), v[2])
+              expect_is(AsDateTime(c("Jul-2014", "Jan-2012")), c("POSIXct", "POSIXt"))
+
+              ## bY format date
+              expect_is(AsDateTime("Jul2014"), c("POSIXct", "POSIXt"))
+              expect_is(AsDateTime("Jan/2014"), c("POSIXct", "POSIXt"))
+              expect_equal(format(AsDateTime("Jun/2014"), "%m"), "06")
+              expect_is(AsDateTime("August-1914"), c("POSIXct", "POSIXt"))
+
+              ## by format dates
+              expect_is(AsDateTime(c("Jan13", "September12")), c("POSIXct", "POSIXt"))
+              expect_is(AsDateTime("may/17"), c("POSIXct", "POSIXt"))
+              expect_equal(format(AsDateTime("OCT/99"), "%m"), "10")
+              expect_is(AsDateTime("Jan-14"), c("POSIXct", "POSIXt"))
+
+              expect_equal(AsDateTime("jan-214"), NA)
+          })
+
 test_that("Parse date", {
     # Month names
     expect_equal(ParseDates("2010-Feb-3"), dt6)

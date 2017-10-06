@@ -1,13 +1,14 @@
-#' @title{ParseDateTime}
-#' @description Parses date time characters.
-#' @param x Character vector to be parsed.
-#' @param us.format Whether to use the US convention for dates.
-#' @param time.zone An optional time zone, or else default of 'UTC' applies.
-#' See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
 #' @examples
 #' ParseDateTime("1-2-2017 12:34:56", us.format = FALSE)
+#' @details \code{ParseDateTime} is deprecated and \code{AsDateTime} should be preferred
+#' for efficiency reasons.
+#'
+#' One notable difference is that \code{ParseDateTime} will parse a vector of dates where the
+#' dates are not all in the same format.  \code{AsDateTime} only uses the first date to determine
+#' the format to use to parse the entire vector.
 #' @importFrom lubridate parse_date_time
 #' @export
+#' @rdname AsDateTime
 ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 {
     if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
@@ -30,6 +31,7 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
                 orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
                             "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
                             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY")
+
                 dt <- parse_date_time(txt, orders, quiet = TRUE, tz = time.zone)
 
                 if (is.na(dt)) # We check this later due to a bug with parsing "mdY" dates
@@ -47,10 +49,98 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
     }
 }
 
-#' @title{ParseDates}
-#' @description Parses date characters.
+#' Parse Character Date-Times to POSIXct Objects
+#'
+#' Parses date-time character vectors to POSIXct
 #' @param x Character vector to be parsed.
 #' @param us.format Whether to use the US convention for dates.
+#' @param time.zone An optional time zone, or else default of 'UTC' applies.
+#' @param exact logical; see \code{\link[lubridate]{parse_date_time2}}; setting to \code{TRUE}
+#' (the default) should result in slightly faster parsing, but there may be some cases that fail to parse correctly
+#' @references See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
+#' @examples
+#' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
+#' @importFrom lubridate parse_date_time2
+#' @seealso \code{\link[lubridate]{parse_date_time2}}
+#' @return a vector of POSIXct date-time objects
+#' @export
+AsDateTime <- function(x, us.format = TRUE, time.zone = "UTC", exact = TRUE)
+{
+    if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
+        return(x)
+
+    orders <- if (us.format)
+        c("mdYIMSp", "mdYHMS", "mdYIMp", "mdYHM", "mdY")
+    else
+        c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmY")
+
+    ## OLD:
+    ## orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
+    ##             "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
+    ##             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
+    ##             "dbyIMSp", "dbYHMS", "dbyHMS", "dbYIMp", "dbyIMp",
+    ##             "dbYHM", "dbyHM", "dbY", "dby", "mY")
+    orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
+                "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
+                "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
+                "dbyIMSp", "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM",
+                "dbyHMS", "dbyHM", "dbY", "dby", "mY")
+
+    x1 <- x[1L]
+
+    ## Try 'bY' and 'by' formats
+    ## need to handle this case separately as lubridate <= 1.6.0
+    ## fails to parse them
+    sep <- checkbYformat(x1, time.zone)
+    if (!is.na(sep))
+    {
+        if (grepl("[0-9]{4}$", x1))
+            return(parse_date_time2(paste("01", x, sep = sep), orders = "bY", tz = time.zone, exact = exact))
+        else
+            return(parse_date_time2(paste("01", x, sep = sep), orders = "by", tz = time.zone, exact = exact))
+    }
+
+    for (ord in orders)
+    {  ## setting the exact arg to TRUE caused the format dbYHM to fail
+        ## for "2 January 2016 00:34" (is NA for dmYHM, but matches dbyHMS)
+        parsed <- parse_date_time2(x1, ord, tz = time.zone)
+        if (!is.na(parsed))
+            break
+    }
+
+    if (is.na(parsed))
+        return(rep.int(NA, length(x)))
+
+    parse_date_time2(x, orders = ord, tz = time.zone, exact = exact)
+}
+
+
+#' Check if a string can be parsed to "bY" or "by" date format
+#' @param x1 character
+#' @return \code{NA} if \code{x1} cannot be parsed in
+#' "bY" or "by" format or the separator needed for parsing
+#' e.g. "-" if x1 has form "Jan-2017" or "" if x1 has form
+#' "August13"
+#' @importFrom lubridate parse_date_time
+#' @noRd
+checkbYformat <- function(x1, time.zone = "UTC")
+{
+    pattern <- paste0("^[[:alpha:]]+",  # abbrev. or full month name; lubridate C parser English only
+                                   "([^[:digit:]])?",  # optional seperator between month and year
+                                        #"[0-9]{2}[0-9]{2}?"
+                                        "(?:[0-9]{2}){1,2}$"  # either a two or four digit year (two digits 1 or 2 times)
+                      )                                                   # ?: says dont bother capturing this thing in paren.
+    sep <- sub(pattern, "\\1", x1, perl = TRUE)
+    if (identical(sep, x1))
+        return(NA)
+
+    out <- parse_date_time(paste("01", x1, sep = sep), c("dbY", "dby"), tz = time.zone)
+    if (is.na(out))
+        return(out)
+
+    sep
+}
+
 #' @examples
 #' ParseDates("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
