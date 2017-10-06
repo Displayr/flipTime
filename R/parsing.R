@@ -55,6 +55,11 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' ParseDates("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
 #' @export
+#' @rdname AsDate
+#' @details \code{ParseDates} is deprecated and \code{AsDate}
+#' should be preferred for efficiency reasons
+#'
+#' \code{AsDate} does not allow \code{NULL} value for \code{us.format}
 ParseDates <- function(x, us.format = NULL)
 {
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
@@ -89,5 +94,53 @@ ParseDates <- function(x, us.format = NULL)
         }
     }
 
+    result
+}
+
+#' @noRd
+getFormats <- function(ords, sep)
+    sapply(ords, function(ord) paste0("%", paste(strsplit(ord, "")[[1L]],
+                                               collapse = paste0(sep, "%"))))
+
+#' Parse Character Dates To POSIXct Objects
+#'
+#' Parse dates assuming some common (unknown) formats
+#' popular either in the U.S. or internationally
+#' @param x character; vector to be parsed
+#' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
+#' in which case both U.S. formats and international formats will be checked
+#' @return a vector of POSIXct date-time objects
+#' @examples
+#' AsDate("1-2-2017", us.format = FALSE)
+#' @importFrom lubridate parse_date_time2
+#' @export
+AsDate <- function(x, us.format = TRUE)
+{
+    if (any(c("POSIXct", "POSIXt") %in% class(x)))
+        return(x)
+
+##    result <- rep(NA, length(x))
+
+    # The order of orders has been carefully selected.
+    # Ensure that unit tests still pass if the order is changed.
+    orders <- c("Ybd", "dby", "dbY", "bY", "by", "bdy", "bdY", "Yb", "yb", "mY", "Ym")
+    orders <- if (us.format)
+                  c(orders, "mdY", "mdy")
+              else
+                  c(orders, "dmY", "dmy")
+    #orders <- c(orders, c("my", "Ymd", "y", "Y"))
+    orders <- c(orders, c("my", "Ymd", "Y"))
+
+    x1 <- x[1L]
+    for (ord in orders)
+    {
+        parsed <- parse_date_time2(x1, ord, exact = TRUE)
+        if (!is.na(parsed))
+            break
+    }
+    if (is.na(parsed))
+        return(rep.int(NA, length(x)))
+
+    result <- parse_date_time2(x, ord, exact = TRUE)
     result
 }

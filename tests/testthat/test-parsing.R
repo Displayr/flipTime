@@ -118,3 +118,48 @@ test_that("Parse date", {
     expect_equal(ParseDates("02"), NA)
     expect_equal(format(ParseDates("Before 2009"), "%Y"), "2009")
 })
+
+test_that("AsDate", {
+    # Month names
+    expect_equal(AsDate("2010-Feb-3"), dt6)
+    expect_equal(AsDate("3 February 10"), dt6)
+    expect_equal(AsDate("3 Feb 2010"), dt6)
+    expect_equal(AsDate("February 2010"), dt4)
+    expect_equal(AsDate("Feb 10"), dt4)
+    expect_equal(AsDate("Feb 3 10"), dt6)
+    expect_equal(AsDate("Feb 3 2010"), dt6)
+    expect_equal(AsDate("2010 Feb"), dt4)
+    expect_equal(AsDate("10 Feb"), dt4)
+
+    # Numeric year month date
+    expect_equal(AsDate("2010-02-03"), dt6)
+
+    # Numeric month year
+    expect_equal(AsDate("02/10"), dt4)
+    expect_equal(AsDate("02/2010"), dt4)
+    expect_equal(AsDate("02/2010"), dt4)
+    expect_equal(AsDate("2010/02"), dt4)
+
+    # Years
+    #expect_equal(AsDate("10"), dt5)
+    expect_equal(AsDate("2010"), dt5)
+
+    # US format
+    expect_equal(AsDate("2/3/2010", us.format = TRUE), dt6)
+    expect_equal(AsDate("2/3/10", us.format = TRUE), dt6)
+
+    # International date format
+    expect_equal(AsDate("3/2/2010", us.format = FALSE), dt6)
+    expect_equal(AsDate("3/2/10", us.format = FALSE), dt6)
+
+    # Date input
+    expect_equal(AsDate(dt7), dt7)
+
+    # Strings and numbers
+    expect_equal(AsDate("Less than 1"), NA)
+    expect_equal(AsDate("Greater than 9"), NA)
+    #expect_equal(AsDate("More than 9"), NA)
+    expect_equal(AsDate("9 or more"), NA)
+    expect_equal(AsDate("02"), NA)
+    expect_equal(format(AsDate("Before 2009"), "%Y"), "2009")
+})
