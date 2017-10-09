@@ -7,7 +7,7 @@
 \usage{
 ParseDateTime(x, us.format = TRUE, time.zone = "UTC")
 
-AsDateTime(x, us.format = TRUE, time.zone = "UTC", exact = TRUE)
+AsDateTime(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
 }
 \arguments{
 \item{x}{Character vector to be parsed.}
@@ -32,13 +32,16 @@ for efficiency reasons.
 One notable difference is that \code{ParseDateTime} will parse a vector of dates where the
 dates are not all in the same format.  \code{AsDateTime} only uses the first date to determine
 the format to use to parse the entire vector.
+
+\code{AsDateTime} allows the \code{us.format} argument to be \code{NULL}, in which case
+the format will be inferred from \code{x} and default to U.S. format if the format is ambiguous.
 }
 \examples{
 ParseDateTime("1-2-2017 12:34:56", us.format = FALSE)
 AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 }
 \references{
-See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
+See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
 }
 \seealso{
 \code{\link[lubridate]{parse_date_time2}}

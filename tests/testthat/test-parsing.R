@@ -69,14 +69,18 @@ test_that("Parse date time",
               expect_equal(ParseDateTime(c("1/2/2016 12:34:56 AM", "Feb 2010")), v)
           })
 
-test_that("Parse date time",
+test_that("AsDateTime",
           {
-              # US date format
-              expect_equal(AsDateTime("1/2/2016 12:34:56 AM"), dt1)
-              expect_equal(AsDateTime("1/2/2016 00:34:56"), dt1)
-              expect_equal(AsDateTime("1/2/2016 12:34 AM"), dt2)
-              expect_equal(AsDateTime("1/2/2016 00:34"), dt2)
-              expect_equal(AsDateTime("1/2/2016"), dt3)
+              ## US date format
+              expect_warning(AsDateTime("1/2/2016 12:34:56 AM"), "date formats are ambiguous")
+              expect_equal(AsDateTime("1/2/2016 12:34:56 AM", us.format = TRUE), dt1)
+              expect_equal(AsDateTime("1/2/2016 00:34:56", us.format = TRUE), dt1)
+              expect_equal(format(AsDateTime("1/2/2016 12:34 AM", us.format = TRUE),
+                                     "%m"), format(dt1, "%m"))
+              expect_equal(format(AsDateTime("1/2/2016 12:34 AM", us.format = FALSE),
+                                     "%m"), format(dt1, "%d"))
+              expect_equal(AsDateTime("1/2/2016 00:34", us.format = TRUE), dt2)
+              expect_equal(AsDateTime("1/2/2016", us.format = TRUE), dt3)
 
               # Non-US date format
               expect_equal(AsDateTime("2/1/2016 12:34:56 AM", us.format = FALSE), dt1)
@@ -126,7 +130,7 @@ test_that("Parse date time",
 
               ## Vector input in __multiple__ formats not supported by AsDateTime
               ## Both will parse separately in vectors where all elements are same format
-              expect_equal(AsDateTime("1/2/2016 12:34:56 AM"), v[1])
+              expect_equal(AsDateTime("1/2/2016 12:34:56 AM", us.format = TRUE), v[1])
               expect_equal(AsDateTime("Feb 2010"), v[2])
               expect_is(AsDateTime(c("Jul-2014", "Jan-2012")), c("POSIXct", "POSIXt"))
 
@@ -195,6 +199,15 @@ test_that("Parse date", {
     expect_equal(format(ParseDates("Before 2009"), "%Y"), "2009")
 })
 
+test_that("AsDateTime: ambiguous if U.S. format ",
+{
+    expect_warning(AsDateTime(c("01-02-2017",    "04-08-2012")), "date formats are ambiguous")
+    expect_equal(format(suppressWarnings(AsDateTime(c("01-02-2017",    "04-08-2012"))),
+                                          "%m"), c("01", "04"))
+
+   expect_warning(out <- AsDateTime(c("06-12-17 12:24pm",    "09-09-19 1:30am")), "date formats are ambiguous")
+})
+
 test_that("AsDate", {
     # Month names
     expect_equal(AsDate("2010-Feb-3"), dt6)
@@ -239,3 +252,43 @@ test_that("AsDate", {
     expect_equal(AsDate("02"), NA)
     expect_equal(format(AsDate("Before 2009"), "%Y"), "2009")
 })
+
+test_that("AsDate: ambiguous if U.S. format",
+{
+    expect_warning(out <- AsDate(c("01-02-2017",    "04-08-2012"), us.format = NULL), "date formats are ambiguous")
+    expect_equal(format(out, "%m"), c("01", "04"))
+
+})
+
+test_that("AsDate: false positive first matched order",
+{
+    ## mdY parses correctly on first element, but it's clear from 2nd that dmY is correct
+    dates <- c("12-01-1986", "30-01-1986")
+    expect_equal(format(AsDate(dates, us.format = NULL), "%d"), c("12", "30"))
+})
+
+test_that("AsDateTime: false positive first matched order",
+{
+    ## mdY parses correctly on first element, but it's clear from 2nd that dmY is correct
+    dates <- c("02-01-1986 12:30pm", "30-06-1986 11:28am")
+    expect_equal(format(AsDateTime(dates, us.format = NULL), "%d"), c("02", "30"))
+})
+
+test_that("AsDateTime: two digit year",
+{
+    ## first matches dmYHM second makes it clear dmyHMS
+    dates <- c("02-01-19 20:12:45", "02-01-19 20:30:45")
+    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%M"), c("12", "30"))
+    expect_equal(format(AsDateTime(dates[2:1], us.format = TRUE), "%M"), c("12", "30")[2:1])
+
+    ## dmYHM when dmyHMS would also parse successfully
+    dates <- c("22-01-1919 12:45", "30-01-2019 20:30")
+    expect_equal(format(AsDateTime(dates, us.format = FALSE), "%Y"), c("1919", "2019"))
+
+    ## mdyIMSp or mdYIMp ?
+    dates <- c("12-01-1903 03:45pm", "01-16-2012 02:30am")
+    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%Y"), c("1903", "2012"))
+    dates <- c("12-01-19 03:03:45pm", "01-16-12 02:12:30am")
+    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%I"), c("03", "02"))
+})
+

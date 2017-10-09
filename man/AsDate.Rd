@@ -7,7 +7,7 @@
 \usage{
 ParseDates(x, us.format = NULL)
 
-AsDate(x, us.format = TRUE)
+AsDate(x, us.format = NULL)
 }
 \arguments{
 \item{x}{character; vector to be parsed}
@@ -25,8 +25,6 @@ popular either in the U.S. or internationally
 \details{
 \code{ParseDates} is deprecated and \code{AsDate}
 should be preferred for efficiency reasons
-
-\code{AsDate} does not allow \code{NULL} value for \code{us.format}
 }
 \examples{
 ParseDates("1-2-2017", us.format = FALSE)

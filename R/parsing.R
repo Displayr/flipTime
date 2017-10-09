@@ -6,6 +6,9 @@
 #' One notable difference is that \code{ParseDateTime} will parse a vector of dates where the
 #' dates are not all in the same format.  \code{AsDateTime} only uses the first date to determine
 #' the format to use to parse the entire vector.
+#'
+#' \code{AsDateTime} allows the \code{us.format} argument to be \code{NULL}, in which case
+#' the format will be inferred from \code{x} and default to U.S. format if the format is ambiguous.
 #' @importFrom lubridate parse_date_time
 #' @export
 #' @rdname AsDateTime
@@ -57,22 +60,28 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' @param time.zone An optional time zone, or else default of 'UTC' applies.
 #' @param exact logical; see \code{\link[lubridate]{parse_date_time2}}; setting to \code{TRUE}
 #' (the default) should result in slightly faster parsing, but there may be some cases that fail to parse correctly
-#' @references See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
+#' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
 #' @examples
 #' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
 #' @seealso \code{\link[lubridate]{parse_date_time2}}
 #' @return a vector of POSIXct date-time objects
 #' @export
-AsDateTime <- function(x, us.format = TRUE, time.zone = "UTC", exact = TRUE)
+AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
 {
     if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
 
-    orders <- if (us.format)
-        c("mdYIMSp", "mdYHMS", "mdYIMp", "mdYHM", "mdY")
-    else
-        c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmY")
+    orders <- if (is.null(us.format))
+                      c("mdYIMSp", "dmYIMSp", "mdYHMS", "dmYHMS", "mdYIMp", "dmYIMp",
+                        "mdYHM", "dmYHM", "mdyIMSp", "dmyIMSp", "mdyIMp", "dmyIMp",
+                          "mdyHMS", "mdyHMS", "mdY", "dmY")
+                    else if (us.format)
+                        c("mdYIMSp", "mdYHMS", "mdYIMp", "mdYHM", "mdyIMSp", "mdyIMp",
+                          "mdyHMS", "mdY")
+                    else
+                        c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmyIMSp", "dmyIMp",
+                          "dmyHMS", "dmY")
 
     ## OLD:
     ## orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
@@ -102,14 +111,21 @@ AsDateTime <- function(x, us.format = TRUE, time.zone = "UTC", exact = TRUE)
 
     for (ord in orders)
     {  ## setting the exact arg to TRUE caused the format dbYHM to fail
-        ## for "2 January 2016 00:34" (is NA for dmYHM, but matches dbyHMS)
+        ## for "2 January 2016 00:34" (is NA for dbYHM, but matches dbyHMS)
         parsed <- parse_date_time2(x1, ord, tz = time.zone)
         if (!is.na(parsed))
-            break
+        {
+            parsed <- checkUSformatAndParse(x, ord, time.zone, is.null(us.format))
+            if (all(!is.na(parsed)))
+                break
+        }
     }
 
-    if (is.na(parsed))
+    if (is.na(parsed[1L]))
         return(rep.int(NA, length(x)))
+
+    if (is.null(us.format))  # parsing already performed in checkUSformatAndParse
+        return(parsed)
 
     parse_date_time2(x, orders = ord, tz = time.zone, exact = exact)
 }
@@ -141,6 +157,39 @@ checkbYformat <- function(x1, time.zone = "UTC")
     sep
 }
 
+#' Check If Dates Are In U.S. Format and Parse
+#'
+#' Check if character dates are in U.S. format, (i.e. start with
+#' 'md') and could also be parsed in international ('dm') format
+#' @param x character vector of dates (or date-time) values
+#' @param ord character order/format that was found to correctly
+#' parse the first element of \code{x}
+#' @param time.zone character; time.zone to use for parsing \code{x}
+#' @param unknown.format logical; is it not known if the dates are in
+#' U.S. or international format?
+#' @return a vector of POSIXct date-time objects
+#' @importFrom lubridate parse_date_time2
+#' @noRd
+checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
+                                                             unknown.format = TRUE)
+{
+    out <- parse_date_time2(x, ord, tz = time.zone)
+
+    ## because md orders are checked first in AsDate and AsDateTime,
+    ## we don't need to do anything if ord starts dmXXX because we
+    ## know we already failed to match mdXXX
+    if (unknown.format && grepl("^md", ord))
+    {
+        ord.flip <- sub("^md", "dm", ord)
+        out.flip <- parse_date_time2(x, ord.flip, tz = time.zone)
+        us.good <- all(!is.na(out))
+        int.good <- all(!is.na(out.flip))
+        if (int.good && us.good)
+            warning("date formats are ambiguous, US format has been used", call. = FALSE)
+    }  #  else  no chance of ambiguity, return parsed dates
+    out
+}
+
 #' @examples
 #' ParseDates("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
@@ -148,8 +197,6 @@ checkbYformat <- function(x1, time.zone = "UTC")
 #' @rdname AsDate
 #' @details \code{ParseDates} is deprecated and \code{AsDate}
 #' should be preferred for efficiency reasons
-#'
-#' \code{AsDate} does not allow \code{NULL} value for \code{us.format}
 ParseDates <- function(x, us.format = NULL)
 {
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
@@ -204,7 +251,7 @@ getFormats <- function(ords, sep)
 #' AsDate("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDate <- function(x, us.format = TRUE)
+AsDate <- function(x, us.format = NULL)
 {
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
         return(x)
@@ -214,10 +261,12 @@ AsDate <- function(x, us.format = TRUE)
     # The order of orders has been carefully selected.
     # Ensure that unit tests still pass if the order is changed.
     orders <- c("Ybd", "dby", "dbY", "bY", "by", "bdy", "bdY", "Yb", "yb", "mY", "Ym")
-    orders <- if (us.format)
-                  c(orders, "mdY", "mdy")
-              else
-                  c(orders, "dmY", "dmy")
+    orders <- if (is.null(us.format))
+                        c(orders, "mdY", "mdy", "dmY", "dmy")
+                    else if (us.format)
+                        c(orders, "mdY", "mdy")
+                    else
+                        c(orders, "dmY", "dmy")
     #orders <- c(orders, c("my", "Ymd", "y", "Y"))
     orders <- c(orders, c("my", "Ymd", "Y"))
 
@@ -226,11 +275,18 @@ AsDate <- function(x, us.format = TRUE)
     {
         parsed <- parse_date_time2(x1, ord, exact = TRUE)
         if (!is.na(parsed))
-            break
+        {
+            parsed <- checkUSformatAndParse(x, ord,
+                                            unknown.format = is.null(us.format))
+            ## could have false positive match on first elem. e.g. mdY matches
+            ## even though it's clear from later elem. that dmY is correct
+            if (all(!is.na(parsed)))
+                break
+        }
     }
-    if (is.na(parsed))
+    if (is.na(parsed[1L]))
         return(rep.int(NA, length(x)))
 
-    result <- parse_date_time2(x, ord, exact = TRUE)
-    result
+    ## result <- parse_date_time2(x, ord, exact = TRUE)
+    parsed  # result
 }
