@@ -7,13 +7,15 @@
 \usage{
 ParseDates(x, us.format = NULL)
 
-AsDate(x, us.format = NULL)
+AsDate(x, us.format = NULL, exact = TRUE)
 }
 \arguments{
 \item{x}{character; vector to be parsed}
 
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}
+
+\item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 }
 \value{
 a vector of POSIXct date-time objects

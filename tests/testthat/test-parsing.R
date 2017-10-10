@@ -121,11 +121,20 @@ test_that("AsDateTime",
               expect_equal(AsDateTime("February 2010"), dt4)
 
               # Shortened year
-              expect_equal(AsDateTime("2 January 16 12:34:56 AM"), dt1)
-              expect_equal(AsDateTime("2 January 16 00:34:56"), dt1)
-              expect_equal(AsDateTime("2 January 16 12:34 AM"), dt2)
-              expect_equal(AsDateTime("2 January 16 00:34"), dt2)
-              expect_equal(AsDateTime("2 January 16"), dt3)
+              expect_equal(format(AsDateTime("2 January 99 12:34:56 AM"),
+                                  "%Y"), "1999")
+              expect_warning(out <- AsDateTime("2 January 16 00:34:56"),
+                             "year assumed to come after month$")
+              expect_equal(out, dt1)
+              expect_warning(out <- AsDateTime("2 January 16 12:34 AM"),
+                             "year assumed to come after month$")
+              expect_equal(out, dt2)
+              expect_warning(out <- AsDateTime("2 January 16 00:34"),
+                             "year assumed to come after month$")
+              expect_equal(out, dt2)
+              expect_warning(out <- AsDateTime("2 January 16"),
+                             "year assumed to come after month$")
+              expect_equal(out, dt3)
               expect_equal(AsDateTime("February 10"), dt4)
 
               ## Vector input in __multiple__ formats not supported by AsDateTime
@@ -145,8 +154,9 @@ test_that("AsDateTime",
               expect_is(AsDateTime("may/17"), c("POSIXct", "POSIXt"))
               expect_equal(format(AsDateTime("OCT/99"), "%m"), "10")
               expect_is(AsDateTime("Jan-14"), c("POSIXct", "POSIXt"))
-
-              expect_equal(AsDateTime("jan-214"), NA)
+              ## this example confuses lubridate very badily if ym format tried
+              ## lubridate::parse_date_time2("jan-214", "ym", exact = TRUE)
+              ## expect_equal(AsDateTime("jan-214"), NA)
           })
 
 test_that("Parse date", {
@@ -211,7 +221,8 @@ test_that("AsDateTime: ambiguous if U.S. format ",
 test_that("AsDate", {
     # Month names
     expect_equal(AsDate("2010-Feb-3"), dt6)
-    expect_equal(AsDate("3 February 10"), dt6)
+    expect_warning(out <- AsDate("3 Feb 10"), "year assumed to come after month$")
+    expect_equal(out, dt6)
     expect_equal(AsDate("3 Feb 2010"), dt6)
     expect_equal(AsDate("February 2010"), dt4)
     expect_equal(AsDate("Feb 10"), dt4)
@@ -223,8 +234,9 @@ test_that("AsDate", {
     # Numeric year month date
     expect_equal(AsDate("2010-02-03"), dt6)
 
-    # Numeric month year
-    expect_equal(AsDate("02/10"), dt4)
+    ## Numeric month year
+    expect_warning(out <- AsDate("02/10"))
+    expect_equal(out, dt4)
     expect_equal(AsDate("02/2010"), dt4)
     expect_equal(AsDate("02/2010"), dt4)
     expect_equal(AsDate("2010/02"), dt4)
@@ -235,11 +247,13 @@ test_that("AsDate", {
 
     # US format
     expect_equal(AsDate("2/3/2010", us.format = TRUE), dt6)
-    expect_equal(AsDate("2/3/10", us.format = TRUE), dt6)
+    expect_warning(out <- AsDate("2/3/10", us.format = TRUE))
+    expect_equal(out, dt6)
 
     # International date format
     expect_equal(AsDate("3/2/2010", us.format = FALSE), dt6)
-    expect_equal(AsDate("3/2/10", us.format = FALSE), dt6)
+    expect_warning(out <- AsDate("3/2/10", us.format = FALSE))
+    expect_equal(out, dt6)
 
     # Date input
     expect_equal(AsDate(dt7), dt7)
@@ -277,7 +291,7 @@ test_that("AsDateTime: false positive first matched order",
 test_that("AsDateTime: two digit year",
 {
     ## first matches dmYHM second makes it clear dmyHMS
-    dates <- c("02-01-19 20:12:45", "02-01-19 20:30:45")
+    dates <- c("02-01-79 20:12:45", "02-01-19 20:30:45")
     expect_equal(format(AsDateTime(dates, us.format = TRUE), "%M"), c("12", "30"))
     expect_equal(format(AsDateTime(dates[2:1], us.format = TRUE), "%M"), c("12", "30")[2:1])
 
@@ -289,6 +303,74 @@ test_that("AsDateTime: two digit year",
     dates <- c("12-01-1903 03:45pm", "01-16-2012 02:30am")
     expect_equal(format(AsDateTime(dates, us.format = TRUE), "%Y"), c("1903", "2012"))
     dates <- c("12-01-19 03:03:45pm", "01-16-12 02:12:30am")
-    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%I"), c("03", "02"))
+    expect_silent(out <- AsDateTime(dates, us.format = TRUE))
+    expect_equal(format(out, "%I"), c("03", "02"))
 })
 
+test_that("AsDate two-digit year last",
+{
+    dates <- c("10-Feb-99", "16-Jan-00")
+    expect_equal(format(AsDate(dates), "%d"), c("10", "16"))
+})
+
+test_that("AsDate two-digit year first",
+{
+    dates <- c("89-10-10", "99-08-13")
+    expect_silent(out <- AsDate(dates))
+    expect_equal(format(out, "%Y"), c("1989", "1999"))
+
+    dates <- c("77-Jan-10", "89-Feb-09")
+    expect_silent(out <- AsDate(dates))
+    expect_equal(format(out, "%m"), c("01", "02"))
+})
+
+test_that("AsDate char. month, two-digit year ambiguous",
+{
+    dates <- c("01-Feb-10", "11-Sep-13")
+    expect_warning(out <- AsDate(dates))
+    expect_equal(format(out, "%Y"), c("2010", "2013"))
+})
+
+test_that("AsDate dmy could be ymd",
+{
+    dates <- c("01-05-10", "11-06-13")
+    expect_warning(out <- AsDate(dates, us.format = NULL),
+                   "US format has been used$", all = FALSE)  # two warnings
+    expect_equal(format(out, "%Y"), c("2010", "2013"))
+    expect_warning(out <- AsDate(dates, us.format = TRUE),
+                   "two-digit year assumed to come after month$",
+                   all = TRUE)  # only one warning
+    expect_equal(format(out, "%Y"), c("2010", "2013"))
+    expect_warning(out <- AsDate(dates, us.format = FALSE),
+                   "two-digit year assumed to come after month$",
+                   all = TRUE)  # only one warning
+    expect_equal(format(out, "%d"), c("01", "11"))
+})
+
+test_that("AsDateTime mdyXXX could be ymdXXX",
+{
+    dates <- c("10-05-10 11:30:24", "02-06-13 09:12:54")
+    expect_warning(out <- AsDateTime(dates, us.format = NULL),
+                   "US format has been used$", all = FALSE)  # two warnings
+    expect_equal(format(out, "%Y"), c("2010", "2013"))
+    expect_warning(out <- AsDateTime(dates, us.format = TRUE),
+                   "two-digit year assumed to come after month$",
+                   all = TRUE)  # only one warning
+    expect_equal(format(out, "%Y"), c("2010", "2013"))
+    expect_warning(out <- AsDateTime(dates, us.format = FALSE),
+                   "two-digit year assumed to come after month$",
+                   all = TRUE)  # only one warning
+    expect_equal(format(out, "%d"), c("10", "02"))
+})
+
+test_that("AsDate no incorrect warning",
+{   # matches mdY first, but dmY is correct, should be no warning
+    dates <- c("10-12-2012", "15-10-2011")
+    expect_silent(AsDate(dates))
+    expect_equal(format(AsDate(dates), "%m"), c("12", "10"))
+})
+
+test_that("AsDate: 'by' format",
+{
+    expect_equal(format(AsDateTime("june-12"), "%m"),  "06")
+})
