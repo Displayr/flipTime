@@ -94,6 +94,13 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
                 "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp",
                 "dbyIMSp", "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM",
                 "dbyHMS", "dbyHM")
+    ## e.g. 20-12-99 20:56; 00-10-30 12:30
+    orders <- c(orders, if (is.null(us.format))
+                            c("mdyHM", "dmyHM")
+                        else if (us.format)
+                            "mdyHM"
+                        else "dmyHM",
+                "ymdHM")
 
     x1 <- x[1L]
 

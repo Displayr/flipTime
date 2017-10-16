@@ -159,6 +159,17 @@ test_that("AsDateTime",
               ## expect_equal(AsDateTime("jan-214"), NA)
           })
 
+test_that("AsDateTime: additional support for two-digit years",
+{
+    expect_warning(out <- AsDateTime("20-11-12 12:34"), "date formats are ambiguous")
+    expect_is(out, c("POSIXct", "POSIXt"))
+    expect_equal(format(out, "%Y"), "2012")
+
+    expect_silent(out <- AsDateTime("99-08-31 05:33"))
+    expect_is(out, c("POSIXct", "POSIXt"))
+    expect_equal(format(out, "%m"), "08")
+})
+
 test_that("Parse date", {
     # Month names
     expect_equal(ParseDates("2010-Feb-3"), dt6)
