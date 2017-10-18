@@ -33,7 +33,7 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
     {
         suppressWarnings(parsed.numeric <- as.numeric(x))
         result <- if (any(is.na(parsed.numeric)) || all(parsed.numeric >= 1900 & parsed.numeric < 2100))
-            ParseDates(x, us.format)
+            AsDate(x, us.format)
         else
             rep(NA, length(x))
     }
