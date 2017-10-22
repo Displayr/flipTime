@@ -132,7 +132,7 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
     {
         ord.flip <- sub("^md", "dm", ord)
         checkForAmbiguousOrder(x, ord.flip, time.zone, exact,
-                               msg = "date formats are ambiguous, US format has been used")
+                               msg = "Date formats are ambiguous, US format has been used.")
     }
 
     if (grepl("^(d?[bm]|[mb]d)y", ord))
@@ -174,8 +174,8 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
 #' and thus failed to parse the entire vector.
 #' @noRd
 checkForAmbiguousOrder <- function(x, ord.flip, time.zone = "UTC", exact = TRUE,
-                                   msg = paste0("supplied date formats are ambiguous, two-digit",
-                                                " year assumed to come after month"))
+                                   msg = paste0("Supplied date formats are ambiguous, two-digit",
+                                                " year assumed to come after month."))
 {
     out.flip <- parse_date_time2(x, ord.flip, tz = time.zone, exact = exact)
     ## out.good <- all(!is.na(out))
