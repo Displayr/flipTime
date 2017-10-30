@@ -25,10 +25,8 @@ Parse dates assuming some common (unknown) formats
 popular either in the U.S. or internationally
 }
 \details{
-\code{ParseDates} is deprecated and \code{AsDate}
-should be preferred for efficiency reasons
+\code{ParseDates} is deprecated and merely calls \code{AsDate}
 }
 \examples{
-ParseDates("1-2-2017", us.format = FALSE)
 AsDate("1-2-2017", us.format = FALSE)
 }

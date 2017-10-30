@@ -26,18 +26,9 @@ a vector of POSIXct date-time objects
 Parses date-time character vectors to POSIXct
 }
 \details{
-\code{ParseDateTime} is deprecated and \code{AsDateTime} should be preferred
-for efficiency reasons.
-
-One notable difference is that \code{ParseDateTime} will parse a vector of dates where the
-dates are not all in the same format.  \code{AsDateTime} only uses the first date to determine
-the format to use to parse the entire vector.
-
-\code{AsDateTime} allows the \code{us.format} argument to be \code{NULL}, in which case
-the format will be inferred from \code{x} and default to U.S. format if the format is ambiguous.
+\code{ParseDateTime} is deprecated and merely calls \code{AsDateTime}
 }
 \examples{
-ParseDateTime("1-2-2017 12:34:56", us.format = FALSE)
 AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 }
 \references{
