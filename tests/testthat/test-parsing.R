@@ -163,17 +163,27 @@ test_that("AsDate", {
     expect_equal(AsDate(dt7), dt7)
 
     # Strings and numbers
-    expect_equal(AsDate("Less than 1"), NA)
-    expect_equal(AsDate("Greater than 9"), NA)
-    #expect_equal(AsDate("More than 9"), NA)
-    #expect_equal(AsDate("9 or more"), NA)
-    expect_equal(AsDate("02"), NA)
+    ## For some reason AsDate("9 or more") returns NA of class POSIXct, POSIXt
+    ## and not logical, so use is.na instead of expect_equal
+    ## note: class(lubridate::parse_date_time("9 or more", "%y")) is c("POSIXct", "POSIXt")
+    ## for lubridate v1.6.0
+    expect_true(is.na(AsDate("Less than 1")))
+    expect_true(is.na(AsDate("Greater than 9")))
+    ## lubridate::parse_date_time2("More than 9", "by", exact = TRUE)
+    ## does not return NA for v1.6.0 at least on Windows, but if any
+    ## other element of the vector of dates fails to parse, AsDate returns a vector
+    ## of NAs so that such false positives are unlikely to affect the user
+    expect_equal(AsDate(c("Less than 5", "More than 9")),
+                 rep.int(NA, 2))
+    expect_true(is.na(AsDate("9 or more")))
+    expect_true(is.na(AsDate("02")))
     expect_equal(format(AsDate("Before 2009"), "%Y"), "2009")
 })
 
 test_that("AsDate: ambiguous if U.S. format",
 {
-    expect_warning(out <- AsDate(c("01-02-2017",    "04-08-2012"), us.format = NULL), "^Date formats are ambiguous")
+    expect_warning(out <- AsDate(c("01-02-2017",    "04-08-2012"),
+                                 us.format = NULL), "^Date formats are ambiguous")
     expect_equal(format(out, "%m"), c("01", "04"))
 
 })
