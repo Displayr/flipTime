@@ -16,6 +16,15 @@ AsDate <- function(x, us.format = NULL, exact = TRUE)
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
         return(x)
 
+    if (is.numeric(x))
+        x <- as.character(x)
+
+    ## First check for period dates of form
+    ## Jan-Mar 2015 and 30/10/1999-27/11/2000
+    pd <- parsePeriodDate(x, us.format)
+    if (!any(is.na(pd)))
+        return(pd)
+
     ## The order of orders has been carefully selected.
     ## Ensure that unit tests still pass if the order is changed.
     ## mY and Ym should be before ymd, dmy, etc.

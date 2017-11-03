@@ -1,3 +1,36 @@
+#' Parse period dates to POSIXct date objects
+#'
+#' Converts a vector of period names in format
+#' yyyy, yyyy-mm, yyyy-mm-dd, mmm-mmm yy, mmm yyyy, dd/mm/yyyy and
+#' dd/mm/yyyy-dd/mm/yyyy into a POSIXct/POSIXt date object.
+#' @param x The vector of \code{char} to convert.
+#' @param by The time aggregation. Deprecated as this can be deduced from x.
+#' @param us.format Whether to assume US date format when parsing.
+#' @importFrom lubridate parse_date_time2
+#' @examples
+#' PeriodNameToDate(2010:2014)
+#' PeriodNameToDate(c("2010-01", "2010-02"))
+#' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
+#' @noRd
+parsePeriodDate <- function(x, us.format = NULL)
+{
+    quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
+    # e.g.: 1/02/1999-8/02/1999
+    week.regex <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
+                        "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$")
+
+    result <- NA
+    if (grepl(quarter.regex, x[1L])) # Q quarters, e.g.: Apr-Jun 08
+        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)), "my", exact = TRUE)
+    else if (all(grepl(week.regex, x[1L]))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
+        result <- weeklyPeriodsToDate(x, us.format)
+
+    if (any(is.na(result)))
+        result <- rep.int(NA, length(x))
+
+    result
+}
+
 #' @title{PeriodNameToDate}
 #'
 #' @description Converts a vector of period names in format
@@ -11,7 +44,7 @@
 #' PeriodNameToDate(2010:2014)
 #' PeriodNameToDate(c("2010-01", "2010-02"))
 #' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
-#' @export
+#' @noRd
 PeriodNameToDate <- function(x, by, us.format = NULL)
 {
     if (any(c("POSIXct", "POSIXt") %in% class(x)))

@@ -2,21 +2,43 @@ context("period")
 
 dt <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
 
-test_that("period", {
-    expect_equal(as.character(PeriodNameToDate(2010:2014)[1]), "2010-01-01")
-    expect_equal(as.character(PeriodNameToDate(2010:2014, "year")[1]), "2010-01-01")
-    expect_equal(as.character(PeriodNameToDate(c("2016", "2017"))[2]), "2017-01-01")
-    expect_equal(as.character(PeriodNameToDate(c("2016.4"))[1]), "2016-04-01")
-    expect_equal(as.character(PeriodNameToDate(c("Jan-Mar 12", "Oct-Dec 15"))[2]), "2015-10-01")
-    expect_equal(as.character(PeriodNameToDate(c("March 2012", "October 2015"))[2]), "2015-10-01")
-    expect_equal(as.character(PeriodNameToDate(c("8/09/2012-15/09/2012", "12/07/2015-19/07/2015"))[2]), "2015-07-12")
-    expect_equal(as.character(PeriodNameToDate(c("9/8/2012-9/15/2012", "7/12/2015-7/19/2015"))[2]), "2015-07-12")
-    expect_equal(as.character(PeriodNameToDate(c("8/9/2012-15/9/2012")), us.format = FALSE), "2012-09-08")
-    expect_equal(as.character(PeriodNameToDate(c("8/09/2012", "16/07/2015"))[1]), "2012-09-08")
-    expect_equal(as.character(PeriodNameToDate(c("2010-01", "2010-02"))[1]), "2010-01-01")
-    expect_equal(as.character(PeriodNameToDate(c("2010-01-05", "2010-02-08"))[1]), "2010-01-05")
-    expect_equal(PeriodNameToDate(c("a", "2010-02-08"))[1], NA)
-    expect_equal(PeriodNameToDate(dt), dt)
+test_that("period name to date", {
+    expect_equal(as.character(AsDate(2010:2014)[1]), "2010-01-01")
+    expect_equal(as.character(AsDate(2010:2014)[1]),
+                 "2010-01-01")
+    expect_equal(as.character(AsDate(c("2016", "2017"))[2]),
+                 "2017-01-01")
+    expect_equal(as.character(AsDate(c("2016.4"))[1]), "2016-04-01")
+    expect_equal(as.character(AsDate(c("Jan-Mar 12", "Oct-Dec 15"))[2]),
+                 "2015-10-01")
+    expect_equal(as.character(AsDate(c("March 2012", "October 2015"))[2]),
+                 "2015-10-01")
+    expect_equal(as.character(AsDate(c("8/09/2012-15/09/2012",
+                                                 "12/07/2015-19/07/2015"))[2]), "2015-07-12")
+    expect_equal(as.character(AsDate(c("9/8/2012-9/15/2012",
+                                                 "7/12/2015-7/19/2015"))[2]), "2015-07-12")
+    expect_equal(as.character(AsDate(c("8/9/2012-15/9/2012")),
+                              us.format = FALSE), "2012-09-08")
+    expect_equal(as.character(AsDate(c("8/09/2012", "16/07/2015"))[1]),
+                 "2012-09-08")
+    expect_equal(as.character(AsDate(c("2010-01", "2010-02"))[1]),
+                 "2010-01-01")
+    expect_equal(as.character(AsDate(c("2010-01-05", "2010-02-08"))[1]),
+                 "2010-01-05")
+    expect_equal(AsDate(c("a", "2010-02-08"))[1], NA)
+    expect_equal(AsDate(dt), dt)
+})
+
+test_that("period names to date, first date parses, rest bad",
+{
+    expect_true(all(is.na(AsDate(c("8/09/2012-15/09/2012",
+                                                 "12/99/2015-19/07/2015")))))
+    expect_true(all(is.na(AsDate(c("Jan-Mar 12", "foobar 15")))))
+
+})
+
+test_that("Periods",
+{
     library(lubridate)
     expect_equal(Periods(1, "second"), seconds(1))
     expect_equal(Periods(1, "minute"), minutes(1))
