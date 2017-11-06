@@ -25,15 +25,17 @@ test_that("period name to date", {
                  "2010-01-01")
     expect_equal(as.character(AsDate(c("2010-01-05", "2010-02-08"))[1]),
                  "2010-01-05")
-    expect_equal(AsDate(c("a", "2010-02-08"))[1], NA)
+    expect_equal(AsDate(c("a", "2010-02-08"), on.parse.failure = "silent")[1], NA)
     expect_equal(AsDate(dt), dt)
 })
 
 test_that("period names to date, first date parses, rest bad",
 {
     expect_true(all(is.na(AsDate(c("8/09/2012-15/09/2012",
-                                                 "12/99/2015-19/07/2015")))))
-    expect_true(all(is.na(AsDate(c("Jan-Mar 12", "foobar 15")))))
+                                   "12/99/2015-19/07/2015"),
+                                 on.parse.failure = "silent"))))
+    expect_true(all(is.na(AsDate(c("Jan-Mar 12", "foobar 15"),
+                                 on.parse.failure = "silent"))))
 
 })
 

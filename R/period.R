@@ -21,7 +21,8 @@ parsePeriodDate <- function(x, us.format = NULL)
 
     result <- NA
     if (grepl(quarter.regex, x[1L])) # Q quarters, e.g.: Apr-Jun 08
-        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)), "my", exact = TRUE)
+        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)),
+                                   "my", exact = TRUE)
     else if (all(grepl(week.regex, x[1L]))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
         result <- weeklyPeriodsToDate(x, us.format)
 

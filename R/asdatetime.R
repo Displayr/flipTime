@@ -17,11 +17,17 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
 #' @examples
 #' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
-#' @importFrom lubridate parse_date_time2
 #' @seealso \code{\link[lubridate]{parse_date_time2}}
 #' @return a vector of POSIXct date-time objects
+#' @param on.parse.failure Character string specifying how parse failures should be handled;
+#' \code{"error"}, the default, results in an error being thrown with
+#' \code{\link{stop}} in the event that \code{x} cannot be parsed;  specifying \code{"warn"} results
+#' in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the same length
+#' as \code{x}; any other value results in a vector of NAs being returned silently.
+#' @importFrom lubridate parse_date_time2
 #' @export
-AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
+AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
+                       on.parse.failure = "error")
 {
     if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
@@ -71,7 +77,7 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
     }
 
     if (is.na(parsed[1L]))  # try to parse as dates with no times
-        return(AsDate(x, us.format = us.format))
+        return(AsDate(x, us.format = us.format, on.parse.failure = on.parse.failure))
 
     return(parsed)
 }

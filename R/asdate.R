@@ -6,13 +6,19 @@
 #' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
 #' in which case both U.S. formats and international formats will be checked
 #' @param exact see \code{\link[lubridate]{parse_date_time2}}
+#' @param on.parse.failure Character string specifying how parse failures should be handled;
+#' \code{"error"}, the default, results in an error being thrown with
+#' \code{\link{stop}} in the event that \code{x} cannot be parsed;  specifying \code{"warn"} results
+#' in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the same length
+#' as \code{x}; any other value results in a vector of NAs being returned silently.
 #' @return a vector of POSIXct date-time objects
 #' @examples
 #' AsDate("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDate <- function(x, us.format = NULL, exact = TRUE)
+AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
+    var.name <- deparse(substitute(x))
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
         return(x)
 
@@ -68,7 +74,15 @@ AsDate <- function(x, us.format = NULL, exact = TRUE)
         }
     }
     if (is.na(parsed[1L]))
+    {
+        msg <- sprintf("Could not parse %s into a valid date in any format.",
+                       var.name)
+        if (grepl("error", on.parse.failure, ignore.case = TRUE))
+            stop(msg, call. = TRUE)
+        else if (grepl("warn", on.parse.failure, ignore.case = TRUE))
+            warning(msg, call. = TRUE)
         return(rep.int(NA, length(x)))
+    }
 
     ## result <- parse_date_time2(x, ord, exact = TRUE)
     parsed  # result

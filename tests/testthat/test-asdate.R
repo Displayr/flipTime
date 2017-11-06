@@ -55,17 +55,18 @@ test_that("AsDate", {
     ## and not logical, so use is.na instead of expect_equal
     ## note: class(lubridate::parse_date_time("9 or more", "%y")) is c("POSIXct", "POSIXt")
     ## for lubridate v1.6.0
-    expect_true(is.na(AsDate("Less than 1")))
-    expect_true(is.na(AsDate("Greater than 9")))
+    expect_true(is.na(AsDate("Less than 1", on.parse.failure = "silent")))
+    expect_true(is.na(AsDate("Greater than 9", on.parse.failure = "silent")))
     ## lubridate::parse_date_time2("More than 9", "by", exact = TRUE)
     ## does not return NA for v1.6.0 at least on Windows, but if any
     ## other element of the vector of dates fails to parse, AsDate returns a vector
     ## of NAs so that such false positives are unlikely to affect the user
-    expect_equal(AsDate(c("Less than 5", "More than 9")),
-                 rep.int(NA, 2))
-    expect_true(is.na(AsDate("9 or more")))
-    expect_true(is.na(AsDate("02")))
-    expect_equal(format(AsDate("Before 2009"), "%Y"), "2009")
+    expect_equal(AsDate(c("Less than 5", "More than 9"),
+                        on.parse.failure = "silent"), rep.int(NA, 2))
+    expect_true(is.na(AsDate("9 or more", on.parse.failure = "silent")))
+    expect_true(is.na(AsDate("02", on.parse.failure = "silent")))
+    expect_equal(format(AsDate("Before 2009", on.parse.failure = "silent"),
+                        "%Y"), "2009")
 })
 
 test_that("AsDate: ambiguous if U.S. format",
@@ -175,4 +176,13 @@ test_that("AsDate no incorrect warning",
 test_that("AsDate: 'by' format",
 {
     expect_equal(format(AsDateTime("june-12"), "%m"),  "06")
+})
+
+
+test_that("AsDate error handling",
+{
+##    expect_error(AsDate("foo"), "^Could not parse foo")
+    expect_silent(AsDate("foo", on.parse.failure = "silent"))
+    expect_warning(AsDate("foo", on.parse.failure = "warn"),
+                   "^Could not parse")
 })
