@@ -63,7 +63,8 @@ test_that("AsDate", {
     ## of NAs so that such false positives are unlikely to affect the user
     expect_equal(AsDate(c("Less than 5", "More than 9"),
                         on.parse.failure = "silent"), rep.int(NA, 2))
-    expect_true(is.na(AsDate("9 or more", on.parse.failure = "silent")))
+    expect_true(all(is.na(AsDate(c("9 or more", "Greater than or equal to 9"),
+                             on.parse.failure = "silent"))))
     expect_true(is.na(AsDate("02", on.parse.failure = "silent")))
     expect_equal(format(AsDate("Before 2009", on.parse.failure = "silent"),
                         "%Y"), "2009")
@@ -83,7 +84,7 @@ test_that("AsDate: false positive first matched order",
     dates <- c("12-01-1986", "30-01-1986")
     expect_equal(format(AsDate(dates, us.format = NULL), "%d"), c("12", "30"))
 })
-x
+
 test_that("AsDate two-digit year last",
 {
     dates <- c("10-Feb-99", "16-Jan-00")

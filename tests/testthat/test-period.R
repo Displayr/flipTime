@@ -34,7 +34,7 @@ test_that("period names to date, first date parses, rest bad",
     expect_true(all(is.na(AsDate(c("8/09/2012-15/09/2012",
                                    "12/99/2015-19/07/2015"),
                                  on.parse.failure = "silent"))))
-    expect_true(all(is.na(AsDate(c("Jan-Mar 12", "foobar 15"),
+    expect_true(all(is.na(AsDate(c("Jan-Mar 12", "CA 90210"),
                                  on.parse.failure = "silent"))))
 
 })
