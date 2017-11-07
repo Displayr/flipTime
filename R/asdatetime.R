@@ -27,7 +27,7 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' @importFrom lubridate parse_date_time2
 #' @export
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
-                       on.parse.failure = "error")
+                       on.parse.failure = "silent")
 {
     if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)

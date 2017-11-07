@@ -16,7 +16,7 @@
 #' AsDate("1-2-2017", us.format = FALSE)
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
+AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "silent")
 {
     var.name <- deparse(substitute(x))
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
