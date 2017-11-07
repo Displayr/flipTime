@@ -45,7 +45,7 @@ parsePeriodDate <- function(x, us.format = NULL)
 #' PeriodNameToDate(2010:2014)
 #' PeriodNameToDate(c("2010-01", "2010-02"))
 #' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
-#' @noRd
+#' @export
 PeriodNameToDate <- function(x, by, us.format = NULL)
 {
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
