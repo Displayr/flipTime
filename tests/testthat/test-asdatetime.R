@@ -122,3 +122,29 @@ test_that("AsDateTime: ambiguous if U.S. format ",
                    "^Date formats are ambiguous")
 })
 
+test_that("AsDateTime: false positive first matched order",
+{
+    ## mdY parses correctly on first element, but it's clear from 2nd that dmY is correct
+    dates <- c("02-01-1986 12:30pm", "30-06-1986 11:28am")
+    expect_equal(format(AsDateTime(dates, us.format = NULL), "%d"), c("02", "30"))
+})
+
+test_that("AsDateTime: two digit year",
+{
+    ## first matches dmYHM second makes it clear dmyHMS
+    dates <- c("02-01-79 20:12:45", "02-01-19 20:30:45")
+    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%M"), c("12", "30"))
+    expect_equal(format(AsDateTime(dates[2:1], us.format = TRUE), "%M"), c("12", "30")[2:1])
+
+    ## dmYHM when dmyHMS would also parse successfully
+    dates <- c("22-01-1919 12:45", "30-01-2019 20:30")
+    expect_equal(format(AsDateTime(dates, us.format = FALSE), "%Y"), c("1919", "2019"))
+
+    ## mdyIMSp or mdYIMp ?
+    dates <- c("12-01-1903 03:45pm", "01-16-2012 02:30am")
+    expect_equal(format(AsDateTime(dates, us.format = TRUE), "%Y"), c("1903", "2012"))
+    dates <- c("12-01-19 03:03:45pm", "01-16-12 02:12:30am")
+    expect_silent(out <- AsDateTime(dates, us.format = TRUE))
+    expect_equal(format(out, "%I"), c("03", "02"))
+})
+
