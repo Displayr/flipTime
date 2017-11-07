@@ -1,4 +1,4 @@
-Changes in Version 1.2.0 (2017-11-06)
+Changes in Version 1.2.1 (2017-11-07)
 --------------------------------------------------------
 
 NEW FEATURES
@@ -18,7 +18,9 @@ BUG FIXES
 
 * Some additional formats involving two-digit years are
 now correctly parsed by `AsDateTime` (DS-1575)
-
+* `AsDate` now correctly returns all NA values if the first
+element of the supplied character dates parses in "ym" format,
+but the rest of the vector does not
 
 Changes in Version 1.0.0 (2017-10-16)
 --------------------------------------------------------

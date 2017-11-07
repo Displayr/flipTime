@@ -73,7 +73,7 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
                 break
         }
     }
-    if (is.na(parsed[1L]))
+    if (any(is.na(parsed)))
     {
         msg <- sprintf("Could not parse %s into a valid date in any format.",
                        var.name)
