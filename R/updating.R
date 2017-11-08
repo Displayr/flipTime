@@ -82,7 +82,8 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     if (TimeUnitsToSeconds(frequency, units) < 600)
         stop("Update frequency must be at least 600 seconds.")
 
-    first.update <- AsDateTime(x, us.format = us.format, time.zone = time.zone)
+    first.update <- AsDateTime(x, us.format = us.format, time.zone = time.zone,
+                               on.parse.failure = "silent")
     now <- Sys.time()
     attr(now, "tzone") <- time.zone
 
