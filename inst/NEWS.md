@@ -1,6 +1,16 @@
 Changes in Version 1.2.2 (2017-11-08)
 --------------------------------------------------------
 
+NEW FEATURES
+
+* `AsDate` and `AsDateTime` now default to throwing an error
+if the supplied vector of dates cannot be parsed (DS-1607)
+* `PeriodNameToDate` has been deprecated as its functionality
+is now included in `AsDate` (DS-1607)
+
+Changes in Version 1.2.2 (2017-11-08)
+--------------------------------------------------------
+
 BUG FIXES
 
 * `AsDate` and `AsDateTime` now fail correctly if the supplied vector

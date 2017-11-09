@@ -5,7 +5,7 @@
 \alias{ParseDates}
 \title{Parse Character Dates To POSIXct Objects}
 \usage{
-AsDate(x, us.format = NULL, exact = TRUE, on.parse.failure = "silent")
+AsDate(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 
 ParseDates(x, us.format = NULL)
 }

@@ -8,7 +8,7 @@
 ParseDateTime(x, us.format = TRUE, time.zone = "UTC")
 
 AsDateTime(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
-  on.parse.failure = "silent")
+  on.parse.failure = "error")
 }
 \arguments{
 \item{x}{Character vector to be parsed.}
