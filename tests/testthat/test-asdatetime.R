@@ -148,3 +148,8 @@ test_that("AsDateTime: two digit year",
     expect_equal(format(out, "%I"), c("03", "02"))
 })
 
+test_that("AsDateTime: x is NULL",
+{
+    expect_error(AsDateTime(NULL, on.parse.failure = "error"),
+                 "^Could not parse")
+})

@@ -161,3 +161,8 @@ test_that("AsDate error handling",
     expect_warning(AsDate("foo", on.parse.failure = "warn"),
                    "^Could not parse")
 })
+
+test_that("AsDate: x is NULL",
+{
+    expect_length(AsDate(NULL, on.parse.failure = "silent"), 0)
+})

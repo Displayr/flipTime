@@ -1,3 +1,11 @@
+Changes in Version 1.2.2 (2017-11-08)
+--------------------------------------------------------
+
+BUG FIXES
+
+* `AsDate` and `AsDateTime` now fail correctly if the supplied vector
+of dates is NULL (DS-1607)
+
 Changes in Version 1.2.1 (2017-11-07)
 --------------------------------------------------------
 

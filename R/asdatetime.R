@@ -29,59 +29,62 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
                        on.parse.failure = "silent")
 {
-    if (all(class(x) %in% c("Date", "POSIXct", "POSIXt", "POSIXlt")))
+    if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
 
-    orders <- if (is.null(us.format))
-                      c("mdYIMSp", "dmYIMSp", "mdYHMS", "dmYHMS", "mdYIMp", "dmYIMp",
-                        "mdYHM", "dmYHM", "mdyIMSp", "dmyIMSp", "mdyIMp", "dmyIMp",
-                          "mdyHMS", "mdyHMS")
-                    else if (us.format)
-                        c("mdYIMSp", "mdYHMS", "mdYIMp", "mdYHM", "mdyIMSp", "mdyIMp",
-                          "mdyHMS")
-                    else
-                        c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmyIMSp", "dmyIMp",
-                          "dmyHMS")
+    if (!isNotAllNonEmptyText(x))
+    {
+      orders <- if (is.null(us.format))
+                        c("mdYIMSp", "dmYIMSp", "mdYHMS", "dmYHMS", "mdYIMp", "dmYIMp",
+                          "mdYHM", "dmYHM", "mdyIMSp", "dmyIMSp", "mdyIMp", "dmyIMp",
+                            "mdyHMS", "mdyHMS")
+                      else if (us.format)
+                          c("mdYIMSp", "mdYHMS", "mdYIMp", "mdYHM", "mdyIMSp", "mdyIMp",
+                            "mdyHMS")
+                      else
+                          c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmyIMSp", "dmyIMp",
+                            "dmyHMS")
 
-    ## OLD:
-    ## orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
-    ##             "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
-    ##             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
-    ##             "dbyIMSp", "dbYHMS", "dbyHMS", "dbYIMp", "dbyIMp",
-    ##             "dbYHM", "dbyHM", "dbY", "dby", "mY")
-    orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM",
-                "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd",
-                "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp",
-                "dbyIMSp", "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM",
-                "dbyHMS", "dbyHM")
-    ## e.g. 20-12-99 20:56; 00-10-30 12:30
-    orders <- c(orders, if (is.null(us.format))
-                            c("mdyHM", "dmyHM")
-                        else if (us.format)
-                            "mdyHM"
-                        else "dmyHM",
-                "ymdHM")
+      ## OLD:
+      ## orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
+      ##             "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
+      ##             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
+      ##             "dbyIMSp", "dbYHMS", "dbyHMS", "dbYIMp", "dbyIMp",
+      ##             "dbYHM", "dbyHM", "dbY", "dby", "mY")
+      orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM",
+                  "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd",
+                  "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp",
+                  "dbyIMSp", "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM",
+                  "dbyHMS", "dbyHM")
+      ## e.g. 20-12-99 20:56; 00-10-30 12:30
+      orders <- c(orders, if (is.null(us.format))
+                              c("mdyHM", "dmyHM")
+                          else if (us.format)
+                              "mdyHM"
+                          else "dmyHM",
+                  "ymdHM")
 
-    x1 <- x[1L]
+      x1 <- x[1L]
 
-    for (ord in orders)
-    {  ## setting the exact arg to TRUE caused the format dbYHM to fail
-        ## for "2 January 2016 00:34" (is NA for dbYHM, but matches dbyHMS)
-        parsed <- parse_date_time2(x1, ord, tz = time.zone)
-        if (!is.na(parsed))
-        {
-            parsed <- checkUSformatAndParse(x, ord, time.zone, is.null(us.format))
-            if (all(!is.na(parsed)))
-                break
-        }
-    }
+      for (ord in orders)
+      {  ## setting the exact arg to TRUE caused the format dbYHM to fail
+          ## for "2 January 2016 00:34" (is NA for dbYHM, but matches dbyHMS)
+          parsed <- parse_date_time2(x1, ord, tz = time.zone)
+          if (!is.na(parsed))
+          {
+              parsed <- checkUSformatAndParse(x, ord, time.zone, is.null(us.format))
+              if (all(!is.na(parsed)))
+                  break
+          }
+      }
+    }else
+        parsed <- NA
 
-    if (is.na(parsed[1L]))  # try to parse as dates with no times
+    if (any(is.na(parsed)))  # try to parse as dates with no times
         return(AsDate(x, us.format = us.format, on.parse.failure = on.parse.failure))
 
     return(parsed)
 }
-
 
 #' Check if a string can be parsed to "bY" or "by" date format
 #' @param x1 character
