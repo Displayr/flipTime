@@ -41,13 +41,18 @@ parsePeriodDate <- function(x, us.format = NULL)
 #' @param by The time aggregation. Deprecated as this can be deduced from x.
 #' @param us.format Whether to assume US date format when parsing.
 #' @importFrom lubridate parse_date_time2
+#' @seealso AsDate
 #' @examples
-#' PeriodNameToDate(2010:2014)
-#' PeriodNameToDate(c("2010-01", "2010-02"))
-#' PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
+#' ## Deprecated; use AsDate instead
+## PeriodNameToDate(2010:2014)
+## PeriodNameToDate(c("2010-01", "2010-02"))
+## PeriodNameToDate(c("26/02/2011-1/01/2012", "2/01/2012-8/01/2012"))
 #' @export
 PeriodNameToDate <- function(x, by, us.format = NULL)
 {
+    .Deprecated("AsDate", package = "flipTime")
+    return(AsDate(x, us.format, on.parse.failure = "silent"))
+
     if (any(c("POSIXct", "POSIXt") %in% class(x)))
         return(x)
 
@@ -124,7 +129,7 @@ CompleteListPeriodNames <- function(x, by)
         x <- as.numeric(x)
         return(as.character(min(x):max(x)))
     }
-    observed.dates <- PeriodNameToDate(x, by)
+    observed.dates <- AsDate(x, on.parse.failure = "silent")
     Period(seq(min(observed.dates), max(observed.dates), by = by), by)
 }
 #' \code{Period}
