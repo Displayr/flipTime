@@ -4,14 +4,12 @@
 \alias{TimeSeriesColumnChart}
 \title{\code{TimeSeriesColumnChart}}
 \usage{
-TimeSeriesColumnChart(x, by, title = "", xtitle = "", ytitle = "",
+TimeSeriesColumnChart(x, title = "", xtitle = "", ytitle = "",
   series.name = "", tickformat = NULL, smooth = TRUE,
   ignore.last.period.from.smooth = FALSE)
 }
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}
-
-\item{by}{The period that has been used to aggregate the data (day, week, month, quarter, year).}
 
 \item{title}{The title of the chart.}
 

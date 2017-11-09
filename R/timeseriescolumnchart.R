@@ -2,7 +2,6 @@
 #'
 #' @description Plots a time series as columns, optionally smoothing the data.
 #' @param x A vector containing values, where the names indicate the dates.
-#' @param by The period that has been used to aggregate the data (day, week, month, quarter, year).
 #' @param title The title of the chart.
 #' @param xtitle The title to show on the x-axis.
 #' @param ytitle The title to show on the y-axis.
@@ -19,7 +18,6 @@
 #' TimeSeriesStackedColumnChart(z, "year")
 #' @export
 TimeSeriesColumnChart <- function(x,
-                                  by,
                                   title = "",
                                   xtitle = "",
                                   ytitle = "",
@@ -28,7 +26,7 @@ TimeSeriesColumnChart <- function(x,
                                   smooth = TRUE,
                                   ignore.last.period.from.smooth = FALSE)
 {
-    period.names <- if(by == "year") as.integer(names(x)) else PeriodNameToDate(names(x), by)
+    period.names <- AsDate(names(x), on.parse.failure = "silent")
     # Creating the initial plot.
     p <- plot_ly(
         x = ~period.names,
@@ -39,7 +37,10 @@ TimeSeriesColumnChart <- function(x,
     if (smooth)
     {
         n <- length(x)
-        y.fitted <- if (ignore.last.period.from.smooth) c(supsmu(period.names[-n], x[-n])$y, NA) else supsmu(period.names, x)$y
+        y.fitted <- if (ignore.last.period.from.smooth)
+                            c(supsmu(period.names[-n], x[-n])$y, NA)
+                        else
+                            supsmu(period.names, x)$y
         p <- add_trace(p,
             x = period.names,
             y = y.fitted,

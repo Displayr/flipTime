@@ -4,13 +4,11 @@
 \alias{TimeSeriesStackedColumnChart}
 \title{\code{TimeSeriesStackedColumnChart}}
 \usage{
-TimeSeriesStackedColumnChart(x, by = "day", title = "", ytitle = "",
-  xtitle = "", series.name = "", tickformat = NULL)
+TimeSeriesStackedColumnChart(x, title = "", ytitle = "", xtitle = "",
+  series.name = "", tickformat = NULL)
 }
 \arguments{
 \item{x}{table with dates in the columns.}
-
-\item{by}{The period that has been used to aggregate the data (day, week, month, quarter, year).}
 
 \item{title}{The title of the chart.}
 

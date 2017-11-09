@@ -2,7 +2,6 @@
 #'
 #' @description Plots a time series as columns.
 #' @param x table with dates in the columns.
-#' @param by The period that has been used to aggregate the data (day, week, month, quarter, year).
 #' @param title The title of the chart.
 #' @param xtitle The title to show on the x-axis.
 #' @param ytitle The title to show on the y-axis.
@@ -17,7 +16,6 @@
 #' TimeSeriesStackedColumnChart(z, "year")
 #' @export
 TimeSeriesStackedColumnChart <- function(x,
-                                  by = "day",
                                   title = "",
                                   ytitle = "",
                                   xtitle = "",
@@ -34,7 +32,7 @@ TimeSeriesStackedColumnChart <- function(x,
     }
     row.names = rownames(x)
     period.names = colnames(x)
-    if(by == "year") period.names else PeriodNameToDate(period.names, by)
+    period.names <- AsDate(period.names, on.parse.failure = "silent")
     dat = data.frame(values = as.numeric(t(x)),
                      time = period.names,
                      categories = rep(rownames(x), each = ncol(x)))
