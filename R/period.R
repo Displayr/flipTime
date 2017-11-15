@@ -88,7 +88,7 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
 #' "%b-%b %y"; e.g. Apr-Jun 08
 #' @return Vector containing the start of each period parsed to date objects
 #' @noRd
-#' @importFrom lubridate dmy year
+#' @importFrom lubridate dmy year year<-
 quarterlyPeriodsToDate <- function(x)
 {
     x.split <- strsplit(x, "-")
@@ -104,7 +104,7 @@ quarterlyPeriodsToDate <- function(x)
     if (length(bad.idx))
         year(start.dmy[bad.idx]) <- year(end.dmy[bad.idx]) - 1
 
-    ## covert from lubridate Date format
+    ## covert from Date to POSIXlt format
     as.POSIXlt(start.dmy)
 }
 
