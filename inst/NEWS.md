@@ -1,3 +1,12 @@
+Changes in Version 2.0.1 (2017-11-15)
+--------------------------------------------------------
+
+BUG FIXES
+
+* `AsDate` will now correctly parse quarterly date periods where the 
+start year is different from the end year; e.g. "Dec-May 17" will now 
+parse to have year 2016 instead of 2017 (DS-1652)
+
 Changes in Version 2.0.0 (2017-11-09)
 --------------------------------------------------------
 

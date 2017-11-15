@@ -39,6 +39,15 @@ test_that("period names to date, first date parses, rest bad",
 
 })
 
+test_that("Q-Quarterly dates: diff. start and end years; DS-1652",
+{
+    x <- c("Jun-Nov 16", "Dec-May 17", "Jun-Nov 17")
+    out <- AsDate(x)
+    expect_equal(format(out,  "%m"), c("06", "12", "06"))
+    ## Dec-May 17 needs to get converted to 2016-Dec-01
+    expect_equal(format(out,  "%y"), c("16", "16", "17"))
+})
+
 test_that("Periods",
 {
     library(lubridate)

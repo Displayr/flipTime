@@ -21,8 +21,7 @@ parsePeriodDate <- function(x, us.format = NULL)
 
     result <- NA
     if (grepl(quarter.regex, x[1L])) # Q quarters, e.g.: Apr-Jun 08
-        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)),
-                                   "my", exact = TRUE)
+        result <- quarterlyPeriodsToDate(x)
     else if (all(grepl(week.regex, x[1L]))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
         result <- weeklyPeriodsToDate(x, us.format)
 
@@ -65,7 +64,7 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
     week.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
 
     if (all(grepl(quarter.regex, x))) # Q quarters, e.g.: Apr-Jun 08
-        result <- parse_date_time2(paste(substr(x, 1, 3), substr(x, 9, 10)), "my", exact = TRUE)
+        result <- quarterlyPeriodsToDate(x)
     else if (all(grepl(week.regex, x))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
         result <- weeklyPeriodsToDate(x, us.format)
     else
@@ -79,6 +78,34 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
     if (any(is.na(result)))
         result <- rep(NA, length(x))
     result
+}
+
+#' Convert Q-quarterly date formats to R date objects
+#'
+#' Parses a character vector of date intervals in Q-quarterly
+#' date format to obtain the start of the interval in R date-time objects
+#' @param x Character vector assumed to have elements in date format
+#' "%b-%b %y"; e.g. Apr-Jun 08
+#' @return Vector containing the start of each period parsed to date objects
+#' @noRd
+#' @importFrom lubridate dmy year
+quarterlyPeriodsToDate <- function(x)
+{
+    x.split <- strsplit(x, "-")
+    start.mon <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
+    end.dat <- vapply(x.split, `[`, 2L, FUN.VALUE = "")
+    end.yr <- regmatches(end.dat, regexpr("([0-9]{2}){1,2}$", end.dat))
+    start <- paste0("01-", start.mon, end.yr)
+    end <- paste0("01-", end.dat)
+    start.dmy <- dmy(start, quiet = TRUE)
+    end.dmy <- dmy(end, quiet = TRUE)
+    ## Need to handle cases where start year < end year
+    bad.idx <- which(start.dmy > end.dmy)
+    if (length(bad.idx))
+        year(start.dmy[bad.idx]) <- year(end.dmy[bad.idx]) - 1
+
+    ## covert from lubridate Date format
+    as.POSIXlt(start.dmy)
 }
 
 #' @importFrom lubridate parse_date_time2
