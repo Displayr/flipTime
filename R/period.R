@@ -14,16 +14,41 @@
 #' @noRd
 parsePeriodDate <- function(x, us.format = NULL)
 {
-    quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
-    # e.g.: 1/02/1999-8/02/1999
-    week.regex <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
-                        "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$")
+    sep <- "[/-]"
+    day <- "(0?[0-9]|[12][0-9]|3[01])"
+    b.month <- paste0("(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
+                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)|nov(?:ember)?|dec(?:ember)?)")
+    m.month <- "(0?[1-9]|1[012])"
+    m.or.b.month <- paste0("(", b.month, "|", m.month, ")")
+    year <- "([0-9]{2}){1,2}"
+
+    quarter.regex <- paste0("^", m.or.b.month, sep, m.or.b.month, " ", year, "$")
+
+    ## quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
+    ## # e.g.: 1/02/1999-8/02/1999
+    ## week.regex <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
+    ##                      "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$")
+    dd.mm.yyyy <- paste0(day, sep, m.or.b.month, sep, year)
+    mm.dd.yyyy <- paste0(m.or.b.month, sep, day, sep, year)
+    week.regex.int <- paste0("^", dd.mm.yyyy, "[/ -]", dd.mm.yyyy, "$")
+    week.regex.us <- paste0("^", mm.dd.yyyy, "[/ -]", mm.dd.yyyy, "$")
 
     result <- NA
-    if (grepl(quarter.regex, x[1L])) # Q quarters, e.g.: Apr-Jun 08
+    ## Q quarters, e.g.: Apr-Jun 08
+    if (grepl(quarter.regex, x[1L], perl = TRUE, ignore.case = TRUE))
         result <- quarterlyPeriodsToDate(x)
-    else if (all(grepl(week.regex, x[1L]))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
-        result <- weeklyPeriodsToDate(x, us.format)
+    else
+    {
+        is.weekly <- FALSE
+        if (is.null(us.format) || isTRUE(us.format))
+            is.weekly <- grepl(week.regex.us, x[1L], perl = TRUE,
+                                  ignore.case = TRUE)
+        if (is.null(us.format) || !us.format)
+            is.weekly <- is.weekly || grepl(week.regex.int, x[1L], perl = TRUE,
+                                                  ignore.case = TRUE)
+        if (is.weekly)
+            result <- weeklyPeriodsToDate(x, us.format)
+    }
 
     if (any(is.na(result)))
         result <- rep.int(NA, length(x))
@@ -91,7 +116,7 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
 #' @importFrom lubridate dmy year year<-
 quarterlyPeriodsToDate <- function(x)
 {
-    x.split <- strsplit(x, "-")
+    x.split <- strsplit(x, "[-/]")
     start.mon <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
     end.dat <- vapply(x.split, `[`, 2L, FUN.VALUE = "")
     end.yr <- regmatches(end.dat, regexpr("([0-9]{2}){1,2}$", end.dat))
@@ -104,25 +129,35 @@ quarterlyPeriodsToDate <- function(x)
     if (length(bad.idx))
         year(start.dmy[bad.idx]) <- year(end.dmy[bad.idx]) - 1
 
-    ## covert from Date to POSIXlt format
-    as.POSIXlt(start.dmy)
+    start.dmy
 }
 
 #' @importFrom lubridate parse_date_time2
 weeklyPeriodsToDate <- function(x, us.format = NULL)
 {
-    start.of.week.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}"
-    extracted.start <- unlist(regmatches(x, regexec(start.of.week.regex, x)))
+    sep <- "[/-]"
+    ## important to use non-capture groups for later call to regmatches()
+    day <- "(?:0?[0-9]|[12][0-9]|3[01])"
+    b.month <- paste0("(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
+                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)|nov(?:ember)?|dec(?:ember)?)")
+    m.month <- "(?:0?[1-9]|1[012])"
+    m.or.b.month <- paste0("(?:", b.month, "|", m.month, ")")
+    year <- "(?:[0-9]{2}){1,2}"
+    dd.mm.yyyy <- paste0(day, sep, m.or.b.month, sep, year)
+    mm.dd.yyyy <- paste0(m.or.b.month, sep, day, sep, year)
+
+    ords.int <- c("dmY", "dbY", "dby", "dmy")
+    ords.us <- c("mdY", "bdY", "bdy", "mdy")
+
     if (is.null(us.format))
     {
-        result.int <- parse_date_time2(extracted.start, "dmY", exact = TRUE)
-        result.us <- parse_date_time2(extracted.start, "mdY", exact = TRUE)
+        result.int <- parseDayMonthYear(x, dd.mm.yyyy, ords.int, TRUE)
+        result.us <- parseDayMonthYear(x, mm.dd.yyyy, ords.us, TRUE)
+
         if (!any(is.na(result.int)) && !any(is.na(result.us)))
-        {
-            end.of.week.regex <- "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
-            extracted.end <- unlist(regmatches(x, regexec(end.of.week.regex, x)))
-            result.end.int <- parse_date_time2(extracted.end, "dmY", exact = TRUE)
-            result.end.us <- parse_date_time2(extracted.end, "mdY", exact = TRUE)
+        {  # starts dates are ambiguous, see if end date resolves ambiguity
+            result.end.int <- parseDayMonthYear(x, dd.mm.yyyy, ords.int, FALSE)
+            result.end.us <- parseDayMonthYear(x, mm.dd.yyyy, ords.us, FALSE)
             if (!any(is.na(result.end.int)) && !any(is.na(result.end.us)))
                 warning("Date formats are ambiguous, US format has been used.")
             if (!any(is.na(result.end.us)))
@@ -136,9 +171,34 @@ weeklyPeriodsToDate <- function(x, us.format = NULL)
             result <- result.int
     }
     else if (us.format)
-        result <- parse_date_time2(extracted.start, "mdY", exact = TRUE)
+        result <- parseDayMonthYear(x, mm.dd.yyyy, ords.us, TRUE)
     else
-        result <- parse_date_time2(extracted.start, "dmY", exact = TRUE)
+        result <- parseDayMonthYear(x, dd.mm.yyyy, ords.int, TRUE)
+
+    result
+}
+
+#' @noRd
+#' @importFrom lubridate parse_date_time2
+parseDayMonthYear <- function(x, pattern, ords, start = TRUE)
+{
+    if (start)
+        pattern <- paste0("^", pattern, "\\b")
+    else
+        pattern <- paste0("\\b", pattern, "$")
+    dates <- unlist(regmatches(x, regexec(pattern, x, perl = TRUE,
+                                          ignore.case = TRUE)))
+
+    if (length(dates) != length(x))
+        return(rep.int(NA, length(x)))
+
+    for (ord in ords)
+    {
+        result <- parse_date_time2(dates, ord, exact = TRUE)
+        if (!any(is.na(result)))
+            break
+    }
+
     result
 }
 

@@ -1,3 +1,13 @@
+Changes in Version 2.1.0 (2017-11-17)
+--------------------------------------------------------
+
+NEW FEATURES
+
+* `AsDate` gains additional support for date ranges/periods with
+full name, abbreviated name, or numeric months; additional sepators
+allowed between parts of the date and separating the dates; and
+support for two or four digit years.
+
 Changes in Version 2.0.1 (2017-11-15)
 --------------------------------------------------------
 
