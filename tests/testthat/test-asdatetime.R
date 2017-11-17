@@ -1,12 +1,12 @@
 context("AsDateTime")
 
-dt1 <- lubridate::parse_date_time("2016-01-02 00:34:56", "YmdHMS")
-dt2 <- lubridate::parse_date_time("2016-01-02 00:34", "YmdHM")
-dt3 <- lubridate::parse_date_time("2016-01-02", "Ymd")
-dt4 <- lubridate::parse_date_time("2010-02", "Ym")
-dt5 <- lubridate::parse_date_time("2010", "Y")
-dt6 <- lubridate::parse_date_time("2010-02-03", "Ymd")
-dt7 <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
+dt1 <- as.POSIXct(lubridate::parse_date_time("2016-01-02 00:34:56", "YmdHMS"))
+dt2 <- as.POSIXct(lubridate::parse_date_time("2016-01-02 00:34", "YmdHM"))
+dt3 <- as.POSIXct(lubridate::parse_date_time("2016-01-02", "Ymd"))
+dt4 <- as.POSIXct(lubridate::parse_date_time("2010-02", "Ym"))
+dt5 <- as.POSIXct(lubridate::parse_date_time("2010", "Y"))
+dt6 <- as.POSIXct(lubridate::parse_date_time("2010-02-03", "Ymd"))
+dt7 <- as.POSIXct(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate")))
 v <- c(dt1, dt4)
 attr(v, "tzone") <- "UTC"
 
@@ -81,7 +81,7 @@ test_that("AsDateTime",
     ## Vector input in __multiple__ formats not supported by AsDateTime
     ## Both will parse separately in vectors where all elements are same format
     expect_equal(AsDateTime("1/2/2016 12:34:56 AM", us.format = TRUE), v[1])
-    expect_equal(AsDateTime("Feb 2010"), v[2])
+    expect_equal(AsDateTime("Feb 2010", time.zone = "UTC"), v[2])
     expect_is(AsDateTime(c("Jul-2014", "Jan-2012")), c("POSIXct", "POSIXt"))
 
     ## bY format date

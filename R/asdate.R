@@ -19,8 +19,8 @@
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
     var.name <- deparse(substitute(x))
-    if (inherits(x, c("POSIXct", "POSIXt")))
-        return(x)
+    if (inherits(x, c("POSIXct", "POSIXt", "Date")))
+        return(as.Date(x))
 
     if (!isNotAllNonEmptyText(x))
     {
@@ -31,7 +31,7 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
       ## Jan-Mar 2015 and 30/10/1999-27/11/2000
       pd <- parsePeriodDate(x, us.format)
       if (!any(is.na(pd)))
-          return(pd)
+          return(as.Date(pd))
 
       ## The order of orders has been carefully selected.
       ## Ensure that unit tests still pass if the order is changed.
@@ -57,9 +57,11 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
       {
           x <- sub("^([[:alpha:]])", "\\U\\1", x, perl = TRUE)  # lubridate fails if month not capitalized
           if (grepl("[0-9]{4}$", x1))
-              return(parse_date_time2(paste("01", x, sep = sep), orders = "dbY", exact = exact))
+              return(as.Date(parse_date_time2(paste("01", x, sep = sep),
+                                              orders = "dbY", exact = exact)))
           else
-              return(parse_date_time2(paste("01", x, sep = sep), orders = "dby", exact = exact))
+              return(as.Date(parse_date_time2(paste("01", x, sep = sep),
+                                              orders = "dby", exact = exact)))
       }
 
       for (ord in orders)
@@ -90,7 +92,7 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
     }
 
     ## result <- parse_date_time2(x, ord, exact = TRUE)
-    parsed  # result
+    as.Date(parsed)  # result
 }
 
 #' Check if a supplied vector contains non-empty text in every element

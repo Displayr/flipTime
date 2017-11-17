@@ -1,4 +1,4 @@
-Changes in Version 2.1.0 (2017-11-17)
+Changes in Version 2.2.0 (2017-11-17)
 --------------------------------------------------------
 
 NEW FEATURES
@@ -7,6 +7,12 @@ NEW FEATURES
 full name, abbreviated name, or numeric months; additional sepators
 allowed between parts of the date and separating the dates; and
 support for two or four digit years.
+
+* `AsDate` now always returns an object of class "Date" and 
+`AsDateTime` always returns an object of class "POSIXct".  If dates
+(without times) are supplied to `AsDateTime`, they will be parsed by
+`AsDate` (as done previously), but they now will be coerced to
+"POSIXct" using `as.POSIXct`
 
 Changes in Version 2.0.1 (2017-11-15)
 --------------------------------------------------------

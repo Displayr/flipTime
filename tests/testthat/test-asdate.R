@@ -1,14 +1,12 @@
 context("AsDate")
 
-dt1 <- lubridate::parse_date_time("2016-01-02 00:34:56", "YmdHMS")
-dt2 <- lubridate::parse_date_time("2016-01-02 00:34", "YmdHM")
-dt3 <- lubridate::parse_date_time("2016-01-02", "Ymd")
-dt4 <- lubridate::parse_date_time("2010-02", "Ym")
-dt5 <- lubridate::parse_date_time("2010", "Y")
-dt6 <- lubridate::parse_date_time("2010-02-03", "Ymd")
-dt7 <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
-v <- c(dt1, dt4)
-attr(v, "tzone") <- "UTC"
+dt1 <- as.Date(lubridate::parse_date_time("2016-01-02 00:34:56", "YmdHMS"))
+dt2 <- as.Date(lubridate::parse_date_time("2016-01-02 00:34", "YmdHM"))
+dt3 <- as.Date(lubridate::parse_date_time("2016-01-02", "Ymd"))
+dt4 <- as.Date(lubridate::parse_date_time("2010-02", "Ym"))
+dt5 <- as.Date(lubridate::parse_date_time("2010", "Y"))
+dt6 <- as.Date(lubridate::parse_date_time("2010-02-03", "Ymd"))
+dt7 <- as.Date(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate")))
 
 test_that("AsDate", {
     # Month names

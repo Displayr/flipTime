@@ -72,7 +72,8 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
           parsed <- parse_date_time2(x1, ord, tz = time.zone)
           if (!is.na(parsed))
           {
-              parsed <- checkUSformatAndParse(x, ord, time.zone, is.null(us.format))
+              parsed <- checkUSformatAndParse(x, ord, time.zone,
+                                              is.null(us.format))
               if (all(!is.na(parsed)))
                   break
           }
@@ -80,8 +81,12 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
     }else
         parsed <- NA
 
-    if (any(is.na(parsed)))  # try to parse as dates with no times
-        return(AsDate(x, us.format = us.format, on.parse.failure = on.parse.failure))
+    ## try to parse as dates with no times
+    ## need to explicitly add time.zone as attr b/c
+    ## as.POSIXct ignores it when it's not required for conversion
+    if (any(is.na(parsed)))
+        return(structure(as.POSIXct(AsDate(x, us.format = us.format,
+                                 on.parse.failure = on.parse.failure)), tzone = time.zone))
 
     return(parsed)
 }

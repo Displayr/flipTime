@@ -1,6 +1,6 @@
 context("period")
 
-dt <- structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
+dt <- as.Date(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate")))
 
 test_that("period name to date", {
     expect_equal(as.character(AsDate(2010:2014)[1]), "2010-01-01")
