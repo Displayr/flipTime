@@ -11,9 +11,14 @@
 #' \code{\link{stop}} in the event that \code{x} cannot be parsed;  specifying \code{"warn"} results
 #' in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the same length
 #' as \code{x}; any other value results in a vector of NAs being returned silently.
-#' @return a vector of POSIXct date-time objects
+#' @return A vector of \code{\link{Date}} objects.
+#' @seealso \code{\link{Date}}
 #' @examples
 #' AsDate("1-2-2017", us.format = FALSE)
+#' AsDate("1-2-2017", us.format = TRUE)
+#' AsDate("10/16/2016-2/10/2017")
+#' AsDate("jun/sep 10")
+#' AsDate("2010-February")
 #' @importFrom lubridate parse_date_time2
 #' @export
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")

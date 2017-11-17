@@ -24,7 +24,7 @@ in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the s
 as \code{x}; any other value results in a vector of NAs being returned silently.}
 }
 \value{
-a vector of POSIXct date-time objects
+A vector of \code{\link{Date}} objects.
 }
 \description{
 Parse dates assuming some common (unknown) formats
@@ -35,4 +35,11 @@ popular either in the U.S. or internationally
 }
 \examples{
 AsDate("1-2-2017", us.format = FALSE)
+AsDate("1-2-2017", us.format = TRUE)
+AsDate("10/16/2016-2/10/2017")
+AsDate("jun/sep 10")
+AsDate("2010-February")
+}
+\seealso{
+\code{\link{Date}}
 }
