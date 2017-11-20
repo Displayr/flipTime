@@ -15,12 +15,8 @@
 parsePeriodDate <- function(x, us.format = NULL)
 {
     sep <- "[/-]"
-    day <- "(0?[0-9]|[12][0-9]|3[01])"
-    b.month <- paste0("(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
-                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)|nov(?:ember)?|dec(?:ember)?)")
-    m.month <- "(0?[1-9]|1[012])"
-    m.or.b.month <- paste0("(", b.month, "|", m.month, ")")
-    year <- "([0-9]{2}){1,2}"
+    m.or.b.month <- bOrMMonthRegexPatt()
+    year <- yearRegexPatt()
 
     quarter.regex <- paste0("^", m.or.b.month, sep, m.or.b.month, " ", year, "$")
 
@@ -28,8 +24,8 @@ parsePeriodDate <- function(x, us.format = NULL)
     ## # e.g.: 1/02/1999-8/02/1999
     ## week.regex <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
     ##                      "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$")
-    dd.mm.yyyy <- paste0(day, sep, m.or.b.month, sep, year)
-    mm.dd.yyyy <- paste0(m.or.b.month, sep, day, sep, year)
+    dd.mm.yyyy <- dayMonthYearRegexPatt(sep)
+    mm.dd.yyyy <- monthDayYearRegexPatt(sep)
     week.regex.int <- paste0("^", dd.mm.yyyy, "[/ -]", dd.mm.yyyy, "$")
     week.regex.us <- paste0("^", mm.dd.yyyy, "[/ -]", mm.dd.yyyy, "$")
 
@@ -111,12 +107,13 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
 #' date format to obtain the start of the interval in R date-time objects
 #' @param x Character vector assumed to have elements in date format
 #' "%b-%b %y"; e.g. Apr-Jun 08
+#' @param sep Character string specifying how months in the period are separated
 #' @return Vector containing the start of each period parsed to date objects
 #' @noRd
 #' @importFrom lubridate dmy year year<-
-quarterlyPeriodsToDate <- function(x)
+quarterlyPeriodsToDate <- function(x, sep = "[/-]")
 {
-    x.split <- strsplit(x, "[-/]")
+    x.split <- strsplit(x, sep)
     start.mon <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
     end.dat <- vapply(x.split, `[`, 2L, FUN.VALUE = "")
     end.yr <- regmatches(end.dat, regexpr("([0-9]{2}){1,2}$", end.dat))
@@ -137,14 +134,8 @@ weeklyPeriodsToDate <- function(x, us.format = NULL)
 {
     sep <- "[/-]"
     ## important to use non-capture groups for later call to regmatches()
-    day <- "(?:0?[0-9]|[12][0-9]|3[01])"
-    b.month <- paste0("(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
-                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)|nov(?:ember)?|dec(?:ember)?)")
-    m.month <- "(?:0?[1-9]|1[012])"
-    m.or.b.month <- paste0("(?:", b.month, "|", m.month, ")")
-    year <- "(?:[0-9]{2}){1,2}"
-    dd.mm.yyyy <- paste0(day, sep, m.or.b.month, sep, year)
-    mm.dd.yyyy <- paste0(m.or.b.month, sep, day, sep, year)
+    dd.mm.yyyy <- dayMonthYearRegexPatt(sep)
+    mm.dd.yyyy <- monthDayYearRegexPatt(sep)
 
     ords.int <- c("dmY", "dbY", "dby", "dmy")
     ords.us <- c("mdY", "bdY", "bdy", "mdy")
@@ -201,6 +192,36 @@ parseDayMonthYear <- function(x, pattern, ords, start = TRUE)
 
     result
 }
+
+#' @note Important to use non-capture groups due to later use of regmatches
+#' @noRd
+dayRegexPatt <- function()
+    "(?:0?[0-9]|[12][0-9]|3[01])"
+
+#' @noRd
+bMonthRegexPatt <- function()
+    paste0("(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
+                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)|nov(?:ember)?|dec(?:ember)?)")
+
+#' @noRd
+mMonthRegexPatt <- function()
+    "(?:0?[1-9]|1[012])"
+
+#' @noRd
+bOrMMonthRegexPatt <- function()
+    paste0("(?:", bMonthRegexPatt(), "|", mMonthRegexPatt(), ")")
+
+#' @noRd
+yearRegexPatt <- function()
+    "(?:[0-9]{2}){1,2}"
+
+#' @noRd
+dayMonthYearRegexPatt <- function(sep = "[/-]")
+    paste0(dayRegexPatt(), sep, bOrMMonthRegexPatt(), sep, yearRegexPatt())
+
+#' @noRd
+monthDayYearRegexPatt <- function(sep = "[/-]")
+    paste0(bOrMMonthRegexPatt(), sep, dayRegexPatt(), sep, yearRegexPatt())
 
 #' \code{CompleteListPeriodNames}
 #'
