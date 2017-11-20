@@ -70,6 +70,20 @@ test_that("Weekly periods: two-digit years",
     expect_equal(format(out, "%y"), c("03", "12"))
 })
 
+test_that("Weekly periods: CC comment on DS-1650",
+{
+    lab <- c("16-Jan-12-29-Jan-12", "13-Feb-12-26-Feb-12", "30-Jan-12-12-Feb-12",
+    "12-Mar-12-25-Mar-12", "19-Dec-11-01-Jan-12", "02-Jan-12-15-Jan-12",
+    "27-Feb-12-11-Mar-12", "26-Mar-12-08-Apr-12", "21-May-12-03-Jun-12",
+    "07-May-12-20-May-12", "04-Jun-12-17-Jun-12", "23-Apr-12-06-May-12",
+    "18-Jun-12-01-Jul-12", "09-Apr-12-22-Apr-12", "02-Jul-12-15-Jul-12",
+    "10-Sep-12-23-Sep-12", "13-Aug-12-26-Aug-12", "16-Jul-12-29-Jul-12",
+    "27-Aug-12-09-Sep-12", "30-Jul-12-12-Aug-12", "24-Sep-12-07-Oct-12",
+    "17-Dec-12-30-Dec-12", "22-Oct-12-04-Nov-12", "08-Oct-12-21-Oct-12",
+    "19-Nov-12-02-Dec-12", "03-Dec-12-16-Dec-12", "05-Nov-12-18-Nov-12")
+    expect_silent(AsDate(lab))
+})
+
 test_that("Q-Quarterly dates: diff. start and end years; DS-1652",
 {
     x <- c("Jun-Nov 16", "Dec-May 17", "Jun-Nov 17")
