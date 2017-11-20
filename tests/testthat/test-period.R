@@ -8,7 +8,8 @@ test_that("period name to date", {
                  "2010-01-01")
     expect_equal(as.character(AsDate(c("2016", "2017"))[2]),
                  "2017-01-01")
-    expect_equal(as.character(AsDate(c("2016.4"))[1]), "2016-04-01")
+    ## Ym format with . separator no longer supported
+    ## expect_equal(as.character(AsDate(c("2016.4"))[1]), "2016-04-01")
     expect_equal(as.character(AsDate(c("Jan-Mar 12", "Oct-Dec 15"))[2]),
                  "2015-10-01")
     expect_equal(as.character(AsDate(c("March 2012", "October 2015"))[2]),

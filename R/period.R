@@ -202,8 +202,16 @@ dayRegexPatt <- function()
 #' @note Need to use ignore.case = TRUE in all regex function calls as this pattern
 #' only matches all lower case on its own.
 bMonthRegexPatt <- function()
+{
+    ## Commented out code uses R's built in constants to make month regex
+    ## xtra.m.part <- mapply(function(abb, full) sub(abb, "", full), month.abb, month.name)
+    ## ## specify non-capture group, except for may, which has no extra part (i.e. abbrev == full)
+    ## xtra.m.part[nchar(month.name) > 3] <- paste0("(?:", xtra.m.part[nchar(month.name) > 3], ")?")
+    ## paste0("(?:", paste(tolower(month.abb), xtra.m.part, collapse = "|", sep = ""), ")")
+
     paste0("(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|",
-                     "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)")
+                      "jul(?:y)?|aug(?:ust)?|sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)")
+}
 
 #' @noRd
 mMonthRegexPatt <- function()

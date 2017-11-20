@@ -25,7 +25,7 @@ test_that("AsDate", {
     expect_equal(AsDate("2010-02-03"), dt6)
 
     ## Numeric month year
-    expect_warning(out <- AsDate("02/10"))
+    expect_silent(out <- AsDate("02/10"))
     expect_equal(out, dt4)
     expect_equal(AsDate("02/2010"), dt4)
     expect_equal(AsDate("02/2010"), dt4)
@@ -163,4 +163,31 @@ test_that("AsDate error handling",
 test_that("AsDate: x is NULL",
 {
     expect_length(AsDate(NULL, on.parse.failure = "silent"), 0)
+})
+
+test_that("AsDate: month year formats",
+{
+    ## test every possible value for %m and %b
+    mons <- cbind(as.character(1:12), sprintf("%02d", 1:12), month.abb,
+                month.name)
+    ## days <- as.character(1:31)
+    ## days <- matrix(rep(days, length.out = length(mons)), 12, 4)
+    years <- cbind(rep(c("2012", "1999", "1888", "1770", "2002"),
+                       length.out = nrow(mons)),
+                       rep(c("00", "13", "97", "66"), length.out = nrow(mons)))
+
+    seps <- c("-", "/", "", "_", ".")
+    for (j in seq_len(ncol(mons)))
+    {  ## generator a random separator from all possible sep.
+        sep <- if (j == 1L || j == 2L){
+                       sample(seps[1:2], 1)
+                   }else
+                       sample(seps, 1)
+        ## All these should parse without AsDate throwing error
+        x <- paste0(mons[, j], sep, years[, sample(2, 1)])
+        expect_silent(AsDate(x))
+        x <- paste0(years[, sample(2, 1)], sep, mons[, j])
+        expect_silent(AsDate(x))
+    }
+
 })

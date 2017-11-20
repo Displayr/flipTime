@@ -42,7 +42,7 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
       ## Ensure that unit tests still pass if the order is changed.
       ## mY and Ym should be before ymd, dmy, etc.
       ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
-      orders <- c("Ybd", "dby", "dbY", "bY", "by", "bdy", "bdY", "Yb", "yb", "Ymd", "mY", "Ym")
+      orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
       orders <- if (is.null(us.format))
                           c(orders, "mdY", "mdy", "dmY", "dmy")
                       else if (us.format)
@@ -50,36 +50,27 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
                       else
                           c(orders, "dmY", "dmy")
       #orders <- c(orders, c("my", "Ymd", "y", "Y"))
-      orders <- c(orders, c("ymd", "ybd", "ydm", "Y", "my", "ym"))
+      orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
 
       x1 <- x[1L]
 
-      ## Try 'bY' and 'by' formats
-      ## need to handle this case separately as lubridate <= 1.6.0
-      ## fails to parse them
-      sep <- checkbYformat(x1)
-      if (!is.na(sep))
-      {
-          x <- sub("^([[:alpha:]])", "\\U\\1", x, perl = TRUE)  # lubridate fails if month not capitalized
-          if (grepl("[0-9]{4}$", x1))
-              return(as.Date(parse_date_time2(paste("01", x, sep = sep),
-                                              orders = "dbY", exact = exact)))
-          else
-              return(as.Date(parse_date_time2(paste("01", x, sep = sep),
-                                              orders = "dby", exact = exact)))
-      }
-
-      for (ord in orders)
-      {
-          parsed <- parse_date_time2(x1, ord, exact = exact)
-          if (!is.na(parsed))
+      ## Try formats with month and year, but no day
+      ## lubridate <= 1.6.0 fails to parse bY and by orders
+      ## and returns many false positives for my and ym
+      parsed <- checkMonthYearFormats(x)
+      if (any(is.na(parsed))){
+          for (ord in orders)
           {
-              parsed <- checkUSformatAndParse(x, ord,
-                                              unknown.format = is.null(us.format), exact = exact)
-              ## could have false positive match on first elem. e.g. mdY matches
-              ## even though it's clear from later elem. that dmY is correct
-              if (all(!is.na(parsed)))
-                  break
+              parsed <- parse_date_time2(x1, ord, exact = exact)
+              if (!is.na(parsed))
+              {
+                  parsed <- checkUSformatAndParse(x, ord,
+                                                  unknown.format = is.null(us.format), exact = exact)
+                  ## could have false positive match on first elem. e.g. mdY matches
+                  ## even though it's clear from later elem. that dmY is correct
+                  if (all(!is.na(parsed)))
+                      break
+              }
           }
       }
     }else
@@ -111,3 +102,83 @@ isNotAllNonEmptyText <- function(x)
         x, useBytes = TRUE))
 }
 
+#' Check if a string can be parsed to "bY" or "by" date format
+#'
+#' Checks if a character string can be parsed into a date format
+#' involving a month and year with no day.  \code{\link[lubridate]{parse_date_time2}}
+#' is too aggressive when parsing these formats and there are many examples of false
+#' positives, so we handle it ourselves with regex instead of lubridate.
+#' @param x1 character
+#' @return \code{NA} if \code{x1} cannot be parsed in
+#' "bY" or "by" format or the separator needed for parsing
+#' e.g. "-" if x1 has form "Jan-2017" or "" if x1 has form
+#' "August13"
+#' @details "-", "/", "_", and " ", ".", are valid separators for character months,
+#' as is no separator.  For numeric months the separator must be "/" or "-".
+#' @importFrom lubridate fast_strptime
+#' @noRd
+checkMonthYearFormats <- function(
+                                  x,
+                                  time.zone = "UTC")
+{
+    ## check with regex on one element first; to fail more quickly
+    ## use fast_strptime with separator specified to be extra careful
+    ## to avoid false positives (though regex check already does this too)
+    x1 <- x[1L]
+    out <- rep.int(NA, length(x))
+
+    b.month <- bMonthRegexPatt()
+    m.month <- mMonthRegexPatt()
+    year <- yearRegexPatt()
+    sep.regex.patt <- "([/._ -]?)"
+    ## check for by or bY
+    out <- checkMonthYearFormatAndParse(x, b.month, year, "%b", "%y",
+                                        sep.regex.patt)
+
+    if (any(is.na(out)))  # check yb or Yb
+        out <- checkMonthYearFormatAndParse(x, year, b.month, "%y", "%b",
+                                            sep.regex.patt)
+
+    sep.regex.patt <- "([/-])"
+    if (any(is.na(out))) # check my or mY
+        out <- checkMonthYearFormatAndParse(x, m.month, year, "%m", "%y",
+                                            sep.regex.patt)
+
+    if (any(is.na(out)))   # check ym or Ym
+        out <- checkMonthYearFormatAndParse(x, year, m.month, "%y", "%m",
+                                            sep.regex.patt)
+
+    if (any(is.na(out)))
+        return(rep.int(NA, length(x)))
+
+    out
+}
+
+#' Checks if character vector matches a particular month year date format
+#' and parses it to a date object if it does
+#' @noRd
+#' @param sep.patt Character string giving a \emph{capture} regex pattern
+#' of valid separators to look for
+#' @importFrom lubridate fast_strptime
+checkMonthYearFormatAndParse <- function(
+                                         x,
+                                         patt1,
+                                         patt2,
+                                         format1,
+                                         format2,
+                                         sep.patt)
+{
+    out <- NA
+    x1 <- x[1L]
+    patt <- paste0( "\\b", patt1, sep.patt, patt2, "\\b")
+    sep <- sub(patt, "\\1", x1, ignore.case = TRUE, perl = TRUE)
+    if (!identical(sep, x1))
+    {
+        isY <- grepl("[0-9]{4}", x1)
+        fpatt <- if (isY) "\\U\\1" else "\\L\\1"
+        format1 <- sub("([Yy])", fpatt, format1, perl = TRUE)
+        format2 <- sub("([Yy])", fpatt, format2, perl = TRUE)
+        out <- fast_strptime(x, format = paste0(format1, sep, format2))
+    }
+    out
+}
