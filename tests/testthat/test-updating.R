@@ -14,4 +14,5 @@ test_that("updating", {
     expect_message(UpdateAt("11-30-2016 4:55:00", time.zone = "Australia/Canberra", us.format = TRUE, units = "days", frequency = 14))
     expect_error(UpdateAt("1-1-2017 15:00:00", time.zone = "Africa/Nairobi", us.format = TRUE, units = "months",
                           frequency = 12, options = "problem"), "Unrecognized options.")
+    expect_error(UpdateAt("32-1-2017 15:00:00", time.zone = "Asia/Bangkok", units = "months", frequency = 12), "Could not parse.")
 })

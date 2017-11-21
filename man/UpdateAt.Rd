@@ -8,12 +8,13 @@ UpdateAt(x, us.format = FALSE, time.zone = "UTC", units = "days",
   frequency = 1, options = "snapshot")
 }
 \arguments{
-\item{x}{Character vector to be parsed into a date and time.}
+\item{x}{Character vector to be parsed into the first update date and time. Each subsequent update occurs based on the
+\code{frequency} and \code{units} after \code{x}.}
 
 \item{us.format}{Whether to use the US convention for dates.}
 
 \item{time.zone}{An optional time zone, or else default of 'UTC' applies.
-See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.}
+See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.}
 
 \item{units}{The time unit for regular updates, which can be seconds, minutes, days, weeks or months.}
 

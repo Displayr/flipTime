@@ -59,10 +59,11 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 
 #' @title{UpdateAt}
 #' @description Sets date and time after which an R object is woken and updated, then a frequency for periodic updates.
-#' @param x Character vector to be parsed into a date and time.
+#' @param x Character vector to be parsed into the first update date and time. Each subsequent update occurs based on the
+#' \code{frequency} and \code{units} after \code{x}.
 #' @param us.format Whether to use the US convention for dates.
 #' @param time.zone An optional time zone, or else default of 'UTC' applies.
-#' See https://en.wikipedia.org/wiki/List_of_tz_database_time_zones for a list of time zones.
+#' See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.
 #' @param units The time unit for regular updates, which can be seconds, minutes, days, weeks or months.
 #' @param frequency The period of regular updates, expressed in \code{units} units.
 #' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
@@ -83,7 +84,7 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
         stop("Update frequency must be at least 600 seconds.")
 
     first.update <- AsDateTime(x, us.format = us.format, time.zone = time.zone,
-                               on.parse.failure = "silent")
+                               on.parse.failure = "error")
     now <- Sys.time()
     attr(now, "tzone") <- time.zone
 
