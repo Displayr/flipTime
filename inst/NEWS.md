@@ -1,4 +1,4 @@
-Changes in Version 2.3.0 (2017-11-20)
+Changes in Version 2.3.1 (2017-11-22)
 --------------------------------------------------------
 
 NEW FEATURES
@@ -15,6 +15,8 @@ support for two or four digit years.
 (without times) are supplied to `AsDateTime`, they will be parsed by
 `AsDate` (as done previously), but they now will be coerced to
 "POSIXct" using `as.POSIXct`
+* `AsDate` supports character month, year formats with month and year
+separated by "," and arbitrary whitespace (DS-1668)
 
 Changes in Version 2.0.1 (2017-11-15)
 --------------------------------------------------------

@@ -38,27 +38,27 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
       if (!any(is.na(pd)))
           return(as.Date(pd))
 
-      ## The order of orders has been carefully selected.
-      ## Ensure that unit tests still pass if the order is changed.
-      ## mY and Ym should be before ymd, dmy, etc.
-      ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
-      orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
-      orders <- if (is.null(us.format))
-                          c(orders, "mdY", "mdy", "dmY", "dmy")
-                      else if (us.format)
-                          c(orders, "mdY", "mdy")
-                      else
-                          c(orders, "dmY", "dmy")
-      #orders <- c(orders, c("my", "Ymd", "y", "Y"))
-      orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
-
-      x1 <- x[1L]
-
       ## Try formats with month and year, but no day
       ## lubridate <= 1.6.0 fails to parse bY and by orders
       ## and returns many false positives for my and ym
       parsed <- checkMonthYearFormats(x)
-      if (any(is.na(parsed))){
+      if (any(is.na(parsed)))
+      {  # strict month-year fmts failed, try dmy formats
+          ## The order of orders has been carefully selected.
+          ## Ensure that unit tests still pass if the order is changed.
+          ## mY and Ym should be before ymd, dmy, etc.
+          ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
+          orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
+          orders <- if (is.null(us.format))
+                              c(orders, "mdY", "mdy", "dmY", "dmy")
+                          else if (us.format)
+                              c(orders, "mdY", "mdy")
+                          else
+                              c(orders, "dmY", "dmy")
+          #orders <- c(orders, c("my", "Ymd", "y", "Y"))
+          orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
+
+          x1 <- x[1L]
           for (ord in orders)
           {
               parsed <- parse_date_time2(x1, ord, exact = exact)
@@ -130,7 +130,8 @@ checkMonthYearFormats <- function(
     b.month <- bMonthRegexPatt()
     m.month <- mMonthRegexPatt()
     year <- yearRegexPatt()
-    sep.regex.patt <- "([/._ -]?)"
+    sep.regex.patt <- "([[:space:]]*[/._ ,-]?[[:space:]]*)"
+
     ## check for by or bY
     out <- checkMonthYearFormatAndParse(x, b.month, year, "%b", "%y",
                                         sep.regex.patt)

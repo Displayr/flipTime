@@ -176,7 +176,7 @@ test_that("AsDate: month year formats",
                        length.out = nrow(mons)),
                        rep(c("00", "13", "97", "66"), length.out = nrow(mons)))
 
-    seps <- c("-", "/", "", "_", ".")
+    seps <- c("-", "/", "", "_", ".", ",")
     for (j in seq_len(ncol(mons)))
     {  ## generator a random separator from all possible sep.
         sep <- if (j == 1L || j == 2L){
@@ -190,4 +190,10 @@ test_that("AsDate: month year formats",
         expect_silent(AsDate(x))
     }
 
+})
+
+test_that("AsDate: month year formats, comma-sep; DS-1668",
+{
+    out <- flipTime::AsDate("July, 1998")
+    expect_equal(format(out, "%d"), "01")
 })
