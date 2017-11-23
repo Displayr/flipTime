@@ -1,7 +1,7 @@
 #' @title{TimeUnitsToSeconds}
 #' @description Converts a number of minutes, hours, days, weeks or months to seconds.
 #' @param x The period expressed in \code{units} units.
-#' @param units The time unit, which can be seconds, minutes, days, weeks or months.
+#' @param units The time unit, which can be seconds, minutes, hours, days, weeks or months.
 #' @importFrom lubridate %m+%
 #' @export
 TimeUnitsToSeconds <- function(x, units = "seconds") {
@@ -25,7 +25,7 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' @title{UpdateEvery}
 #' @description Sets a period of time, after which an R object is woken and updated.
 #' @param x The period expressed in \code{units} units.
-#' @param units The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"days"},
+#' @param units The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"},
 #' \code{"weeks"} or \code{"months"}.
 #' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
 #' or \code{"snapshot"} which also updates any embedded snapshots of the document.

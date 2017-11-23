@@ -32,6 +32,9 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
     if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
 
+    if (!time.zone %in% OlsonNames())
+        stop("Time zone not recognized.")
+
     if (!isNotAllNonEmptyText(x))
     {
       orders <- if (is.null(us.format))

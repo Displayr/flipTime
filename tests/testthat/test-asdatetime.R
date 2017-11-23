@@ -13,6 +13,7 @@ attr(v, "tzone") <- "UTC"
 test_that("AsDateTime",
 {
     ## US date format
+    expect_error(AsDateTime("1/2/2016 12:34:56 AM", time.zone = "nowhere"), "Time zone not recognized.")
     expect_warning(AsDateTime("1/2/2016 12:34:56 AM"), "^Date formats are ambiguous")
     expect_equal(AsDateTime("1/2/2016 12:34:56 AM", us.format = TRUE), dt1)
     expect_equal(AsDateTime("1/2/2016 00:34:56", us.format = TRUE), dt1)

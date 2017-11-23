@@ -9,7 +9,7 @@ TimeUnitsToSeconds(x, units = "seconds")
 \arguments{
 \item{x}{The period expressed in \code{units} units.}
 
-\item{units}{The time unit, which can be seconds, minutes, days, weeks or months.}
+\item{units}{The time unit, which can be seconds, minutes, hours, days, weeks or months.}
 }
 \description{
 Converts a number of minutes, hours, days, weeks or months to seconds.

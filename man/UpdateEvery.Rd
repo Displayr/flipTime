@@ -9,7 +9,7 @@ UpdateEvery(x, units = "seconds", options = "snapshot")
 \arguments{
 \item{x}{The period expressed in \code{units} units.}
 
-\item{units}{The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"days"},
+\item{units}{The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"},
 \code{"weeks"} or \code{"months"}.}
 
 \item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
