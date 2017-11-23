@@ -14,7 +14,7 @@
 #' @noRd
 parsePeriodDate <- function(x, us.format = NULL)
 {
-    sep <- "[/-]"
+    sep <- "[[:space:]]*[/-][[:space:]]*"
     m.or.b.month <- bOrMMonthRegexPatt()
     year <- yearRegexPatt()
 
@@ -32,7 +32,7 @@ parsePeriodDate <- function(x, us.format = NULL)
     result <- NA
     ## Q quarters, e.g.: Apr-Jun 08
     if (grepl(quarter.regex, x[1L], perl = TRUE, ignore.case = TRUE))
-        result <- quarterlyPeriodsToDate(x)
+        result <- quarterlyPeriodsToDate(x, sep = sep)
     else
     {
         is.weekly <- FALSE

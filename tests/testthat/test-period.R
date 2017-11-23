@@ -127,6 +127,21 @@ test_that("quarterly periods: four-digit years supported",
 
 })
 
+test_that("quarterly periods: space around sep. CC DS-1652 comment",
+{
+    out <- AsDate(c("July - June 2010", "July-June 2010", "Dec - May 17"))
+    expect_equal(format(out, "%m"), c("07", "07", "12"))
+    expect_equal(format(out, "%d"), c("01", "01", "01"))
+    expect_equal(format(out, "%y"), c("09", "09", "16"))
+
+    out <- AsDate(c("May     -Aug 2010", "Feb -      Sep 2010",
+                    "September-November 2001"))
+    expect_equal(format(out, "%m"), c("05", "02", "09"))
+    expect_equal(format(out, "%d"), c("01", "01", "01"))
+    expect_equal(format(out, "%y"), c("10", "10", "01"))
+})
+
+
 test_that("Periods",
 {
     library(lubridate)

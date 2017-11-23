@@ -1,4 +1,4 @@
-Changes in Version 2.3.1 (2017-11-22)
+Changes in Version 2.3.2 (2017-11-23)
 --------------------------------------------------------
 
 NEW FEATURES
@@ -17,6 +17,9 @@ support for two or four digit years.
 "POSIXct" using `as.POSIXct`
 * `AsDate` supports character month, year formats with month and year
 separated by "," and arbitrary whitespace (DS-1668)
+* `AsDate` allows arbitrary whitespace around the separator in
+  quarterly periods, e.g. "Jan    -Feb 10" (DS-1652)
+
 
 Changes in Version 2.0.1 (2017-11-15)
 --------------------------------------------------------
