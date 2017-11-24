@@ -85,6 +85,22 @@ test_that("Weekly periods: CC comment on DS-1650",
     expect_silent(AsDate(lab))
 })
 
+test_that("period with two years, two months, no days; DS-1652 CC comment",
+{
+    ## out <- AsDate("July 2016 - June 2017")
+    ## expect_equal(format(out, "%m"), "07")
+    ## expect_equal(format(out, "%Y"), "2016")
+    ## expect_equal(format(out, "%d"), "01")
+})
+
+test_that("weekly period: financial year format; DS-1652 CC comment",
+{
+    out <- AsDate("7 July, 2016 - 30 June, 2017")
+    expect_equal(format(out, "%m"), "07")
+    expect_equal(format(out, "%Y"), "2016")
+    expect_equal(format(out, "%d"), "07")
+})
+
 test_that("Q-Quarterly dates: diff. start and end years; DS-1652",
 {
     x <- c("Jun-Nov 16", "Dec-May 17", "Jun-Nov 17")
