@@ -99,6 +99,12 @@ test_that("weekly period: financial year format; DS-1652 CC comment",
     expect_equal(format(out, "%m"), "07")
     expect_equal(format(out, "%Y"), "2016")
     expect_equal(format(out, "%d"), "07")
+
+    out <- AsDate("10-30, 2016 - 06-15, 2017")
+    expect_equal(format(out, "%m"), "10")
+    expect_equal(format(out, "%Y"), "2016")
+    expect_equal(format(out, "%d"), "30")
+
 })
 
 test_that("Q-Quarterly dates: diff. start and end years; DS-1652",
