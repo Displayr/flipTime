@@ -28,36 +28,36 @@ parsePeriodDate <- function(x, us.format = NULL)
     year <- yearRegexPatt()
 
     opt.year <- paste0("(", date.parts.sep.no.day, year, ")?")
-    quarter.regex <- paste0("^", m.or.b.month, opt.year, period.sep.no.day,
+    period.regex.no.day <- paste0("^", m.or.b.month, opt.year, period.sep.no.day,
                             m.or.b.month, date.parts.sep.no.day, year, "$")
 
-    ## quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
+    ## period.regex.no.day <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
     ## # e.g.: 1/02/1999-8/02/1999
-    ## week.regex <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
+    ## period.regex.with.day <- paste0("^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-",
     ##                      "[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$")
 
     dd.mm.yyyy <- dayMonthYearRegexPatt(date.parts.sep.with.day)
     mm.dd.yyyy <- monthDayYearRegexPatt(date.parts.sep.with.day)
-    week.regex.int <- paste0("^", dd.mm.yyyy, period.sep.with.day,
+    period.regex.with.day.int <- paste0("^", dd.mm.yyyy, period.sep.with.day,
                              dd.mm.yyyy, "$")
-    week.regex.us <- paste0("^", mm.dd.yyyy, period.sep.with.day, mm.dd.yyyy, "$")
+    period.regex.with.day.us <- paste0("^", mm.dd.yyyy, period.sep.with.day, mm.dd.yyyy, "$")
 
     result <- NA
     ## Q quarters, e.g.: Apr-Jun 08
-    if (grepl(quarter.regex, x[1L], perl = TRUE, ignore.case = TRUE))
-        result <- quarterlyPeriodsToDate(x, period.sep = period.sep.no.day,
+    if (grepl(period.regex.no.day, x[1L], perl = TRUE, ignore.case = TRUE))
+        result <- parsePeriodWithoutDays(x, period.sep = period.sep.no.day,
                                          date.part.sep = date.parts.sep.no.day)
     else
     {
         is.weekly <- FALSE
         if (is.null(us.format) || isTRUE(us.format))
-            is.weekly <- grepl(week.regex.us, x[1L], perl = TRUE,
+            is.weekly <- grepl(period.regex.with.day.us, x[1L], perl = TRUE,
                                   ignore.case = TRUE)
         if (is.null(us.format) || !us.format)
-            is.weekly <- is.weekly || grepl(week.regex.int, x[1L], perl = TRUE,
+            is.weekly <- is.weekly || grepl(period.regex.with.day.int, x[1L], perl = TRUE,
                                                   ignore.case = TRUE)
         if (is.weekly)
-            result <- weeklyPeriodsToDate(x, us.format, date.parts.sep.with.day)
+            result <- parsePeriodsWithDays(x, us.format, date.parts.sep.with.day)
     }
 
     if (any(is.na(result)))
@@ -94,14 +94,14 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
         x <- as.character(x)
 
     # e.g.: Apr-Jun 08
-    quarter.regex <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
+    period.regex.no.day <- "^[[:alpha:]]{3}-[[:alpha:]]{3} [[:digit:]]{2}$"
     # e.g.: 1/02/1999-8/02/1999
-    week.regex <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
+    period.regex.with.day <- "^[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}-[[:digit:]]{1,2}/[[:digit:]]{1,2}/[[:digit:]]{4}$"
 
-    if (all(grepl(quarter.regex, x))) # Q quarters, e.g.: Apr-Jun 08
-        result <- quarterlyPeriodsToDate(x)
-    else if (all(grepl(week.regex, x))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
-        result <- weeklyPeriodsToDate(x, us.format)
+    if (all(grepl(period.regex.no.day, x))) # Q quarters, e.g.: Apr-Jun 08
+        result <- parsePeriodWithoutDays(x)
+    else if (all(grepl(period.regex.with.day, x))) # Q weekly periods, e.g.: 1/02/1999-8/02/1999
+        result <- parsePeriodsWithDays(x, us.format)
     else
     {
         suppressWarnings(parsed.numeric <- as.numeric(x))
@@ -129,7 +129,7 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
 #'     objects
 #' @noRd
 #' @importFrom lubridate dmy year year<-
-quarterlyPeriodsToDate <- function(x, period.sep = "[/-]", date.part.sep = "[[:space:]]")
+parsePeriodWithoutDays <- function(x, period.sep = "[/-]", date.part.sep = "[[:space:]]")
 {
     x.split <- strsplit(x, period.sep, perl = TRUE)
     start.dat <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
@@ -153,7 +153,7 @@ quarterlyPeriodsToDate <- function(x, period.sep = "[/-]", date.part.sep = "[[:s
 }
 
 #' @importFrom lubridate parse_date_time2
-weeklyPeriodsToDate <- function(x, us.format = NULL, sep = "[/-]")
+parsePeriodsWithDays <- function(x, us.format = NULL, sep = "[/-]")
 {
     ## important to use non-capture groups for later call to regmatches()
     dd.mm.yyyy <- dayMonthYearRegexPatt(sep)
