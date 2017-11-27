@@ -29,55 +29,25 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
 
     if (!isNotAllNonEmptyText(x))
     {
-      if (is.numeric(x))
-          x <- as.character(x)
+        if (is.numeric(x))
+            x <- as.character(x)
 
-      ## First check for period dates of form
-      ## Jan-Mar 2015 and 30/10/1999-27/11/2000
-      pd <- parsePeriodDate(x, us.format)
-      if (!any(is.na(pd)))
-          return(as.Date(pd))
+        ## First check for period dates of form
+        ## Jan-Mar 2015 and 30/10/1999-27/11/2000
+        pd <- parsePeriodDate(x, us.format)
+        if (!any(is.na(pd)))
+            return(as.Date(pd))
 
-      ## Try formats with month and year, but no day
-      ## lubridate <= 1.6.0 fails to parse bY and by orders
-      ## and returns many false positives for my and ym
-    parsed <- checkMonthYearFormats(x)
-    ##   if (any(is.na(parsed)))
-    ##   {  # strict month-year fmts failed, try dmy formats
-    ##       ## The order of orders has been carefully selected.
-    ##       ## Ensure that unit tests still pass if the order is changed.
-    ##       ## mY and Ym should be before ymd, dmy, etc.
-    ##       ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
-    ##       orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
-    ##       orders <- if (is.null(us.format))
-    ##                           c(orders, "mdY", "mdy", "dmY", "dmy")
-    ##                       else if (us.format)
-    ##                           c(orders, "mdY", "mdy")
-    ##                       else
-    ##                           c(orders, "dmY", "dmy")
-    ##       #orders <- c(orders, c("my", "Ymd", "y", "Y"))
-    ##       orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
+        ## Try formats with month and year, but no day
+        ## lubridate <= 1.6.0 fails to parse bY and by orders
+        ## and returns many false positives for my and ym
+        parsed <- checkMonthYearFormats(x)
 
-    ##       x1 <- x[1L]
-    ##       for (ord in orders)
-    ##       {
-    ##           parsed <- parse_date_time2(x1, ord, exact = exact)
-    ##           if (!is.na(parsed))
-    ##           {
-    ##               parsed <- checkUSformatAndParse(x, ord,
-    ##                                               unknown.format = is.null(us.format), exact = exact)
-    ##               ## could have false positive match on first elem. e.g. mdY matches
-    ##               ## even though it's clear from later elem. that dmY is correct
-    ##               if (all(!is.na(parsed)))
-    ##                   break
-    ##           }
-    ##       }
-      ##   }
-      if (any(is.na(parsed)))
-          parsed <- checkFormatsWithDay(x, us.format, exact)
+        if (any(is.na(parsed)))
+            parsed <- checkFormatsWithDay(x, us.format, exact)
 
-      if (any(is.na(parsed)))
-          parsed <- parse_date_time2(x, "Y", exact = exact)
+        if (any(is.na(parsed)))
+            parsed <- parse_date_time2(x, "Y", exact = exact)
     }else
         parsed <- NA
 
