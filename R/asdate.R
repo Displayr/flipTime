@@ -41,40 +41,46 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
       ## Try formats with month and year, but no day
       ## lubridate <= 1.6.0 fails to parse bY and by orders
       ## and returns many false positives for my and ym
-      parsed <- checkMonthYearFormats(x)
-      if (any(is.na(parsed)))
-      {  # strict month-year fmts failed, try dmy formats
-          ## The order of orders has been carefully selected.
-          ## Ensure that unit tests still pass if the order is changed.
-          ## mY and Ym should be before ymd, dmy, etc.
-          ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
-          orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
-          orders <- if (is.null(us.format))
-                              c(orders, "mdY", "mdy", "dmY", "dmy")
-                          else if (us.format)
-                              c(orders, "mdY", "mdy")
-                          else
-                              c(orders, "dmY", "dmy")
-          #orders <- c(orders, c("my", "Ymd", "y", "Y"))
-          orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
+    parsed <- checkMonthYearFormats(x)
+    ##   if (any(is.na(parsed)))
+    ##   {  # strict month-year fmts failed, try dmy formats
+    ##       ## The order of orders has been carefully selected.
+    ##       ## Ensure that unit tests still pass if the order is changed.
+    ##       ## mY and Ym should be before ymd, dmy, etc.
+    ##       ## since sparse_date_time("10-10-10", "mY", exact = TRUE) fails
+    ##       orders <- c("Ybd", "dby", "dbY", "bdy", "bdY", "Ymd")
+    ##       orders <- if (is.null(us.format))
+    ##                           c(orders, "mdY", "mdy", "dmY", "dmy")
+    ##                       else if (us.format)
+    ##                           c(orders, "mdY", "mdy")
+    ##                       else
+    ##                           c(orders, "dmY", "dmy")
+    ##       #orders <- c(orders, c("my", "Ymd", "y", "Y"))
+    ##       orders <- c(orders, c("ymd", "ybd", "ydm", "Y"))
 
-          x1 <- x[1L]
-          for (ord in orders)
-          {
-              parsed <- parse_date_time2(x1, ord, exact = exact)
-              if (!is.na(parsed))
-              {
-                  parsed <- checkUSformatAndParse(x, ord,
-                                                  unknown.format = is.null(us.format), exact = exact)
-                  ## could have false positive match on first elem. e.g. mdY matches
-                  ## even though it's clear from later elem. that dmY is correct
-                  if (all(!is.na(parsed)))
-                      break
-              }
-          }
-      }
+    ##       x1 <- x[1L]
+    ##       for (ord in orders)
+    ##       {
+    ##           parsed <- parse_date_time2(x1, ord, exact = exact)
+    ##           if (!is.na(parsed))
+    ##           {
+    ##               parsed <- checkUSformatAndParse(x, ord,
+    ##                                               unknown.format = is.null(us.format), exact = exact)
+    ##               ## could have false positive match on first elem. e.g. mdY matches
+    ##               ## even though it's clear from later elem. that dmY is correct
+    ##               if (all(!is.na(parsed)))
+    ##                   break
+    ##           }
+    ##       }
+      ##   }
+      if (any(is.na(parsed)))
+          parsed <- checkFormatsWithDay(x, us.format, exact)
+
+      if (any(is.na(parsed)))
+          parsed <- parse_date_time2(x, "Y", exact = exact)
     }else
         parsed <- NA
+
 
     if (any(is.na(parsed)))
     {
@@ -155,6 +161,60 @@ checkMonthYearFormats <- function(
     out
 }
 
+checkFormatsWithDay <- function(
+                         x,
+                         us.format = NULL,
+                         exact = TRUE)
+{
+    ## check with regex on one element first; to fail more quickly
+    ## use fast_strptime with separator specified to be extra careful
+    ## to avoid false positives (though regex check already does this too)
+    x1 <- x[1L]
+    out <- rep.int(NA, length(x))
+
+    ## b.month <- bMonthRegexPatt()
+    ## m.month <- mMonthRegexPatt()
+    ## year <- yearRegexPatt()
+    sep.regex.patt <- "([[:space:]]*[/._ ,-]?[[:space:]]*)"
+    if (is.null(us.format) || isTRUE(us.format))
+    {
+        patt <- monthDayYearRegexPatt(sep.regex.patt, FALSE)
+        ord <- "mdy"
+    }else
+    {
+        patt <- dayMonthYearRegexPatt(sep.regex.patt, FALSE)
+        ord <- "dmy"
+    }
+
+    out <- checkFormat(x, patt, ord, us.format, exact)
+    if (!any(is.na(out)))
+        return(out)
+
+    ## if us.format not specified, need to check dmy
+    if (is.null(us.format))
+    {
+        patt <- dayMonthYearRegexPatt(sep.regex.patt, FALSE)
+        out <- checkFormat(x, patt, "dmy", us.format, exact)
+        if (!any(is.na(out)))
+            return(out)
+    }
+
+    ## check formats with year first
+    patt <- yearMonthDayRegexPatt(sep.regex.patt, FALSE)
+    out <- checkFormat(x, patt, "ymd", us.format, exact)
+    if (!any(is.na(out)))
+        return(out)
+
+    patt <- yearDayMonthRegexPatt(sep.regex.patt, FALSE)
+    out <- checkFormat(x, patt, "ydm", us.format, exact)
+
+    if (any(is.na(out)))
+        return(rep.int(NA, length(x)))
+
+    out
+}
+
+
 #' Checks if character vector matches a particular month year date format
 #' and parses it to a date object if it does
 #' @noRd
@@ -182,4 +242,62 @@ checkMonthYearFormatAndParse <- function(
         out <- fast_strptime(x, format = paste0(format1, sep, format2))
     }
     out
+}
+
+checkFormat <- function(
+                        x,
+                        patt,
+                        ord = c("dmy", "mdy", "ymd", "ydm"),
+                     us.format = NULL,
+                     exact = TRUE)
+{
+    ord <- match.arg(ord)
+    x1 <- x[1L]
+    m <- regexec(patt, x1, perl = TRUE, ignore.case = TRUE)
+    seps <- regmatches(x1, m)[[1L]][-1]
+
+    if (!length(seps))
+        return(NA)
+    fmt <- try(makeFormatFromOrder(x1, seps, ord), TRUE)
+    if (inherits(fmt, "try-error"))
+        return(NA)
+    checkUSformatAndParse(x, ord, unknown.format = is.null(us.format), exact = exact,
+                          fmt = fmt, seps = seps)
+}
+
+#' Construct a format for use with \code{strptime} given
+#' separators and an order without separators
+#' @details makes some additional checks on the separators
+#' and order to ensure that numeric date parts are separated by something.
+#' The current month-day-year regex patterns in period.R, could be made more
+#' sophisticated with lookaheads to not allow missing separators between numeric
+#' date parts, but it's beyond my current regex skills, so instead check here.
+#' @noRd
+makeFormatFromOrder <- function(x1, seps, ord)
+{
+    is.b <- grepl("[[:alpha:]]+", x1)
+    is.Y <- grepl("[0-9]{4}", x1)
+    if (length(seps) == 1L)
+    {
+        ord <- sub("d", "", ord)
+        if (!is.b && !grepl("[[:space:]]*[/-][[:space:]]*", seps))
+            stop("Only '-' or '/' are allowed as separators for formats with ",
+                 "numeric months and no days.")
+    }else if (!is.b && any(seps == "")){
+        stop("Separators cannot be omitted with numeric month formats.")
+    }else
+    {
+        if ((grepl("^yd", ord) && seps[1L] == "") ||
+            (grepl("dy$", ord) && seps[2L] == ""))
+            stop("Numeric day and year must have a separator between them.")
+    }
+
+    if (is.Y)
+        ord <- sub("y", "Y", ord)
+    if (is.b)
+        ord <- sub("m", "b", ord)
+
+    parts <- strsplit(ord, "")[[1L]]
+    paste0("%", parts[1L], seps[1L], "%", parts[2L],
+           if(length(seps) == 2L) paste0(seps[2L], "%", parts[3L]))
 }
