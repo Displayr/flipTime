@@ -32,7 +32,9 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
     if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
 
-    if (!time.zone %in% OlsonNames())
+    if (is.null(time.zone) || time.zone == "")
+        time.zone <- "UTC"
+    else if (!time.zone %in% OlsonNames())
         stop("Time zone not recognized.")
 
     if (!isNotAllNonEmptyText(x))
