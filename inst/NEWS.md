@@ -3,6 +3,15 @@ Changes in Version 2.4.0 (2017-11-24)
 
 NEW FEATURES
 
+* `AsDate` is now more strict when parsing all formats, for example
+`AsDate("jan 128")` and `AsDate("3.145")` now fail to parse
+
+
+Changes in Version 2.4.0 (2017-11-24)
+--------------------------------------------------------
+
+NEW FEATURES
+
 * `AsDate` gains additional support for date ranges/periods for
 example `"July 7, 1998 - Aug 10, 1999"` and `"Sep 10 - Jan 11"`
 

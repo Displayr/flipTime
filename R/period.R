@@ -218,7 +218,7 @@ parseDayMonthYear <- function(x, pattern, ords, start = TRUE)
 #' @note Important to use non-capture groups due to later use of regmatches
 #' @noRd
 dayRegexPatt <- function()
-    "(?:0?[0-9]|[12][0-9]|3[01])"
+    "(?:[12][0-9]|3[01]|0?[0-9])"
 
 #' @noRd
 #' @note Need to use ignore.case = TRUE in all regex function calls as this pattern
@@ -237,7 +237,7 @@ bMonthRegexPatt <- function()
 
 #' @noRd
 mMonthRegexPatt <- function()
-    "(?:0?[1-9]|1[012])"
+    "(?:1[012]|0?[1-9])"
 
 #' @noRd
 bOrMMonthRegexPatt <- function()
@@ -248,12 +248,25 @@ yearRegexPatt <- function()
     "(?:[0-9]{2}){1,2}"
 
 #' @noRd
-dayMonthYearRegexPatt <- function(sep = "[/-]")
-    paste0(dayRegexPatt(), sep, bOrMMonthRegexPatt(), sep, yearRegexPatt())
+dayMonthYearRegexPatt <- function(sep = "[/-]", day.optional = FALSE)
+    paste0(if (day.optional) "(?:", dayRegexPatt(), sep, if (day.optional) ")?",
+           bOrMMonthRegexPatt(), sep, yearRegexPatt())
 
 #' @noRd
-monthDayYearRegexPatt <- function(sep = "[/-]")
-    paste0(bOrMMonthRegexPatt(), sep, dayRegexPatt(), sep, yearRegexPatt())
+monthDayYearRegexPatt <- function(sep = "[/-]", day.optional = FALSE)
+    paste0(bOrMMonthRegexPatt(), sep, if (day.optional) "(?:", dayRegexPatt(),
+           sep, if (day.optional) ")?", yearRegexPatt())
+
+#' @noRd
+yearMonthDayRegexPatt <- function(sep = "[/-]", day.optional = FALSE)
+    paste0(yearRegexPatt(), sep, bOrMMonthRegexPatt(),
+           if (day.optional) "(?:", sep, dayRegexPatt(), if (day.optional) ")?")
+
+#' @noRd
+yearDayMonthRegexPatt <- function(sep = "[/-]", day.optional = FALSE)
+    paste0(yearRegexPatt(),
+           if (day.optional) "(?:", sep, dayRegexPatt(), if (day.optional) ")?",
+           sep, bOrMMonthRegexPatt())
 
 #' \code{CompleteListPeriodNames}
 #'

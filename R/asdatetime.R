@@ -138,9 +138,18 @@ checkbYformat <- function(x1, time.zone = "UTC")
 #' @importFrom lubridate parse_date_time2
 #' @noRd
 checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
-                                  unknown.format = TRUE, exact = TRUE)
+                                  unknown.format = TRUE, exact = TRUE, fmt, seps)
 {
-    out <- parse_date_time2(x, ord, tz = time.zone, exact = exact)
+    fmt.known <- !missing(fmt)
+    parse.fun <- if (fmt.known)
+                             function(fmt) fast_strptime(x, format = fmt, tz = time.zone)
+                         else
+                             function(ord) parse_date_time2(x, ord,
+                                                            tz = time.zone, exact = exact)
+    if (!fmt.known)
+        fmt <- ord
+
+    out <- parse.fun(fmt)
     if (any(is.na(out)))  # don't bother checking if haven't found a match yet
         return(out)
 
@@ -150,7 +159,9 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
     if (unknown.format && grepl("^md", ord))
     {
         ord.flip <- sub("^md", "dm", ord)
-        checkForAmbiguousOrder(x, ord.flip, time.zone, exact,
+        if (fmt.known)
+            ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
+        checkForAmbiguousOrder(parse.fun, ord.flip,
                                msg = "Date formats are ambiguous, US format has been used.")
     }
 
@@ -158,20 +169,27 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
     {
         ambiguous <- FALSE
         ord.flip <- sub("^(d?m|md)y", "y\\1", ord)
+        if (fmt.known)
+            ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
+
         ## check if dmyXXX , mdyXXX, myXXX, also match ydmXXX, ymdXXX,
         ##  or ymXXX, respectively; needed only if m not b (b can't chg pos.)
         if (ord.flip != ord)
-            ambiguous <- checkForAmbiguousOrder(x, ord.flip, time.zone, exact)
+            ambiguous <- checkForAmbiguousOrder(parse.fun, ord.flip)
         ## only throw one warning if an ambiguity is encountered
         if (!ambiguous && grepl("^d[bm]y", ord))
         {  # check if dmyXXX matches ymdXXX or dbyXXX matches ybdXXX
             ord.flip <- sub("^d([bm])y", "y\\1d", ord)
-            checkForAmbiguousOrder(x, ord.flip, time.zone, exact)
+            if (fmt.known)
+                ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
+            checkForAmbiguousOrder(parse.fun, ord.flip)
         }
         else if (!ambiguous && grepl("^mdy", ord))
         {  # check if mdyXXX matches ymdXXX, no need to worry about b
             ord.flip <- sub("^mdy", "ymd", ord)
-            checkForAmbiguousOrder(x, ord.flip, time.zone, exact)
+            if (fmt.known)
+                ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
+            checkForAmbiguousOrder(parse.fun, ord.flip)
         }
     }
     out
@@ -186,17 +204,22 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
 #' @param ord.flip character; order to try
 #' @param time.zone character; time zone to use when parsing dates
 #' @param msg character message to use for warning if ambiguity is detected
+#' @param fmt.flip Optional character vector giving the exact format to parse
+#' \code{x} with; if specified, \code{ord.flip} is ignored and \code{\link[lubridate]{fast_strptime}}
+#' is used to parse \code{x}.
 #' @return \code{TRUE} if both \code{out} and \code{x} parsed using
 #' \code{ord.flip} contain no NAs; otherwise, \code{FALSE}
 #' @details throws a warning if \code{ord.flip} also successfully parses
 #' the entire vector \code{x}.  Will not warn if \code{out} contains any NAs,
 #' and thus failed to parse the entire vector.
 #' @noRd
-checkForAmbiguousOrder <- function(x, ord.flip, time.zone = "UTC", exact = TRUE,
+checkForAmbiguousOrder <- function(
+                                   parse.fun,
+                                   ord.flip,
                                    msg = paste0("Supplied date formats are ambiguous, two-digit",
                                                 " year assumed to come after month."))
 {
-    out.flip <- parse_date_time2(x, ord.flip, tz = time.zone, exact = exact)
+    out.flip <- parse.fun(ord.flip)
     ## out.good <- all(!is.na(out))
     flip.good <- all(!is.na(out.flip))
     if (flip.good)

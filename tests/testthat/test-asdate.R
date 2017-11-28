@@ -197,3 +197,10 @@ test_that("AsDate: month year formats, comma-sep; DS-1668",
     out <- flipTime::AsDate("July, 1998")
     expect_equal(format(out, "%d"), "01")
 })
+
+test_that("AsDate: DS-1607, more strict checking of formats",
+{
+    expect_error(AsDate("5.12"), "^Could not parse")
+    expect_error(AsDate("5.145"), "^Could not parse")
+    expect_error(AsDate("June 128"), "^Could not parse")
+})
