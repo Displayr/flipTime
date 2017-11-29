@@ -18,7 +18,7 @@ parsePeriodDate <- function(x, us.format = NULL)
     ## positives are more likely e.g. dd-mm-yy could parsed as the period mm-mm-yy
     ## if '-' is allowed for both separators
     ## \p{Pd} is unicode dash punctuation property
-    date.parts.sep.no.day <- "[[:space:]]+"
+    date.parts.sep.no.day <- "(?:[[:space:]]+|[,/\\p{Pd}])"
     period.sep.no.day <- "[[:space:]]*[,/\\p{Pd}][[:space:]]*"
 
     date.parts.sep.with.day <- "[[:space:]]*[,/ \\p{Pd}][[:space:]]*"
@@ -129,15 +129,38 @@ PeriodNameToDate <- function(x, by, us.format = NULL)
 #'     objects
 #' @noRd
 #' @importFrom lubridate dmy year year<-
-parsePeriodWithoutDays <- function(x, period.sep = "[/-]", date.part.sep = "[[:space:]]")
+parsePeriodWithoutDays <- function(x, period.sep = "[/\\p{Pd}]",
+                                   date.part.sep = "[[:space:]/\\p{Pd}]")
 {
     x.split <- strsplit(x, period.sep, perl = TRUE)
-    start.dat <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
-    end.dat <- vapply(x.split, `[`, 2L, FUN.VALUE = "")
+    if (length(x.split[[1L]]) == 4L)
+    {
+        start.dat <- paste(vapply(x.split, `[`, 1L, FUN.VALUE = ""),
+                           vapply(x.split, `[`, 2L, FUN.VALUE = ""), sep = "-")
+        end.dat <- paste(vapply(x.split, `[`, 3L, FUN.VALUE = ""),
+                           vapply(x.split, `[`, 4L, FUN.VALUE = ""), sep = "-")
+
+    }else if (length(x.split[[1L]]) == 3L)
+    {
+        ## don't allow %m/%m/%y to avoid matching %d/%m/%y
+        ## allow %b/%b/%y
+        bMonth <- bMonthRegexPatt()
+        patt <- paste0("(", bMonth, "\\b.*){2}")
+        if (!grepl(patt, x[1L], perl = TRUE, ignore.case = TRUE))
+            return(NA)
+        start.dat <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
+        end.dat <- paste(vapply(x.split, `[`, 2L, FUN.VALUE = ""),
+                           vapply(x.split, `[`, 3L, FUN.VALUE = ""), sep = "-")
+
+    }else
+    {
+        start.dat <- vapply(x.split, `[`, 1L, FUN.VALUE = "")
+        end.dat <- vapply(x.split, `[`, 2L, FUN.VALUE = "")
+    }
     end.yr <- regmatches(end.dat, regexpr("([0-9]{2}){1,2}$", end.dat))
 
     opt.year <- paste0(date.part.sep, yearRegexPatt())
-    has.start.yr <- grepl(opt.year, start.dat)
+    has.start.yr <- grepl(opt.year, start.dat, perl = TRUE, ignore.case = TRUE)
     start <- paste0("01-", start.dat)
     start[!has.start.yr] <- paste0(start[!has.start.yr], "-", end.yr)
     end <- paste0("01-", end.dat)

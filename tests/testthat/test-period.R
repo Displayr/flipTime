@@ -87,10 +87,10 @@ test_that("Weekly periods: CC comment on DS-1650",
 
 test_that("period with two years, two months, no days; DS-1652 CC comment",
 {
-    ## out <- AsDate("July 2016 - June 2017")
-    ## expect_equal(format(out, "%m"), "07")
-    ## expect_equal(format(out, "%Y"), "2016")
-    ## expect_equal(format(out, "%d"), "01")
+    out <- AsDate("July 2016 - June 2017")
+    expect_equal(format(out, "%m"), "07")
+    expect_equal(format(out, "%Y"), "2016")
+    expect_equal(format(out, "%d"), "01")
 })
 
 test_that("weekly period: financial year format; DS-1652 CC comment",
@@ -148,6 +148,53 @@ test_that("quarterly periods: four-digit years supported",
     expect_equal(format(out, "%y"), c("77", "88"))
 
 })
+
+test_that("quarterly periods: same separator for date part and period",
+{
+    x <- c("mar/october/1977", "apr/janUary/1989")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), c("03", "04"))
+    expect_equal(format(out, "%y"), c("77", "88"))
+
+    x <- c("may-oct/77", "apr/jun-00")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), c("05", "04"))
+    expect_equal(format(out, "%y"), c("77", "00"))
+
+    ## doesn't confuse dd/mm/yy with mm/mm/yy
+    out <- AsDate("12/10/00", us.format = TRUE)
+    expect_equal(format(out, "%d"), "10")
+})
+
+test_that("quarterly periods: same sep. for date part+period, two years",
+{
+    x <- c("mar/2010/oct/2011", "sep/1989/dec/1989")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), c("03", "09"))
+    expect_equal(format(out, "%d"), c("01", "01"))
+    expect_equal(format(out, "%y"), c("10", "89"))
+
+    x <- c("10/11/9/13")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), "10")
+    expect_equal(format(out, "%y"), "11")
+
+    x <- c("10-11-9-13")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), "10")
+    expect_equal(format(out, "%y"), "11")
+
+    x <- c("10/11-9/13")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), "10")
+    expect_equal(format(out, "%y"), "11")
+
+    x <- c("8-2012/9-2013")
+    out <- AsDate(x)
+    expect_equal(format(out, "%m"), "08")
+    expect_equal(format(out, "%y"), "12")
+})
+
 
 test_that("quarterly periods: space around sep. CC DS-1652 comment",
 {

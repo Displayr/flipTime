@@ -1,3 +1,13 @@
+Changes in Version 2.6.0 (2017-11-29)
+--------------------------------------------------------
+
+NEW FEATURES
+
+* `AsDate` gains additional support for parsing period formats
+without days; e.g. `"may/2011-jun/2012"`, `"10/17-12/17"`,
+`"5 1999-8 2000"`, etc.
+
+
 Changes in Version 2.5.0 (2017-11-27)
 --------------------------------------------------------
 
@@ -5,7 +15,6 @@ NEW FEATURES
 
 * `AsDate` is now more strict when parsing all formats, for example
 `AsDate("jan 128")` and `AsDate("3.145")` now fail to parse
-
 
 Changes in Version 2.4.0 (2017-11-24)
 --------------------------------------------------------
