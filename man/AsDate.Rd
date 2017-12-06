@@ -31,6 +31,15 @@ Parse dates assuming some common (unknown) formats
 popular either in the U.S. or internationally
 }
 \details{
+Time intervals or periods (start and end dates
+representing a specific time span) are also supported. If periods
+are detected in \code{x}, the starting date is parsed to class
+\code{"Date"} and returned.  A wide-range of separators are
+supported and days are optional.  The starting year also does not
+need to be supplied, though for numeric months, the format must be
+exactly \samp{"\%m/\%m \%y} or \samp{"\%m-\%m \%y"} (four-digit years
+will also work).  See the examples.
+
 \code{ParseDates} is deprecated and merely calls \code{AsDate}
 }
 \examples{
@@ -38,6 +47,10 @@ AsDate("1-2-2017", us.format = FALSE)
 AsDate("1-2-2017", us.format = TRUE)
 AsDate("10/16/2016-2/10/2017")
 AsDate("jun/sep 10")
+AsDate("10-02 2011")
+AsDate("10/02/2011", us.format = TRUE)
+AsDate("feb 2016-jan 2017")
+AsDate("31-05-2010 16-08-2011")
 AsDate("2010-February")
 }
 \seealso{
