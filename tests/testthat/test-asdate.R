@@ -11,6 +11,7 @@ dt7 <- as.Date(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate")))
 test_that("AsDate", {
     # Month names
     expect_equal(AsDate("2010-Feb-3"), dt6)
+    expect_equal(AsDate(factor("2010-Feb-3")), dt6)
     expect_warning(out <- AsDate("3 Feb 10"), "year assumed to come after month.$")
     expect_equal(out, dt6)
     expect_equal(AsDate("3 Feb 2010"), dt6)

@@ -16,6 +16,7 @@ test_that("AsDateTime",
     expect_error(AsDateTime("1/2/2016 12:34:56 AM", time.zone = "nowhere"), "Time zone not recognized.")
     expect_warning(AsDateTime("1/2/2016 12:34:56 AM"), "^Date formats are ambiguous")
     expect_equal(AsDateTime("1/2/2016 12:34:56 AM", us.format = TRUE), dt1)
+    expect_equal(AsDateTime(factor("1/2/2016 12:34:56 AM"), us.format = TRUE), dt1)
     expect_equal(AsDateTime("1/2/2016 00:34:56", us.format = TRUE), dt1)
     expect_equal(format(AsDateTime("1/2/2016 12:34 AM", us.format = TRUE),
                            "%m"), format(dt1, "%m"))
