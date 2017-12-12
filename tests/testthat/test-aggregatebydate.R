@@ -18,7 +18,6 @@ test_that("aggregatebydate.R", {
     expect_equal(AggregateByDate(za, "year"), c("2017" = 53, "2018" = 1))
     zz = data.frame(dts = dts, z = as.numeric(z))
     expect_equal(AggregateByDate(zz, "year"), c("2017" = 53, "2018" = 1))
-    zz = data.frame(dts = names(z), dates = dts, z = z)
-    expect_error(AggregateByDate(zz, "year"), c("2017" = 53, "2018" = 1))
+    expect_error(AggregateByDate(zz, "year", dates = dts), "'dates' has been provided and 'x' has more than 1 column. You may have either, but not both.")
 
 })

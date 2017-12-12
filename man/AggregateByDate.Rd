@@ -4,14 +4,16 @@
 \alias{AggregateByDate}
 \title{\code{AggregateByDate}}
 \usage{
-AggregateByDate(x, by, dates = names(x), FUN = sum)
+AggregateByDate(x, by, dates, FUN = sum)
 }
 \arguments{
-\item{x}{A vector containing the values to be aggregated.}
+\item{x}{A vector containing the values to be aggregated, or, a1D
+array, or some other structure with dates in the first column}
 
 \item{by}{The period used in the conversion (e.g., "week", "year").}
 
-\item{dates}{Either dates or characters that can be coerced to dates.}
+\item{dates}{Either dates or characters that can be coerced to dates.
+Inferred from x if not suppled (e.g., the names of x).}
 
 \item{FUN}{The function to be applied, or NULL. In the case of functions
 like +, %*%, etc., the function name must be backquoted or quoted.
