@@ -36,6 +36,8 @@
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
     var.name <- deparse(substitute(x))
+    if (is.factor(x))
+        x <- as.character(x)
     if (inherits(x, c("POSIXct", "POSIXt", "Date")))
         return(as.Date(x))
 
