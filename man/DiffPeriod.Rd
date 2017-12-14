@@ -21,9 +21,9 @@ An integer.
 \description{
 Computes the difference in years between two dates.
 }
+\details{
+Dates of "2016-02-29" are automatically converted to "2016-02-28" to deal with bugs in lubridate.
+}
 \examples{
 DiffPeriod("2015/05/06", "2017/05/06", by = "year")
-}
-\references{
-Adapted from Brian Ripley, http://r.789695.n4.nabble.com/Calculate-difference-between-dates-in-years-td835196.html
 }
