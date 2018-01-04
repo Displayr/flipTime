@@ -223,3 +223,12 @@ test_that("Periods",
     expect_equal(Periods(1, "quarter"), months(3))
     expect_equal(Periods(1, "year"), years(1))
 })
+
+test_that("Format Periods",
+{
+    expect_equal(FormatPeriod(999999),
+                 "11 Days, 13 Hours, 46 Minutes and 39 Seconds")
+    expect_equal(FormatPeriod(3601), "1 Hour and 1 Second")
+    expect_equal(FormatPeriod(86460), "1 Day and 1 Minute")
+    expect_equal(FormatPeriod(Periods(48, "hour")), "2 Days")
+})

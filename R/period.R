@@ -358,3 +358,62 @@ DaysPerPeriod <- function(by)
     switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7, day = 1)
 
 }
+
+
+#' @title FormatPeriod
+#' @description Displays a period in days, hours, minutes and seconds.
+#' @param period A period object. Alternatively a numeric corresponding to a
+#' number of seconds.
+#' @return A string displaying the period:
+#' e.g. "1 Day, 2 Hours, 3 Minutes and 4 Seconds"
+#' @examples
+#' FormatPeriod(1000)
+#' @export
+FormatPeriod <- function(period)
+{
+    remaining.seconds <- round(as.numeric(period))
+        days <- floor(remaining.seconds / 86400)
+        remaining.seconds <- remaining.seconds - days * 86400
+        hours <- floor(remaining.seconds / 3600)
+        remaining.seconds <- remaining.seconds - hours * 3600
+        minutes <- floor(remaining.seconds / 60)
+        seconds <- remaining.seconds - minutes * 60
+
+        n.entries <- 0
+        result <- ""
+
+        updateOutput <- function(n.units, unit.name, current.output)
+        {
+            if (n.units > 0)
+            {
+                n.entries <- current.output$n.entries
+                formatted.period <- current.output$formatted.period
+
+                if (n.entries == 1)
+                    formatted.period <- paste0(" and ", formatted.period)
+                else if (n.entries > 1)
+                    formatted.period <- paste0(", ", formatted.period)
+                if (n.units == 1)
+                    formatted.period <- paste0("1 ", unit.name, formatted.period)
+                else
+                    formatted.period <- paste0(n.units, " ", unit.name, "s",
+                                               formatted.period)
+                n.entries <- n.entries + 1
+
+                list(formatted.period = formatted.period, n.entries = n.entries)
+            }
+            else
+                current.output
+        }
+
+        current.output <- list(formatted.period = "", n.entries = 0)
+        current.output <- updateOutput(seconds, "Second", current.output)
+        current.output <- updateOutput(minutes, "Minute", current.output)
+        current.output <- updateOutput(hours, "Hour", current.output)
+        current.output <- updateOutput(days, "Day", current.output)
+
+        result <- current.output$formatted.period
+        if (result == "")
+            result <- "0 Seconds"
+        result
+}
