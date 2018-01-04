@@ -359,7 +359,6 @@ DaysPerPeriod <- function(by)
 
 }
 
-
 #' @title FormatPeriod
 #' @description Displays a period in days, hours, minutes and seconds.
 #' @param period A period object. Alternatively a numeric corresponding to a
@@ -371,16 +370,20 @@ DaysPerPeriod <- function(by)
 #' @export
 FormatPeriod <- function(period)
 {
-    remaining.seconds <- round(as.numeric(period))
+    period.seconds <- as.numeric(period)
+    if (period.seconds <= 0)
+        result <- "0 Seconds"
+    else if (period.seconds < 1)
+        result <- "Less than 1 Second"
+    else
+    {
+        remaining.seconds <- round(period.seconds)
         days <- floor(remaining.seconds / 86400)
         remaining.seconds <- remaining.seconds - days * 86400
         hours <- floor(remaining.seconds / 3600)
         remaining.seconds <- remaining.seconds - hours * 3600
         minutes <- floor(remaining.seconds / 60)
         seconds <- remaining.seconds - minutes * 60
-
-        n.entries <- 0
-        result <- ""
 
         updateOutput <- function(n.units, unit.name, current.output)
         {
@@ -413,7 +416,6 @@ FormatPeriod <- function(period)
         current.output <- updateOutput(days, "Day", current.output)
 
         result <- current.output$formatted.period
-        if (result == "")
-            result <- "0 Seconds"
-        result
+    }
+    result
 }

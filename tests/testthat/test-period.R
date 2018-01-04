@@ -231,4 +231,6 @@ test_that("Format Periods",
     expect_equal(FormatPeriod(3601), "1 Hour and 1 Second")
     expect_equal(FormatPeriod(86460), "1 Day and 1 Minute")
     expect_equal(FormatPeriod(Periods(48, "hour")), "2 Days")
+    expect_equal(FormatPeriod(0.7), "Less than 1 Second")
+    expect_equal(FormatPeriod(0), "0 Seconds")
 })
