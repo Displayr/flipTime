@@ -27,3 +27,9 @@ test_that("DiffPeriod", {
     expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "month", ceiling = FALSE), c(24, 23, 24))
     expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "month", ceiling = TRUE), c(24, 24, 25))
 })
+
+
+test_that("Change29FebTo28th", {
+    # Scalars - year
+    expect_equal(Change29FebTo28th(as.Date(c("2016/02/29", "2016/02/28"))),as.Date(c("2016/02/28", "2016/02/28")))
+})
