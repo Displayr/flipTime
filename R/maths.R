@@ -13,17 +13,24 @@
 #' @export
 DiffPeriod <- function(from, to, by, ceiling = FALSE)
 {
+initial.from = from #Delete after fixing bug
+initial.to = to  #Delete after fixing bug
     n <- length(from)
     n.to <- length(to)
     if (n != n.to)
         stop("'from' and 'to' have different lengths.")
-    from <- Change29FebTo28th(AsDate(from))
-    to <- Change29FebTo28th(AsDate(to))
+    from <- Change29FebTo28th(as.Date(AsDateTime(from)))
+    to <- Change29FebTo28th(as.Date(AsDateTime(to)))
     diff <- interval(from, to) %/% switch(by, month = months(1), year = years(1))
-    remainder  <- as.period(interval(from, to) %% switch(by,  month = months(1), year = years(1)))
+    remainder <- as.period(interval(from, to) %% switch(by,  month = months(1), year = years(1)))
     if (ceiling)
     {
         d <- remainder@month + remainder@day + remainder@hour + remainder@minute > 0
+        if (any(is.na(d)))
+        {
+            print(initial.from[is.na(d)])
+            print(initial.to[is.na(d)])
+        }
         diff[d] <- diff[d] + 1
     }
     diff
