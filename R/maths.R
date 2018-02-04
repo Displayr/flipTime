@@ -39,6 +39,7 @@ initial.to = to  #Delete after fixing bug
 #' Change29FebTo28th
 #'
 #' @details Replaces any 29th of Februaries with 28th of Februaries.
+#' @param x Vector of dates
 #' @importFrom lubridate month day days
 #' @return A vector of dates
 #' @export

@@ -6,6 +6,9 @@
 \usage{
 Change29FebTo28th(x)
 }
+\arguments{
+\item{x}{Vector of dates}
+}
 \value{
 A vector of dates
 }
