@@ -26,6 +26,9 @@ test_that("DiffPeriod", {
     # Vectorized - month
     expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "month", ceiling = FALSE), c(24, 23, 24))
     expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "month", ceiling = TRUE), c(24, 24, 25))
+    # Vectorized - quarter
+    expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "quarter", ceiling = FALSE), c(6, 5, 6))
+    expect_equal(DiffPeriod(rep("2015/05/06", 3), c("2017/05/06", "2017/05/05", "2017/05/07"), by = "quarter", ceiling = TRUE), c(6, 6, 7))
     # Vectorized - week
     a = c("2001/01/01", "2001/01/01")
     b = c("2001/01/29", "2001/01/30")

@@ -3,7 +3,7 @@
 #' @description Computes the difference in years between two dates.
 #' @param from The earlier date.
 #' @param to The later date.
-#' @param by The period used in the conversion. Either "Week", "month", or "year".
+#' @param by The period used in the conversion. Either "Week", "month", "quarter", or "year".
 #' @param ceiling If TRUE, rounds partial-year differences up (otherwise they are rounded
 #' down). Ignores seconds, minutes, and hours.
 #' @return An integer.
@@ -68,11 +68,14 @@ DecimalDate <- function(x, by) {
     d <- as.POSIXlt(date);
     month <- d$mon
     year <- d$year
-    if (by == "month")
+    if (by %in% c("month", "quarter"))
     {
         month.day <- d$mday
         days.in.month <- days_in_month(date)
-        return(as.numeric(year * 12 + month + (month.day - 1)/days.in.month))
+        months <- as.numeric(year * 12 + month + (month.day - 1)/days.in.month)
+        if (by == "quarter")
+            return(months / 4)
+        return(months)
     } else if (by == "year")
     {
     days.in.year <- ifelse(leap_year(date), 366, 365)
