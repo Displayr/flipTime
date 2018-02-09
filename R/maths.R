@@ -3,7 +3,7 @@
 #' @description Computes the difference in years between two dates.
 #' @param from The earlier date.
 #' @param to The later date.
-#' @param by The period used in the conversion. Either "month" or "year".
+#' @param by The period used in the conversion. Either "Week", "month", or "year".
 #' @param ceiling If TRUE, rounds partial-year differences up (otherwise they are rounded
 #' down). Ignores seconds, minutes, and hours.
 #' @return An integer.
@@ -20,13 +20,15 @@ DiffPeriod <- function(from, to, by, ceiling = FALSE)
         stop("'from' and 'to' have different lengths.")
     from <- Change29FebTo28th(as.Date(AsDateTime(from)))
     to <- Change29FebTo28th(as.Date(AsDateTime(to)))
-    if (by == "day")
-        diff <- as.numeric(to - from)
-    else
+    if (by == "day" || by == "week")
     {
-        diff <- DecimalDate(to, by) - DecimalDate(from, by)
-        diff <- if (ceiling) ceiling(diff) else (floor(diff))
+        diff <- as.numeric(to - from)
+        if (by == "week")
+            diff <- diff / 7
     }
+    else
+        diff <- DecimalDate(to, by) - DecimalDate(from, by)
+    diff <- if (ceiling) ceiling(diff) else (floor(diff))
     diff
 }
 

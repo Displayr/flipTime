@@ -11,7 +11,7 @@ DiffPeriod(from, to, by, ceiling = FALSE)
 
 \item{to}{The later date.}
 
-\item{by}{The period used in the conversion. Either "month" or "year".}
+\item{by}{The period used in the conversion. Either "Week", "month", or "year".}
 
 \item{ceiling}{If TRUE, rounds partial-year differences up (otherwise they are rounded
 down). Ignores seconds, minutes, and hours.}
