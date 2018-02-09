@@ -1,7 +1,7 @@
 Package: flipTime
 Type: Package
 Title: Tools for Manipulating Dates and Time Series
-Version: 2.7.7
+Version: 2.7.8
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Functions to aggregate time series into strings, and convert

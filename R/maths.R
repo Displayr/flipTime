@@ -74,7 +74,7 @@ DecimalDate <- function(x, by) {
         days.in.month <- days_in_month(date)
         months <- as.numeric(year * 12 + month + (month.day - 1)/days.in.month)
         if (by == "quarter")
-            return(months / 4)
+            return(months / 3)
         return(months)
     } else if (by == "year")
     {
