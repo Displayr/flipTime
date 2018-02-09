@@ -13,7 +13,8 @@ DiffPeriod(from, to, by, ceiling = FALSE)
 
 \item{by}{The period used in the conversion. Either "month" or "year".}
 
-\item{ceiling}{If TRUE, rounds partial-year differences up (otherwise they are rounded down).}
+\item{ceiling}{If TRUE, rounds partial-year differences up (otherwise they are rounded
+down). Ignores seconds, minutes, and hours.}
 }
 \value{
 An integer.
