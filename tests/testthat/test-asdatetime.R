@@ -10,6 +10,15 @@ dt7 <- as.POSIXct(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate"))
 v <- c(dt1, dt4)
 attr(v, "tzone") <- "UTC"
 
+test_that("IsDateTime",
+{
+    expect_true(IsDateTime("2007"))
+    expect_true(!IsDateTime("abc"))
+    expect_true(IsDateTime(c("Feb 3 2000", "Jan 1 2000", "Dec 2 2000", "April 4 2000")))
+    expect_true(!IsDateTime(c("Feb 3 2000", "not date", "Dec 2 2000", "April 4 2000")))
+})
+
+
 test_that("AsDateTime",
 {
     ## US date format

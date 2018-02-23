@@ -1,3 +1,21 @@
+#' Check whether text can be parsed as date/time
+#'
+#' Returns bool indicating whether text can be parsed as a date-time
+#' @export
+#' @param x Vector of input text
+#' @examples
+#' IsDateTime("2007")
+#' IsDateTime("abc")
+IsDateTime <- function(x)
+{
+    if (length(x) == 0)
+        return (FALSE)
+
+    return(!any(is.na(AsDateTime(x, on.parse.failure = "silent"))))
+}
+
+
+
 #' @export
 #' @rdname AsDateTime
 #' @details \code{ParseDateTime} is deprecated and merely calls \code{AsDateTime}
