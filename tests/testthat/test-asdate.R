@@ -12,7 +12,7 @@ test_that("AsDate", {
     # Month names
     expect_equal(AsDate("2010-Feb-3"), dt6)
     expect_equal(AsDate(factor("2010-Feb-3")), dt6)
-    expect_warning(out <- AsDate("3 Feb 10"), "year assumed to come after month.$")
+    expect_silent(out <- AsDate("3 Feb 10"))
     expect_equal(out, dt6)
     expect_equal(AsDate("3 Feb 2010"), dt6)
     expect_equal(AsDate("February 2010"), dt4)
@@ -38,12 +38,12 @@ test_that("AsDate", {
 
     # US format
     expect_equal(AsDate("2/3/2010", us.format = TRUE), dt6)
-    expect_warning(out <- AsDate("2/3/10", us.format = TRUE))
+    expect_silent(out <- AsDate("2/3/10", us.format = TRUE))
     expect_equal(out, dt6)
 
     # International date format
     expect_equal(AsDate("3/2/2010", us.format = FALSE), dt6)
-    expect_warning(out <- AsDate("3/2/10", us.format = FALSE))
+    expect_warning(out <- AsDate("03/2/10", us.format = FALSE))
     expect_equal(out, dt6)
 
     # Date input
@@ -204,4 +204,16 @@ test_that("AsDate: DS-1607, more strict checking of formats",
     expect_error(AsDate("5.12"), "^Could not parse")
     expect_error(AsDate("5.145"), "^Could not parse")
     expect_error(AsDate("June 128"), "^Could not parse")
+})
+
+test_that("No warning from single digit parsing as y; DS-1854",
+{
+    x <- c("24/9/17", "27/9/17",
+    "4/10/17", "19/10/17", "3/11/17", "21/11/17",
+    "24/11/17", "28/11/17", "1/12/17", "4/12/17",
+    "7/12/17", "11/12/17", "21/12/17", "27/12/17",
+    "2/1/18", "3/1/18", "5/1/18", "16/1/18",
+    "17/1/18", "18/1/18", "7/2/18", "15/2/18",
+    "16/2/18", "19/2/18", "21/2/18", "1/3/18")
+    expect_silent(AsDate(x))
 })

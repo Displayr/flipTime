@@ -75,17 +75,15 @@ test_that("AsDateTime",
     # Shortened year
     expect_equal(format(AsDateTime("2 January 99 12:34:56 AM"),
                         "%Y"), "1999")
-    expect_warning(out <- AsDateTime("2 January 16 00:34:56"),
+    expect_warning(out <- AsDateTime("02 January 16 00:34:56"),
                    "year assumed to come after month.$")
     expect_equal(out, dt1)
-    expect_warning(out <- AsDateTime("2 January 16 12:34 AM"),
+    expect_silent(out <- AsDateTime("2 January 16 12:34 AM"))
+    expect_equal(out, dt2)
+    expect_warning(out <- AsDateTime("02 January 16 00:34"),
                    "year assumed to come after month.$")
     expect_equal(out, dt2)
-    expect_warning(out <- AsDateTime("2 January 16 00:34"),
-                   "year assumed to come after month.$")
-    expect_equal(out, dt2)
-    expect_warning(out <- AsDateTime("2 January 16"),
-                   "year assumed to come after month.$")
+    expect_silent(out <- AsDateTime("2 January 16"))
     expect_equal(out, dt3)
     expect_equal(AsDateTime("February 10"), dt4)
 

@@ -180,7 +180,7 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
         ord.flip <- sub("^md", "dm", ord)
         if (fmt.known)
             ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
-        checkForAmbiguousOrder(parse.fun, ord.flip,
+        checkForAmbiguousOrder(parse.fun, ord.flip, x,
                                msg = "Date formats are ambiguous, US format has been used.")
     }
 
@@ -194,21 +194,21 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
         ## check if dmyXXX , mdyXXX, myXXX, also match ydmXXX, ymdXXX,
         ##  or ymXXX, respectively; needed only if m not b (b can't chg pos.)
         if (ord.flip != ord)
-            ambiguous <- checkForAmbiguousOrder(parse.fun, ord.flip)
+            ambiguous <- checkForAmbiguousOrder(parse.fun, ord.flip, x)
         ## only throw one warning if an ambiguity is encountered
         if (!ambiguous && grepl("^d[bm]y", ord))
         {  # check if dmyXXX matches ymdXXX or dbyXXX matches ybdXXX
             ord.flip <- sub("^d([bm])y", "y\\1d", ord)
             if (fmt.known)
                 ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
-            checkForAmbiguousOrder(parse.fun, ord.flip)
+            checkForAmbiguousOrder(parse.fun, ord.flip, x)
         }
         else if (!ambiguous && grepl("^mdy", ord))
         {  # check if mdyXXX matches ymdXXX, no need to worry about b
             ord.flip <- sub("^mdy", "ymd", ord)
             if (fmt.known)
                 ord.flip <- makeFormatFromOrder(x[1L], seps, ord.flip)
-            checkForAmbiguousOrder(parse.fun, ord.flip)
+            checkForAmbiguousOrder(parse.fun, ord.flip, x)
         }
     }
     out
@@ -235,9 +235,16 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
 checkForAmbiguousOrder <- function(
                                    parse.fun,
                                    ord.flip,
+                                   x,
                                    msg = paste0("Supplied date formats are ambiguous, two-digit",
                                                 " year assumed to come after month."))
 {
+    ## don't allow lubridate to parse single digit m or d as two digit year DS-1854
+    if (grepl("^%?y", ord.flip))
+    {
+        if (any(grepl("^[0-9][^0-9]", x)))
+            return(FALSE)
+    }
     out.flip <- parse.fun(ord.flip)
     ## out.good <- all(!is.na(out))
     flip.good <- all(!is.na(out.flip))
