@@ -206,7 +206,7 @@ test_that("AsDate: DS-1607, more strict checking of formats",
     expect_error(AsDate("June 128"), "^Could not parse")
 })
 
-test_that("No warning from single digit parsing as y; DS-1854",
+test_that("No warning from single digit parsing as two-digit year; DS-1854",
 {
     x <- c("24/9/17", "27/9/17",
     "4/10/17", "19/10/17", "3/11/17", "21/11/17",

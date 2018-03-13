@@ -11,7 +11,7 @@ IsDateTime <- function(x)
     if (length(x) == 0)
         return (FALSE)
 
-    return(!any(is.na(AsDateTime(x, on.parse.failure = "silent"))))
+    return(!any(is.na(suppressWarnings(AsDateTime(x, on.parse.failure = "silent")))))
 }
 
 

@@ -13,9 +13,10 @@ attr(v, "tzone") <- "UTC"
 test_that("IsDateTime",
 {
     expect_true(IsDateTime("2007"))
-    expect_true(!IsDateTime("abc"))
+    expect_false(IsDateTime("abc"))
     expect_true(IsDateTime(c("Feb 3 2000", "Jan 1 2000", "Dec 2 2000", "April 4 2000")))
-    expect_true(!IsDateTime(c("Feb 3 2000", "not date", "Dec 2 2000", "April 4 2000")))
+    expect_false(IsDateTime(c("Feb 3 2000", "not date", "Dec 2 2000", "April 4 2000")))
+    expect_silent(IsDateTime("24/9/17"))  # DS-1854
 })
 
 
