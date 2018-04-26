@@ -18,6 +18,7 @@ before_install:
   - rcode+="quit(status=1-pass, save='no');"
 
 r_packages:
+  - devtools
   - roxygen2
   - covr
 
