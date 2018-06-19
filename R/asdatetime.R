@@ -35,6 +35,7 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
 #' @examples
 #' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
+#' AsDateTime(c("2018-06-19T16:45:30.045Z", "2018-06-20T06:12:34.125+06"))
 #' @seealso \code{\link[lubridate]{parse_date_time2}}
 #' @return a vector of POSIXct date-time objects
 #' @param on.parse.failure Character string specifying how parse failures should be handled;
@@ -75,11 +76,10 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
       ##             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
       ##             "dbyIMSp", "dbYHMS", "dbyHMS", "dbYIMp", "dbyIMp",
       ##             "dbYHM", "dbyHM", "dbY", "dby", "mY")
-      orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM",
-                  "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd",
-                  "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp",
-                  "dbyIMSp", "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM",
-                  "dbyHMS", "dbyHM")
+      orders <- c(orders, "YmdIMSp", "YmdHMOSz", "YmdHMOS", "YmdHMSz", "YmdHMS",
+                  "YmdIMp", "YmdHM", "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd",
+                  "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp", "dbyIMSp",
+                  "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM", "dbyHMS", "dbyHM")
       ## e.g. 20-12-99 20:56; 00-10-30 12:30
       orders <- c(orders, if (is.null(us.format))
                               c("mdyHM", "dmyHM")

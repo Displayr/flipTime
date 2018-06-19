@@ -1,3 +1,10 @@
+Changes in Version 2.8.0 (2018-06-19)
+--------------------------------------------------------
+
+* `AsDateTime` now fully supports the ISO-8601 standard including
+  fractional seconds and time zone offsets. Dates in the format used
+  by Salesforce are now fully supported (DS-1992)
+
 Changes in Version 2.6.0 (2017-11-29)
 --------------------------------------------------------
 

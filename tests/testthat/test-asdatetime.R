@@ -163,3 +163,25 @@ test_that("AsDateTime: x is NULL",
     expect_error(AsDateTime(NULL, on.parse.failure = "error"),
                  "^Could not parse")
 })
+
+test_that("Full ISO-8601 (and salesforce) format; DS-1992",
+{
+    x <- c("2018-12-04T06:10:11.005Z", "2015-03-31T06:08:00Z", "2015-03-04T00:00:00.123-08",
+           "2015-03-04T12:31:16.123")
+    out <- AsDateTime(x[1])
+    expect_equal(tz(out), "UTC")
+    expect_equal(format(out, "%S"), "11")
+
+    out <- AsDateTime(x[2])
+    expect_equal(tz(out), "UTC")
+    expect_equal(format(out, "%S"), "00")
+
+    out <- AsDateTime(x[3])
+    expect_equal(tz(out), "UTC")
+    expect_equal(format(out, "%m"), "03")
+    expect_equal(format(out, "%H"), "08")
+
+    out <- AsDateTime(x[4])
+    expect_equal(tz(out), "UTC")
+    expect_equal(format(out, "%H"), "12")
+})

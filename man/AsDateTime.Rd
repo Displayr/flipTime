@@ -37,6 +37,7 @@ Parses date-time character vectors to POSIXct
 }
 \examples{
 AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
+AsDateTime(c("2018-06-19T16:45:30.045Z", "2018-06-20T06:12:34.125+06"))
 }
 \references{
 See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
