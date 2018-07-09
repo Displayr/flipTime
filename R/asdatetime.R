@@ -10,6 +10,10 @@ IsDateTime <- function(x)
 {
     if (length(x) == 0)
         return (FALSE)
+    if (is.numeric(x))
+        return(FALSE)
+    if (is.factor(x))
+        x <- as.character(x)
 
     return(!any(is.na(suppressWarnings(AsDateTime(x, on.parse.failure = "silent")))))
 }
@@ -48,6 +52,8 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
                        on.parse.failure = "error")
 {
+    if (length(us.format) == 1 && us.format == "No dates")
+        return(rep.int(NA, length(x)))
     if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
     if (is.factor(x))

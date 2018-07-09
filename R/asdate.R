@@ -36,10 +36,13 @@
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
     var.name <- deparse(substitute(x))
+    if (length(us.format) == 1 && us.format == "No dates")
+        return(rep.int(NA, length(x)))
     if (is.factor(x))
         x <- as.character(x)
     if (inherits(x, c("POSIXct", "POSIXt", "Date")))
         return(as.Date(x))
+
 
     if (!isNotAllNonEmptyText(x))
     {

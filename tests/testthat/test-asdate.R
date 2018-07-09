@@ -21,6 +21,7 @@ test_that("AsDate", {
     expect_equal(AsDate("Feb 3 2010"), dt6)
     expect_equal(AsDate("2010 Feb"), dt4)
     expect_equal(AsDate("10 Feb"), dt4)
+    expect_equal(AsDate("10 Feb", us.format = "No dates"), NA)
 
     # Numeric year month date
     expect_equal(AsDate("2010-02-03"), dt6)
