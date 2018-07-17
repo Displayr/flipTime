@@ -36,7 +36,7 @@
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
     var.name <- deparse(substitute(x))
-    if (length(us.format) == 1 && us.format == "No dates")
+    if (length(us.format) == 1 && us.format == "No date formatting")
         return(rep.int(NA, length(x)))
     if (is.factor(x))
         x <- as.character(x)

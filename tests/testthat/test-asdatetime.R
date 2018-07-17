@@ -41,7 +41,7 @@ test_that("AsDateTime",
     expect_equal(AsDateTime("2/1/2016 12:34 AM", us.format = FALSE), dt2)
     expect_equal(AsDateTime("2/1/2016 00:34", us.format = FALSE), dt2)
     expect_equal(AsDateTime("2/1/2016", us.format = FALSE), dt3)
-    expect_equal(AsDateTime("2/1/2016", us.format = "No dates"), NA)
+    expect_equal(AsDateTime("2/1/2016", us.format = "No date formatting"), NA)
 
     # Year first
     expect_equal(AsDateTime("2016/1/2 12:34:56 AM"), dt1)
