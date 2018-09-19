@@ -4,4 +4,5 @@
 ## "running command 'timedatectl' had status 1" in Displayr and Q
 ## fixes DS-2159
 ## Work-around for https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17421
-.onLoad(suppressWarnings(Sys.timezone()))
+.onLoad <- function(libname, pkgname)
+    suppressWarnings(Sys.timezone())
