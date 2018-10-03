@@ -52,8 +52,28 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
                        on.parse.failure = "error")
 {
+    ## DS-2028 ugliness for turning off date parsing in GUI
     if (length(us.format) == 1 && grepl("^No date", us.format))
         return(rep.int(NA, length(x)))
+    parsed <- asDateTime(x, us.format, time.zone, exact)
+
+    ## try to parse as dates with no times
+    ## need to explicitly add time.zone as attr b/c
+    ## as.POSIXct ignores it when it's not required for conversion
+    if (any(is.na(parsed)))
+        parsed <- structure(as.POSIXct(asDate(x, us.format = us.format, exact = exact)),
+                            tzone = time.zone)
+
+    if (any(is.na(parsed)))
+        return(handleParseFailure(deparse(substitute(x)), length(x), on.parse.failure))
+
+    return(parsed)
+}
+
+#' Main parsing function for AsDateTime
+#' @noRd
+asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
+{
     if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
     if (is.factor(x))
@@ -111,13 +131,6 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
     }else
         parsed <- NA
 
-    ## try to parse as dates with no times
-    ## need to explicitly add time.zone as attr b/c
-    ## as.POSIXct ignores it when it's not required for conversion
-    if (any(is.na(parsed)))
-        return(structure(as.POSIXct(AsDate(x, us.format = us.format,
-                                 on.parse.failure = on.parse.failure)), tzone = time.zone))
-
     return(parsed)
 }
 
@@ -131,11 +144,11 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
 #' @noRd
 checkbYformat <- function(x1, time.zone = "UTC")
 {
-    pattern <- paste0("^[[:alpha:]]+",  # abbrev. or full month name; lubridate C parser English only
-                                   "([^[:digit:]])?",  # optional seperator between month and year
-                                        #"[0-9]{2}[0-9]{2}?"
-                                        "(?:[0-9]{2}){1,2}$"  # either a two or four digit year (two digits 1 or 2 times)
-                      )                                                   # ?: says dont bother capturing this thing in paren.
+    pattern <- paste0("^[[:alpha:]]+",      # abbrev. or full month name; lubridate C parser English only
+                      "([^[:digit:]])?",    # optional seperator between month and year
+                      ## "[0-9]{2}[0-9]{2}?"
+                      "(?:[0-9]{2}){1,2}$"  # either a two or four digit year (two digits 1 or 2 times)
+                      )                     # ?: says dont bother capturing this thing in paren.
     sep <- sub(pattern, "\\1", x1, perl = TRUE)
     if (identical(sep, x1))
         return(NA)

@@ -35,9 +35,27 @@
 #' @export
 AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
 {
-    var.name <- deparse(substitute(x))
+    ## DS-2028 ugliness for turning off date parsing in GUI
     if (length(us.format) == 1 && grepl("^No date", us.format))
         return(rep.int(NA, length(x)))
+
+    parsed <- asDate(x, us.format, exact)
+
+    ## DS-2193 check if date has a time stamp
+    if (any(is.na(parsed)))
+        parsed <- asDateTime(x, us.format = us.format, exact = exact)
+
+    if (any(is.na(parsed)))
+        return(handleParseFailure(deparse(substitute(x)), length(x), on.parse.failure))
+
+    ## result <- parse_date_time2(x, ord, exact = TRUE)
+    return(as.Date(parsed))
+}
+
+#' Main parsing function for AsDate
+#' @noRd
+asDate <- function(x, us.format = NULL, exact = TRUE)
+{
     if (is.factor(x))
         x <- as.character(x)
     if (inherits(x, c("POSIXct", "POSIXt", "Date")))
@@ -65,23 +83,11 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
 
         if (any(is.na(parsed)))
             parsed <- parse_date_time2(x, "Y", exact = exact)
+
     }else
         parsed <- NA
 
-
-    if (any(is.na(parsed)))
-    {
-        msg <- sprintf("Could not parse %s into a valid date in any format.",
-                       var.name)
-        if (grepl("error", on.parse.failure, ignore.case = TRUE))
-            stop(msg, call. = TRUE)
-        else if (grepl("warn", on.parse.failure, ignore.case = TRUE))
-            warning(msg, call. = TRUE)
-        return(rep.int(NA, length(x)))
-    }
-
-    ## result <- parse_date_time2(x, ord, exact = TRUE)
-    as.Date(parsed)  # result
+    return(parsed)
 }
 
 #' Check if a supplied vector contains non-empty text in every element
@@ -287,4 +293,20 @@ makeFormatFromOrder <- function(x1, seps, ord)
     parts <- strsplit(ord, "")[[1L]]
     paste0("%", parts[1L], seps[1L], "%", parts[2L],
            if(length(seps) == 2L) paste0(seps[2L], "%", parts[3L]))
+}
+
+#' Error handler for parsing failures for AsDate and AsDateTime
+#'
+#' Throws and error or warns if requested
+#' @return vector of NA values
+#' @noRd
+handleParseFailure <- function(var.name, len.x, on.parse.failure)
+{
+    msg <- sprintf("Could not parse %s into a valid date in any format.",
+                   var.name)
+    if (grepl("error", on.parse.failure, ignore.case = TRUE))
+        stop(msg, call. = TRUE)
+    else if (grepl("warn", on.parse.failure, ignore.case = TRUE))
+        warning(msg, call. = TRUE)
+    return(rep.int(NA, len.x))
 }

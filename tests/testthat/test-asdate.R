@@ -218,3 +218,11 @@ test_that("No warning from single digit parsing as two-digit year; DS-1854",
     "16/2/18", "19/2/18", "21/2/18", "1/3/18")
     expect_silent(AsDate(x))
 })
+
+test_that("Dates with time stamps are parsed, with times dropped; DS-2193",
+{
+    x <- "2010-11-30 11:10pm"
+    out <- AsDate(x)
+    expect_is(out, "Date")
+    expect_equal(format(out, "%m"), "11")
+})
