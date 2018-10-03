@@ -184,3 +184,8 @@ test_that("Full ISO-8601 (and salesforce) format; DS-1992",
     expect_equal(format(out, "%z"), "+0000")
     expect_equal(format(out, "%H"), "12")
 })
+
+test_that("IP addresses fail to parse; DS-2189",
+{
+    expect_error(AsDateTime("154.36.15.18"), "Could not parse")
+})
