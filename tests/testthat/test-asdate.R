@@ -6,6 +6,7 @@ dt3 <- as.Date(lubridate::parse_date_time("2016-01-02", "Ymd"))
 dt4 <- as.Date(lubridate::parse_date_time("2010-02", "Ym"))
 dt5 <- as.Date(lubridate::parse_date_time("2010", "Y"))
 dt6 <- as.Date(lubridate::parse_date_time("2010-02-03", "Ymd"))
+dt8 <- as.Date(lubridate::parse_date_time("2009-06-01", "Ymd"))
 dt7 <- as.Date(structure(1445212800, class = c("POSIXct", "POSIXt", "QDate")))
 
 test_that("AsDate", {
@@ -21,6 +22,7 @@ test_that("AsDate", {
     expect_equal(AsDate("Feb 3 2010"), dt6)
     expect_equal(AsDate("2010 Feb"), dt4)
     expect_equal(AsDate("10 Feb"), dt4)
+    expect_equal(AsDate("Jun qtr 2009"), dt8)
     expect_equal(AsDate("10 Feb", us.format = "No date formatting"), NA)
 
     # Numeric year month date

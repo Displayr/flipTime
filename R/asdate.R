@@ -73,13 +73,13 @@ asDate <- function(x, us.format = NULL, exact = TRUE)
         if (!any(is.na(pd)))
             return(as.Date(pd))
 
+        parsed <- checkFormatsWithDay(x, us.format, exact)
+
         ## Try formats with month and year, but no day
         ## lubridate <= 1.6.0 fails to parse bY and by orders
         ## and returns many false positives for my and ym
-        parsed <- checkMonthYearFormats(x)
-
         if (any(is.na(parsed)))
-            parsed <- checkFormatsWithDay(x, us.format, exact)
+            parsed <- checkMonthYearFormats(x)
 
         if (any(is.na(parsed)))
             parsed <- parse_date_time2(x, "Y", exact = exact)
@@ -129,7 +129,9 @@ checkMonthYearFormats <- function(
     b.month <- bMonthRegexPatt()
     m.month <- mMonthRegexPatt()
     year <- yearRegexPatt()
-    sep.regex.patt <- "([[:space:]]*[/._ ,-]?[[:space:]]*)"
+
+    # Relax separator because %b is a more identifiable date format 
+    sep.regex.patt <- "([[:space:]]*[a-zA-Z/._,-]*[[:space:]]*)"
 
     ## check for by or bY
     out <- checkMonthYearFormatAndParse(x, b.month, year, "%b", "%y",
