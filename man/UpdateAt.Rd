@@ -2,29 +2,31 @@
 % Please edit documentation in R/updating.R
 \name{UpdateAt}
 \alias{UpdateAt}
-\title{{UpdateAt}}
+\title{Regularly update an R object starting at a particular Date/Time}
 \usage{
 UpdateAt(x, us.format = FALSE, time.zone = "UTC", units = "days",
   frequency = 1, options = "snapshot")
 }
 \arguments{
-\item{x}{Character vector to be parsed into the first update date and time. Each subsequent update occurs based on the
+\item{x}{Character vector to be parsed into the first update date and time by
+\code{\link{AsDateTime}}. Each subsequent update occurs based on the
 \code{frequency} and \code{units} after \code{x}.}
 
-\item{us.format}{Whether to use the US convention for dates.}
+\item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
+in which case both U.S. formats and international formats will be checked}
 
-\item{time.zone}{An optional time zone, or else default of 'UTC' applies.
-See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.}
+\item{time.zone}{An optional time zone (default \code{"UTC"}).}
 
 \item{units}{The time unit for regular updates, which can be seconds, minutes, days, weeks or months.}
 
-\item{frequency}{The period of regular updates, expressed in \code{units} units.}
+\item{frequency}{How often the regular updates should occur, expressed in \code{units} units.}
 
 \item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
 or \code{"snapshot"} which also updates any embedded snapshots of the document.}
 }
 \description{
-Sets date and time after which an R object is woken and updated, then a frequency for periodic updates.
+Sets date and time after which an R object is woken and updated, then a
+frequency for periodic updates.
 }
 \details{
 If \code{units} = "months" then \code{frequency} must be an integer. The update time
@@ -32,8 +34,14 @@ will roll back to the last day of the previous month if no such day exists after
 forwards a multiple of \code{frequency} months.
 }
 \examples{
+## Update once every month starting on 31-1-2017 at 10:00:00
 UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1,
 options = "wakeup")
+
+## Update every 3 days starting on 05-15-2017 at 18:00:00
 UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
 units = "days", frequency = 3, options = "snapshot")
+}
+\references{
+See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.
 }

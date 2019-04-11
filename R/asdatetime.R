@@ -31,22 +31,14 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' Parse Character Date-Times to POSIXct Objects
 #'
 #' Parses date-time character vectors to POSIXct
-#' @param x Character vector to be parsed.
-#' @param us.format Whether to use the US convention for dates.
-#' @param time.zone An optional time zone, or else default of 'UTC' applies.
-#' @param exact logical; see \code{\link[lubridate]{parse_date_time2}}; setting to \code{TRUE}
-#' (the default) should result in slightly faster parsing, but there may be some cases that fail to parse correctly
+#' @inheritParams AsDate
+#' @param time.zone An optional time zone (default \code{"UTC"}).
 #' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
 #' @examples
 #' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 #' AsDateTime(c("2018-06-19T16:45:30.045Z", "2018-06-20T06:12:34.125+06"))
 #' @seealso \code{\link[lubridate]{parse_date_time2}}
 #' @return a vector of POSIXct date-time objects
-#' @param on.parse.failure Character string specifying how parse failures should be handled;
-#' \code{"error"}, the default, results in an error being thrown with
-#' \code{\link{stop}} in the event that \code{x} cannot be parsed;  specifying \code{"warn"} results
-#' in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the same length
-#' as \code{x}; any other value results in a vector of NAs being returned silently.
 #' @importFrom lubridate parse_date_time2
 #' @export
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,

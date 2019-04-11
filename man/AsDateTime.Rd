@@ -11,14 +11,14 @@ AsDateTime(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
   on.parse.failure = "error")
 }
 \arguments{
-\item{x}{Character vector to be parsed.}
+\item{x}{character; vector to be parsed}
 
-\item{us.format}{Whether to use the US convention for dates.}
+\item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
+in which case both U.S. formats and international formats will be checked}
 
-\item{time.zone}{An optional time zone, or else default of 'UTC' applies.}
+\item{time.zone}{An optional time zone (default \code{"UTC"}).}
 
-\item{exact}{logical; see \code{\link[lubridate]{parse_date_time2}}; setting to \code{TRUE}
-(the default) should result in slightly faster parsing, but there may be some cases that fail to parse correctly}
+\item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 
 \item{on.parse.failure}{Character string specifying how parse failures should be handled;
 \code{"error"}, the default, results in an error being thrown with

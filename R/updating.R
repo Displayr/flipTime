@@ -57,23 +57,28 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 }
 
 
-#' @title{UpdateAt}
-#' @description Sets date and time after which an R object is woken and updated, then a frequency for periodic updates.
-#' @param x Character vector to be parsed into the first update date and time. Each subsequent update occurs based on the
+#' Regularly update an R object starting at a particular Date/Time
+#'
+#' Sets date and time after which an R object is woken and updated, then a
+#' frequency for periodic updates.
+#' @param x Character vector to be parsed into the first update date and time by
+#' \code{\link{AsDateTime}}. Each subsequent update occurs based on the
 #' \code{frequency} and \code{units} after \code{x}.
-#' @param us.format Whether to use the US convention for dates.
-#' @param time.zone An optional time zone, or else default of 'UTC' applies.
-#' See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.
+#' @inheritParams AsDateTime
 #' @param units The time unit for regular updates, which can be seconds, minutes, days, weeks or months.
-#' @param frequency The period of regular updates, expressed in \code{units} units.
+#' @param frequency How often the regular updates should occur, expressed in \code{units} units.
 #' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
 #' or \code{"snapshot"} which also updates any embedded snapshots of the document.
 #' @details If \code{units} = "months" then \code{frequency} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists after stepping
 #' forwards a multiple of \code{frequency} months.
+#' @references See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.
 #' @examples
+#' ## Update once every month starting on 31-1-2017 at 10:00:00
 #' UpdateAt("31-1-2017 10:00:00", time.zone = "Australia/Sydney", units = "months", frequency = 1,
 #' options = "wakeup")
+#'
+#' ## Update every 3 days starting on 05-15-2017 at 18:00:00
 #' UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
 #' units = "days", frequency = 3, options = "snapshot")
 #' @importFrom lubridate %m+%
