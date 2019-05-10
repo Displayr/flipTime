@@ -5,6 +5,7 @@ test_that("updating", {
     expect_equal(TimeUnitsToSeconds(12, units = "hours"),  43200)
     expect_equal(TimeUnitsToSeconds(5, units = "days"),  432000)
     expect_error(TimeUnitsToSeconds(3.5, units = "months"))
+    expect_message(RefreshIfOlderThan(1, units = "hours"), "R output expires in 3600 seconds")
     expect_message(UpdateEvery(60, units = "minutes"), "R output expires in 3600 seconds with wakeup and snapshot")
     expect_message(UpdateEvery(2, units = "weeks", options = "wakeup"), "R output expires in 1209600 seconds with wakeup")
     expect_message(UpdateAt("15-05-2017 18:00:00", time.zone = "America/New_York", units = "days", frequency = 3, options = NULL))

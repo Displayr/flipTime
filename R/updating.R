@@ -22,6 +22,28 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
     return(x * secs[match(units, unit.list)])
 }
 
+
+#' @title{RefreshIfOlderThan}
+#' @description An R object will be automatically recalculated if its output is older than the duration specified.
+#' Recalculation will only occur when someone looks at that R object, or something that is calculated using it.
+#' @param x The period expressed in \code{units} units.
+#' @param units The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"},
+#' \code{"weeks"} or \code{"months"}.
+#' @details If \code{units} = \code{"months"}, then \code{x} must be an integer.
+#' @examples
+#' RefreshIfOlderThan(2, "hours")
+#' RefreshIfOlderThan(1, "weeks")
+#' @export
+RefreshIfOlderThan <- function(x, units = "seconds") {
+
+    seconds <- TimeUnitsToSeconds(x, units)
+    if (seconds < 600)
+        stop("Update frequency must be at least 600 seconds.")
+
+    message(paste("R output expires in", seconds, "seconds"))
+}
+
+
 #' @title{UpdateEvery}
 #' @description Sets a period of time, after which an R object is woken and updated.
 #' @param x The period expressed in \code{units} units.
