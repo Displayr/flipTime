@@ -33,6 +33,7 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' @examples
 #' RefreshIfOlderThan(2, "hours")
 #' RefreshIfOlderThan(1, "weeks")
+#' @seealso \code{\link{UpdateEvery}}, \code{\link{UpdateAt}}
 #' @export
 RefreshIfOlderThan <- function(x, units = "seconds") {
 
@@ -57,6 +58,7 @@ RefreshIfOlderThan <- function(x, units = "seconds") {
 #' @examples
 #' UpdateEvery(5, "days", "snapshot")
 #' UpdateEvery(1, "months", NULL)
+#' @seealso \code{\link{RefreshIfOlderThan}}, \code{\link{UpdateAt}}
 #' @export
 UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 
@@ -103,6 +105,7 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 #' ## Update every 3 days starting on 05-15-2017 at 18:00:00
 #' UpdateAt("05-15-2017 18:00:00", us.format = TRUE, time.zone = "America/New_York",
 #' units = "days", frequency = 3, options = "snapshot")
+#' @seealso \code{\link{RefreshIfOlderThan}}, \code{\link{UpdateEvery}}
 #' @importFrom lubridate %m+%
 #' @export
 UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, options = "snapshot") {
