@@ -39,6 +39,10 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
     if (length(us.format) == 1 && grepl("^No date", us.format))
         return(rep.int(NA, length(x)))
 
+    ## Remove NAs and reinstate them before returning
+    na.ind <- is.na(x)
+    x <- x[!na.ind]
+
     parsed <- asDate(x, us.format, exact)
 
     ## DS-2193 check if date has a time stamp
@@ -46,10 +50,10 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
         parsed <- asDateTime(x, us.format = us.format, exact = exact)
 
     if (any(is.na(parsed)))
-        return(handleParseFailure(deparse(substitute(x)), length(x), on.parse.failure))
+        return(handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure))
 
     ## result <- parse_date_time2(x, ord, exact = TRUE)
-    return(as.Date(parsed))
+    return(insertNAs(as.Date(parsed), na.ind))
 }
 
 #' Main parsing function for AsDate
@@ -130,7 +134,7 @@ checkMonthYearFormats <- function(
     m.month <- mMonthRegexPatt()
     year <- yearRegexPatt()
 
-    # Relax separator because %b is a more identifiable date format 
+    # Relax separator because %b is a more identifiable date format
     sep.regex.patt <- "([[:space:]]*[a-zA-Z/._,-]*[[:space:]]*)"
 
     ## check for by or bY

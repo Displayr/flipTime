@@ -228,3 +228,10 @@ test_that("Dates with time stamps are parsed, with times dropped; DS-2193",
     expect_is(out, "Date")
     expect_equal(format(out, "%m"), "11")
 })
+
+test_that("DS-2798: deal with NAs",
+{
+    expect_equal(AsDate(c("2015","2015", NA, "2013", "2016"),
+                        on.parse.failure = "ignore"),
+                 structure(c(16436, 16436, NA, 15706, 16801), class = "Date"))
+})

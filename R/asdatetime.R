@@ -47,6 +47,11 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
     ## DS-2028 ugliness for turning off date parsing in GUI
     if (length(us.format) == 1 && grepl("^No date", us.format))
         return(rep.int(NA, length(x)))
+
+    ## Remove NAs and reinstate them before returning
+    na.ind <- is.na(x)
+    x <- x[!na.ind]
+
     parsed <- asDateTime(x, us.format, time.zone, exact)
 
     ## try to parse as dates with no times
@@ -57,9 +62,9 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
                             tzone = time.zone)
 
     if (any(is.na(parsed)))
-        return(handleParseFailure(deparse(substitute(x)), length(x), on.parse.failure))
+        return(handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure))
 
-    return(parsed)
+    return(insertNAs(parsed, na.ind))
 }
 
 #' Main parsing function for AsDateTime
@@ -289,3 +294,13 @@ getFormats <- function(ords, sep)
 #' @noRd
 isIPAddress <- function(x)
     any(grepl("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}", x))
+
+# Insert NAs into x according to na.ind, which is a logical vector
+# indicating the locations of the NAs.
+insertNAs <- function(x, na.ind)
+{
+    result <- rep(x[1], length(na.ind))
+    result[na.ind] <- NA
+    result[!na.ind] <- x
+    result
+}
