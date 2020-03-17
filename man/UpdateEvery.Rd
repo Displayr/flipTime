@@ -27,3 +27,6 @@ forward from today.
 UpdateEvery(5, "days", "snapshot")
 UpdateEvery(1, "months", NULL)
 }
+\seealso{
+\code{\link{RefreshIfOlderThan}}, \code{\link{UpdateAt}}
+}

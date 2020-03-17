@@ -4,8 +4,14 @@
 \alias{UpdateAt}
 \title{Regularly update an R object starting at a particular Date/Time}
 \usage{
-UpdateAt(x, us.format = FALSE, time.zone = "UTC", units = "days",
-  frequency = 1, options = "snapshot")
+UpdateAt(
+  x,
+  us.format = FALSE,
+  time.zone = "UTC",
+  units = "days",
+  frequency = 1,
+  options = "snapshot"
+)
 }
 \arguments{
 \item{x}{Character vector to be parsed into the first update date and time by
@@ -44,4 +50,7 @@ units = "days", frequency = 3, options = "snapshot")
 }
 \references{
 See \href{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}{Wikipedia} for a list of time zones.
+}
+\seealso{
+\code{\link{RefreshIfOlderThan}}, \code{\link{UpdateEvery}}
 }

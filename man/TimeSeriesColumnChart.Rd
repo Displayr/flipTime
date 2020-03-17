@@ -4,9 +4,16 @@
 \alias{TimeSeriesColumnChart}
 \title{\code{TimeSeriesColumnChart}}
 \usage{
-TimeSeriesColumnChart(x, title = "", xtitle = "", ytitle = "",
-  series.name = "", tickformat = NULL, smooth = TRUE,
-  ignore.last.period.from.smooth = FALSE)
+TimeSeriesColumnChart(
+  x,
+  title = "",
+  xtitle = "",
+  ytitle = "",
+  series.name = "",
+  tickformat = NULL,
+  smooth = TRUE,
+  ignore.last.period.from.smooth = FALSE
+)
 }
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}

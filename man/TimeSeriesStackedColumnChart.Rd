@@ -4,8 +4,14 @@
 \alias{TimeSeriesStackedColumnChart}
 \title{\code{TimeSeriesStackedColumnChart}}
 \usage{
-TimeSeriesStackedColumnChart(x, title = "", ytitle = "", xtitle = "",
-  series.name = "", tickformat = NULL)
+TimeSeriesStackedColumnChart(
+  x,
+  title = "",
+  ytitle = "",
+  xtitle = "",
+  series.name = "",
+  tickformat = NULL
+)
 }
 \arguments{
 \item{x}{table with dates in the columns.}

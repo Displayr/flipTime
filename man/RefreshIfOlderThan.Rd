@@ -23,3 +23,6 @@ If \code{units} = \code{"months"}, then \code{x} must be an integer.
 RefreshIfOlderThan(2, "hours")
 RefreshIfOlderThan(1, "weeks")
 }
+\seealso{
+\code{\link{UpdateEvery}}, \code{\link{UpdateAt}}
+}
