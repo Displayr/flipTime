@@ -230,7 +230,7 @@ parseDayMonthYear <- function(x, pattern, ords, start = TRUE)
 
     for (ord in ords)
     {
-        result <- parse_date_time2(dates, ord, exact = TRUE)
+        result <- parse_date_time2(dates, ord, exact = FALSE)
         if (!any(is.na(result)))
             break
     }

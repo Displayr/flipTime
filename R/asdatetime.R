@@ -41,7 +41,7 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' @return a vector of POSIXct date-time objects
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
+AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
                        on.parse.failure = "error")
 {
     ## DS-2028 ugliness for turning off date parsing in GUI
@@ -69,7 +69,7 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE,
 
 #' Main parsing function for AsDateTime
 #' @noRd
-asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = TRUE)
+asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
 {
     if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
         return(x)
@@ -175,7 +175,7 @@ checkbYformat <- function(x1, time.zone = "UTC")
 #' @importFrom lubridate parse_date_time2
 #' @noRd
 checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
-                                  unknown.format = TRUE, exact = TRUE, fmt, seps)
+                                  unknown.format = TRUE, exact = FALSE, fmt, seps)
 {
     fmt.known <- !missing(fmt)
     parse.fun <- if (fmt.known)

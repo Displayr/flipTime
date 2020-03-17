@@ -33,7 +33,7 @@
 #' AsDate("2010-February")
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error")
+AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error")
 {
     ## DS-2028 ugliness for turning off date parsing in GUI
     if (length(us.format) == 1 && grepl("^No date", us.format))
@@ -58,7 +58,7 @@ AsDate <- function(x, us.format = NULL, exact = TRUE, on.parse.failure = "error"
 
 #' Main parsing function for AsDate
 #' @noRd
-asDate <- function(x, us.format = NULL, exact = TRUE)
+asDate <- function(x, us.format = NULL, exact = FALSE)
 {
     if (is.factor(x))
         x <- as.character(x)
@@ -163,7 +163,7 @@ checkMonthYearFormats <- function(
 checkFormatsWithDay <- function(
                          x,
                          us.format = NULL,
-                         exact = TRUE)
+                         exact = FALSE)
 {
     ## check with regex on one element first; to fail more quickly
     ## use fast_strptime with separator specified to be extra careful
@@ -248,7 +248,7 @@ checkFormat <- function(
                         patt,
                         ord = c("dmy", "mdy", "ymd", "ydm"),
                      us.format = NULL,
-                     exact = TRUE)
+                     exact = FALSE)
 {
     ord <- match.arg(ord)
     x1 <- x[1L]
