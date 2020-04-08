@@ -28,7 +28,8 @@ in which case both U.S. formats and international formats will be checked}
 \item{frequency}{How often the regular updates should occur, expressed in \code{units} units.}
 
 \item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
-or \code{"snapshot"} which also updates any embedded snapshots of the document.}
+or \code{"snapshot"} which also updates any embedded snapshots of the document, or \code{"only when open"}
+which only updates when the document is open.}
 }
 \description{
 Sets date and time after which an R object is woken and updated, then a

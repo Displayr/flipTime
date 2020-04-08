@@ -51,7 +51,8 @@ RefreshIfOlderThan <- function(x, units = "seconds") {
 #' @param units The time unit. One of \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"},
 #' \code{"weeks"} or \code{"months"}.
 #' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
-#' or \code{"snapshot"} which also updates any embedded snapshots of the document.
+#' or \code{"snapshot"} which also updates any embedded snapshots of the document, or \code{"only when open"}
+#' which only updates when the document is open.
 #' @details If \code{units} = \code{"months"}, then \code{x} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists \code{x} months
 #' forward from today.
@@ -67,15 +68,7 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
         stop("Update frequency must be at least 600 seconds.")
 
     message.string <- paste0("R output expires in ", seconds, " seconds")
-
-    if (!is.null(options)) {
-        if (options == "wakeup")
-            message.string <- paste0(message.string, " with wakeup")
-        else if (options == "snapshot")
-            message.string <- paste0(message.string, " with wakeup and snapshot")
-        else
-            stop("Unrecognized options.")
-    }
+    message.string <- appendUpdateOption(message.string, options)
 
     message(message.string)
 }
@@ -92,7 +85,8 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 #' @param units The time unit for regular updates, which can be seconds, minutes, days, weeks or months.
 #' @param frequency How often the regular updates should occur, expressed in \code{units} units.
 #' @param options Either \code{"wakeup"} in which case the object is updated even if its document is closed,
-#' or \code{"snapshot"} which also updates any embedded snapshots of the document.
+#' or \code{"snapshot"} which also updates any embedded snapshots of the document, or \code{"only when open"}
+#' which only updates when the document is open.
 #' @details If \code{units} = "months" then \code{frequency} must be an integer. The update time
 #' will roll back to the last day of the previous month if no such day exists after stepping
 #' forwards a multiple of \code{frequency} months.
@@ -144,15 +138,23 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     }
 
     message.string <- paste0("R output expires in ", secs, " seconds")
-
-    if (!is.null(options)) {
-        if (options == "wakeup")
-            message.string <- paste0(message.string, " with wakeup")
-        else if (options == "snapshot")
-            message.string <- paste0(message.string, " with wakeup and snapshot")
-        else
-            stop("Unrecognized options.")
-    }
+    message.string <- appendUpdateOption(message.string, options)
 
     message(message.string)
+}
+
+appendUpdateOption <- function(message.string, options)
+{
+    if (is.null(options) || options == "snapshot")
+        message.string <- paste0(message.string, " with wakeup and snapshot")
+    else if (options == "wakeup")
+        message.string <- paste0(message.string, " with wakeup")
+    else if (options == "only when open")
+    {
+        # don't need to append anything
+    }
+    else
+        stop("Unrecognized options: ", options)
+
+    message.string
 }
