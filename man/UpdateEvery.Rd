@@ -13,7 +13,8 @@ UpdateEvery(x, units = "seconds", options = "snapshot")
 \code{"weeks"} or \code{"months"}.}
 
 \item{options}{Either \code{"wakeup"} in which case the object is updated even if its document is closed,
-or \code{"snapshot"} which also updates any embedded snapshots of the document.}
+or \code{"snapshot"} which also updates any embedded snapshots of the document, or \code{"only when open"}
+which only updates when the document is open.}
 }
 \description{
 Sets a period of time, after which an R object is woken and updated.
