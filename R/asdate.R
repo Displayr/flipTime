@@ -40,6 +40,7 @@ AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error
         return(rep.int(NA, length(x)))
 
     ## Remove NAs and reinstate them before returning
+    x.names <- names(x)
     na.ind <- is.na(x)
     x <- x[!na.ind]
 
@@ -50,10 +51,15 @@ AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error
         parsed <- asDateTime(x, us.format = us.format, exact = exact)
 
     if (any(is.na(parsed)))
-        return(handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure))
+    {
+        result <- handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure)
+        names(result) <- x.names
+        return(result)
+    }
 
-    ## result <- parse_date_time2(x, ord, exact = TRUE)
-    return(insertNAs(as.Date(parsed), na.ind))
+    result <- insertNAs(as.Date(parsed), na.ind)
+    names(result) <- x.names
+    return(result)
 }
 
 #' Main parsing function for AsDate
