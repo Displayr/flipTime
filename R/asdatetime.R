@@ -49,6 +49,7 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
         return(rep.int(NA, length(x)))
 
     ## Remove NAs and reinstate them before returning
+    x.names <- names(x)
     na.ind <- is.na(x)
     x <- x[!na.ind]
 
@@ -62,9 +63,15 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
                             tzone = time.zone)
 
     if (any(is.na(parsed)))
-        return(handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure))
+    {
+        result <- handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure)
+        names(result) <- x.names
+        return(result)
+    }
 
-    return(insertNAs(parsed, na.ind))
+    result <- insertNAs(parsed, na.ind)
+    names(result) <- x.names
+    return(result)
 }
 
 #' Main parsing function for AsDateTime

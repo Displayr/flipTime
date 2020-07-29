@@ -197,3 +197,10 @@ test_that("DS-2798: deal with NAs",
                  structure(c(1583771160, NA, 1580673720),
                            class = c("POSIXct", "POSIXt"), tzone = "UTC"))
 })
+
+test_that("DS-2940: Keep names",
+{
+    expect_equal(AsDateTime(c(A = "2020-01-13", B = "2020-01-14", D = NA), on.parse.failure = "ignore"),
+        structure(c(A = 1578873600, B = 1578960000, D = NA),
+            class = c("POSIXct", "POSIXt"), tzone = "UTC"))
+})
