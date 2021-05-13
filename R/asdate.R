@@ -92,7 +92,8 @@ asDate <- function(x, us.format = NULL, exact = FALSE)
             parsed <- checkMonthYearFormats(x)
 
         if (any(is.na(parsed)))
-            parsed <- parse_date_time2(x, "Y", exact = exact)
+            parsed <- fast_strptime(x, "%Y")
+            #parsed <- parse_date_time2(x, "Y", exact = TRUE)
 
     }else
         parsed <- NA

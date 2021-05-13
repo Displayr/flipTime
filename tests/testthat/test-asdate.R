@@ -68,8 +68,8 @@ test_that("AsDate", {
     expect_true(all(is.na(AsDate(c("9 or more", "Greater than or equal to 9"),
                              on.parse.failure = "silent"))))
     expect_true(is.na(AsDate("02", on.parse.failure = "silent")))
-    expect_equal(format(AsDate("Before 2009", on.parse.failure = "silent"),
-                        "%Y"), "2009")
+    #expect_equal(format(AsDate("Before 2009", on.parse.failure = "silent"),
+    #                    "%Y"), "2009")
 })
 
 test_that("AsDate: ambiguous if U.S. format",
