@@ -10,12 +10,7 @@ Period(x, by, anchor.date = "1970-01-01")
 \item{x}{The date.}
 
 \item{by}{The period used in the conversion (e.g., "week", "year"). Special
-cases include:
-- "quarter", which provides the month for the quarter as YYYY-MM
-- "nice.quarter", which provides the quarter in the form Q1 2022
-- "2-week", "4-week", etc which provides multi-weekly periods labeled
-  first date in the corresponding period. Requires to use to specify an
-  anchor date as a point of reference.}
+cases include:}
 
 \item{anchor.date}{The date to use as a reference for multi-week periods. Can be a
 Date object, or a string in the form "YYYY-MM-DD". For example,
