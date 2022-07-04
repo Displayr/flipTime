@@ -234,3 +234,39 @@ test_that("Format Periods",
     expect_equal(FormatPeriod(0.7), "Less than 1 Second")
     expect_equal(FormatPeriod(0), "0 Seconds")
 })
+
+test_that("n-week period", 
+{
+
+    test.dates = as.Date(c("2022-07-23", "2022-05-05", "2022-09-04"))
+    two.weeks = c("2022-07-17", "2022-04-24", "2022-08-28")
+    four.weeks = c("2022-07-03", "2022-04-10", "2022-08-28")
+    ten.weeks = c("2022-07-03", "2022-04-24", "2022-07-03")
+    test.results = list("2-week" = paste0("2 weeks commencing ", format(as.Date(two.weeks), "%Y-%m-%d")),
+                        "4-week" = paste0("4 weeks commencing ", format(as.Date(four.weeks), "%Y-%m-%d")),
+                        "10-week" = paste0("10 weeks commencing ", format(as.Date(ten.weeks), "%Y-%m-%d")))
+
+    anchor <- "2022-07-04"
+    anchor.as.date <- as.Date(anchor)
+    for (n.week in c(2,4,10)) {
+        n.week.string = paste0(n.week, "-week")
+        expect_equal(Period(anchor.as.date, by = n.week.string, anchor.date = anchor), paste0(n.week, " weeks commencing ", floor_date(anchor.as.date, unit = "week")))
+        expect_equal(Period(anchor.as.date - weeks(n.week), by = n.week.string, anchor.date = anchor.as.date),
+            paste0(n.week, " weeks commencing ", floor_date(anchor.as.date - weeks(n.week), unit = "week")))
+        expect_equal(Period(test.dates, by = n.week.string, anchor.date = anchor), test.results[[n.week.string]])
+    }
+
+})
+
+test_that("Nice quarters", 
+{
+    test.dates = as.Date(c("2022-07-23", "2022-05-05", "2023-01-04"))
+    expected = c("Q3 2022", "Q2 2022", "Q1 2023")
+    expect_equal(Period(test.dates, by = "nice.quarter"), expected)
+})
+
+test_that("Messages for n-week periods",
+{
+    expect_error(Period(test.dates, by = "fun-week"), "Invalid number of weeks specified.")
+    expect_error(Period(test.dates, by = "2-week", anchor = NULL), "specify anchor.date")
+})
