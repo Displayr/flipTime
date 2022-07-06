@@ -325,14 +325,18 @@ CompleteListPeriodNames <- function(x, by)
 #' weeks commencing 2022-07-03". Requires to use to specify the anchor.date
 #' argument as a point of reference.
 #' }
-#' @param anchor.date The date to use as a reference for multi-week periods.
-#' A Date object should be supplied. This is used to disambiguate multi-week
-#' periods. For example, when wanting thw two-week period for "2022-07-04", should
-#' this date fall into the 2 weeks commencing "2022-07-04" or the two weeks
-#' commencing "2022-06-27". Only used when \code{by} is of the form "n-week".
+#' @param anchor.date Supply a Date value to disambiguate multi-week periods.
+#' When asking for two-week periods, four week-periods, etc, for a given
+#' value of x, the choice is ambiguous. For example, when wanting the two-week 
+#' period for "2022-07-04", should the period cover the 2 weeks commencing 
+#' "2022-07-03" or the two weeks commencing "2022-06-26"? All multi-week periods
+#' will be determined relative to the first day in the week which contains
+#' the \code{anchor.date}. Note that this function uses lubridate, where the
+#' default week start day is Sunday.
+#' @param ... Additional arguments passed to lubridate
 #' @importFrom lubridate floor_date make_difftime
 #' @export
-Period <- function(x, by, anchor.date = as.Date("1970-01-01"))
+Period <- function(x, by, anchor.date = as.Date("1970-01-01"), ...)
 {
     
     if (is.null(by))
@@ -344,7 +348,7 @@ Period <- function(x, by, anchor.date = as.Date("1970-01-01"))
     if (by == "month" || by == "quarter")
         return(format(floor_date(x, by), "%Y-%m"))
     if (by == "week")
-        return(format(floor_date(x, by), "%Y-%m-%d"))
+        return(format(floor_date(x, by, ...), "%Y-%m-%d"))
     if (by == "nice.quarter") {
         y <- floor_date(x, unit = "quarter")
         return(paste0("Q", ceiling(month(y)/3), " ", year(y)))
@@ -355,13 +359,10 @@ Period <- function(x, by, anchor.date = as.Date("1970-01-01"))
     if (multi.week) {
         if (is.null(anchor.date))
             stop("You must specify anchor.date when wanting ", by, " periods.")
-        if (!is.Date(anchor.date))
-            stop("The 'anchor.date' argument should be supplied as a date ",
-            "rather than a ", class(anchor.date)[1])
-        n.week <- as.numeric(sub("-week", "", by))
-        if (is.na(n.week))
+        n.week <- sub("-week", "", by)
+        if (!grepl("^\\d+$", n.week))
             stop("Invalid number of weeks specified. n-week periods should start with a number, for example: '2-week'")
-
+        n.week <- as.numeric(n.week)
         dd <- make_difftime(week = n.week)
 
         # Find the difference, in weeks, between x and the anchor date.
@@ -369,7 +370,7 @@ Period <- function(x, by, anchor.date = as.Date("1970-01-01"))
         # Round it up
         week.diff <- ceiling(week.diff)
         # Subtract the difference multiplied by the n.week interval
-        new.date <- floor_date(anchor.date - week.diff * dd, unit = "week")
+        new.date <- floor_date(anchor.date - week.diff * dd, unit = "week", ...)
         return(paste0(n.week, " weeks commencing ", format(new.date, "%Y-%m-%d")))
     }
 

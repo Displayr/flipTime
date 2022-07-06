@@ -4,7 +4,7 @@
 \alias{Period}
 \title{\code{Period}}
 \usage{
-Period(x, by, anchor.date = as.Date("1970-01-01"))
+Period(x, by, anchor.date = as.Date("1970-01-01"), ...)
 }
 \arguments{
 \item{x}{The date.}
@@ -22,11 +22,16 @@ weeks commencing 2022-07-03". Requires to use to specify the anchor.date
 argument as a point of reference.
 }}
 
-\item{anchor.date}{The date to use as a reference for multi-week periods.
-A Date object should be supplied. This is used to disambiguate multi-week
-periods. For example, when wanting thw two-week period for "2022-07-04", should
-this date fall into the 2 weeks commencing "2022-07-04" or the two weeks
-commencing "2022-06-27". Only used when \code{by} is of the form "n-week".}
+\item{anchor.date}{Supply a Date value to disambiguate multi-week periods.
+When asking for two-week periods, four week-periods, etc, for a given
+value of x, the choice is ambiguous. For example, when wanting the two-week 
+period for "2022-07-04", should the period cover the 2 weeks commencing 
+"2022-07-03" or the two weeks commencing "2022-06-26"? All multi-week periods
+will be determined relative to the first day in the week which contains
+the \code{anchor.date}. Note that this function uses lubridate, where the
+default week start day is Sunday.}
+
+\item{...}{Additional arguments passed to lubridate}
 }
 \description{
 Converts a date into a character.
