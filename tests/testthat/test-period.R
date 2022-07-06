@@ -250,10 +250,10 @@ test_that("n-week period",
     anchor.as.date <- as.Date(anchor)
     for (n.week in c(2,4,10)) {
         n.week.string = paste0(n.week, "-week")
-        expect_equal(Period(anchor.as.date, by = n.week.string, anchor.date = anchor), paste0(n.week, " weeks commencing ", floor_date(anchor.as.date, unit = "week")))
+        expect_equal(Period(anchor.as.date, by = n.week.string, anchor.date = anchor.as.date), paste0(n.week, " weeks commencing ", floor_date(anchor.as.date, unit = "week")))
         expect_equal(Period(anchor.as.date - weeks(n.week), by = n.week.string, anchor.date = anchor.as.date),
             paste0(n.week, " weeks commencing ", floor_date(anchor.as.date - weeks(n.week), unit = "week")))
-        expect_equal(Period(test.dates, by = n.week.string, anchor.date = anchor), test.results[[n.week.string]])
+        expect_equal(Period(test.dates, by = n.week.string, anchor.date = anchor.as.date), test.results[[n.week.string]])
     }
 
 })

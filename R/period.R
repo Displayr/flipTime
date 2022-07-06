@@ -315,48 +315,61 @@ CompleteListPeriodNames <- function(x, by)
 #' @param x The date.
 #' @param by The period used in the conversion (e.g., "week", "year"). Special
 #' cases include:
-#' - "quarter", which provides the month for the quarter as YYYY-MM
-#' - "nice.quarter", which provides the quarter in the form Q1 2022
-#' - "2-week", "4-week", etc which provides multi-weekl periods labeled with
-#'   first date in the corresponding period, e.g. "2 weeks commencing 2022-07-03" 
-#'   Requires to use to specify an anchor date as a point of reference.
-#' @param anchor.date The date to use as a reference for multi-week periods. Can be a
-#' Date object, or a string in the form "YYYY-MM-DD". For example,
-#' when wanting two-week periods for "2022-07-04", does this date fall into
-#' the 2 weeks commencing "2022-07-04" or the two weeks comencing "2022-06-27".
+#' \itemize{
+#'    \item \code{"quarter"}, which provides the month for the quarter as 
+#' YYYY-MM
+#'    \item \code{"nice.quarter"}, which provides the quarter in the form 
+#' Q1 2022
+#'    \item \code{"2-week"}, \code{"4-week"} , etc which provides multi-week
+#' periods labeled with the first date in the corresponding period, e.g. "2 
+#' weeks commencing 2022-07-03". Requires to use to specify the anchor.date
+#' argument as a point of reference.
+#' }
+#' @param anchor.date The date to use as a reference for multi-week periods.
+#' A Date object should be supplied. This is used to disambiguate multi-week
+#' periods. For example, when wanting thw two-week period for "2022-07-04", should
+#' this date fall into the 2 weeks commencing "2022-07-04" or the two weeks
+#' commencing "2022-06-27". Only used when \code{by} is of the form "n-week".
 #' @importFrom lubridate floor_date make_difftime
 #' @export
-Period <- function(x, by, anchor.date = "1970-01-01")
+Period <- function(x, by, anchor.date = as.Date("1970-01-01"))
 {
-    multi.week = grepl("-week", by, fixed = TRUE)
+    
+    if (is.null(by))
+        stop("You should use the 'by' argument to specify which periods you ",
+        "wish to create. For example, by = 'week' for weekly periods.")
 
     if (by == "year")
-        return(format(floor_date(x, by),"%Y"))
-    if (by == "month" | by == "quarter")
-        return(format(floor_date(x, by),"%Y-%m"))
+        return(format(floor_date(x, by), "%Y"))
+    if (by == "month" || by == "quarter")
+        return(format(floor_date(x, by), "%Y-%m"))
     if (by == "week")
-        return(format(floor_date(x, by),"%Y-%m-%d"))
+        return(format(floor_date(x, by), "%Y-%m-%d"))
     if (by == "nice.quarter") {
         y <- floor_date(x, unit = "quarter")
         return(paste0("Q", ceiling(month(y)/3), " ", year(y)))
     }
 
+    multi.week <- endsWith(by, "-week")
+
     if (multi.week) {
         if (is.null(anchor.date))
-            stop("You must specify anchor.date when wanting ", by , " periods.")
-        anchor.date = as.Date(anchor.date)
-        n.week = as.numeric(sub("-week", "", by))
+            stop("You must specify anchor.date when wanting ", by, " periods.")
+        if (!is.Date(anchor.date))
+            stop("The 'anchor.date' argument should be supplied as a date ",
+            "rather than a ", class(anchor.date)[1])
+        n.week <- as.numeric(sub("-week", "", by))
         if (is.na(n.week))
             stop("Invalid number of weeks specified. n-week periods should start with a number, for example: '2-week'")
 
-        dd = make_difftime(week = n.week)
+        dd <- make_difftime(week = n.week)
 
         # Find the difference, in weeks, between x and the anchor date.
-        week.diff = as.numeric(anchor.date - x) / (n.week * 7)
-        # Round it down
-        week.diff = ceiling(week.diff)
+        week.diff <- as.numeric(anchor.date - x) / (n.week * 7)
+        # Round it up
+        week.diff <- ceiling(week.diff)
         # Subtract the difference multiplied by the n.week interval
-        new.date = floor_date(anchor.date - week.diff * dd, unit = "week")
+        new.date <- floor_date(anchor.date - week.diff * dd, unit = "week")
         return(paste0(n.week, " weeks commencing ", format(new.date, "%Y-%m-%d")))
     }
 
