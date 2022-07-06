@@ -4,12 +4,29 @@
 \alias{Period}
 \title{\code{Period}}
 \usage{
-Period(x, by)
+Period(x, by, anchor.date = as.Date("1970-01-01"))
 }
 \arguments{
 \item{x}{The date.}
 
-\item{by}{The period used in the conversion (e.g., "week", "year").}
+\item{by}{The period used in the conversion (e.g., "week", "year"). Special
+cases include:
+\itemize{
+   \item \code{"quarter"}, which provides the month for the quarter as 
+YYYY-MM
+   \item \code{"nice.quarter"}, which provides the quarter in the form 
+Q1 2022
+   \item \code{"2-week"}, \code{"4-week"} , etc which provides multi-week
+periods labeled with the first date in the corresponding period, e.g. "2 
+weeks commencing 2022-07-03". Requires to use to specify the anchor.date
+argument as a point of reference.
+}}
+
+\item{anchor.date}{The date to use as a reference for multi-week periods.
+A Date object should be supplied. This is used to disambiguate multi-week
+periods. For example, when wanting thw two-week period for "2022-07-04", should
+this date fall into the 2 weeks commencing "2022-07-04" or the two weeks
+commencing "2022-06-27". Only used when \code{by} is of the form "n-week".}
 }
 \description{
 Converts a date into a character.
