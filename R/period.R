@@ -336,22 +336,27 @@ CompleteListPeriodNames <- function(x, by)
 #' @param ... Additional arguments passed to lubridate
 #' @importFrom lubridate floor_date make_difftime
 #' @export
-Period <- function(x, by, anchor.date = as.Date("1970-01-01"), ...)
+Period <- function(x, by, anchor.date = as.Date("1970-01-01"), long.name = FALSE, ...)
 {
-    
     if (is.null(by))
         stop("You should use the 'by' argument to specify which periods you ",
         "wish to create. For example, by = 'week' for weekly periods.")
 
     if (by == "year")
         return(format(floor_date(x, by), "%Y"))
-    if (by == "month" || by == "quarter")
+    if (by == "month" || by == "quarter") {
+        if (long.name)
+            return(format(floor_date(x, by), "%B %Y"))
         return(format(floor_date(x, by), "%Y-%m"))
-    if (by == "week")
-        return(format(floor_date(x, by, ...), "%Y-%m-%d"))
+    }
+    if (by == "week") {
+        week.prefix <- if (long.name) "Week commencing " else ""
+        return(paste0(week.prefix, format(floor_date(x, by, ...), "%Y-%m-%d")))
+    }
     if (by == "nice.quarter") {
         y <- floor_date(x, unit = "quarter")
-        return(paste0("Q", ceiling(month(y)/3), " ", year(y)))
+        quarter.prefix <- if(long.name) "Quarter " else "Q"
+        return(paste0(quarter.prefix, ceiling(month(y)/3), " ", year(y)))
     }
 
     multi.week <- endsWith(by, "-week")
@@ -371,7 +376,8 @@ Period <- function(x, by, anchor.date = as.Date("1970-01-01"), ...)
         week.diff <- ceiling(week.diff)
         # Subtract the difference multiplied by the n.week interval
         new.date <- floor_date(anchor.date - week.diff * dd, unit = "week", ...)
-        return(paste0(n.week, " weeks commencing ", format(new.date, "%Y-%m-%d")))
+        multi.week.prefix <- if (long.name) paste0(n.week, " weeks commencing ") else ""
+        return(paste0(multi.week.prefix, format(new.date, "%Y-%m-%d")))
     }
 
     format(floor_date(x, by),"%Y-%m-%d")

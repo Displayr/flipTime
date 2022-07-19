@@ -250,10 +250,12 @@ test_that("n-week period",
     anchor.as.date <- as.Date(anchor)
     for (n.week in c(2,4,10)) {
         n.week.string = paste0(n.week, "-week")
-        expect_equal(Period(anchor.as.date, by = n.week.string, anchor.date = anchor.as.date), paste0(n.week, " weeks commencing ", floor_date(anchor.as.date, unit = "week")))
-        expect_equal(Period(anchor.as.date - weeks(n.week), by = n.week.string, anchor.date = anchor.as.date),
+        expect_equal(Period(anchor.as.date, by = n.week.string, anchor.date = anchor.as.date, long.name = TRUE),
+            paste0(n.week, " weeks commencing ", floor_date(anchor.as.date, unit = "week")))
+        expect_equal(Period(anchor.as.date - weeks(n.week), by = n.week.string, anchor.date = anchor.as.date, long.name = TRUE),
             paste0(n.week, " weeks commencing ", floor_date(anchor.as.date - weeks(n.week), unit = "week")))
-        expect_equal(Period(test.dates, by = n.week.string, anchor.date = anchor.as.date), test.results[[n.week.string]])
+        expect_equal(Period(test.dates, by = n.week.string, anchor.date = anchor.as.date, long.name = TRUE),
+            test.results[[n.week.string]])
     }
 
 })
@@ -269,4 +271,13 @@ test_that("Messages for n-week periods",
 {
     expect_error(Period(test.dates, by = "fun-week"), "Invalid number of weeks specified.")
     expect_error(Period(test.dates, by = "2-week", anchor = NULL), "specify anchor.date")
+})
+
+test_that("Long names", 
+{
+    test.date <- as.Date("2022-07-19")
+    expect_equal(Period(test.date, by = "month", long.name = TRUE), "July 2022")
+    expect_equal(Period(test.date, by = "quarter", long.name = TRUE), "July 2022")
+    expect_equal(Period(test.date, by = "nice.quarter", long.name = TRUE), "Quarter 3 2022")
+    expect_equal(Period(test.date, by = "week", long.name = TRUE), "Week commencing 2022-07-17")
 })
