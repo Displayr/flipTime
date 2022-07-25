@@ -4,7 +4,7 @@
 \alias{Period}
 \title{\code{Period}}
 \usage{
-Period(x, by, anchor.date = as.Date("1970-01-01"), ...)
+Period(x, by, anchor.date = as.Date("1970-01-01"), long.name = FALSE, ...)
 }
 \arguments{
 \item{x}{The date.}
