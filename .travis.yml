@@ -46,7 +46,7 @@ notifications:
     rooms:
       - displayr:FTgSTNHC2rpanhJMGTKMwZXM#github-notifications
     template:
-      - "Build <%{build_url}|#%{build_number}> %{result} in %{repository_name}@%{branch} by %{author}: <%{compare_url}|%{commit_message}>"
+      - "Build <%{build_url}|#%{build_number}> %{result} in %{repository_name}@%{branch} by %{author}: <%{compare_url}|%{commit_subject}>"
     on_success: change
     on_failure: always
 
