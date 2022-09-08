@@ -241,3 +241,9 @@ test_that("DS-2940: Keep names",
     expect_equal(AsDate(c(A = "2020-01-13", B = "2020-01-14", D = NA), on.parse.failure = "ignore"),
         structure(c(A = 18274, B = 18275, D = NA), class = "Date"))
 })
+
+test_that("RS-11414: '%' sign in names",
+{
+    xx <- c("1-25%", "26-50%", "51-75%", "76-100%", "NET")
+    expect_warning(AsDate(xx, on.parse.failure = "warn"), "Could not parse")
+})

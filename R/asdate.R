@@ -236,7 +236,7 @@ checkMonthYearFormatAndParse <- function(
                                          sep.patt)
 {
     out <- NA
-    x1 <- x[1L]
+    x1 <- gsub("%", "", x[1L], fixed = TRUE)
     patt <- paste0( "\\b", patt1, sep.patt, patt2, "\\b")
     sep <- sub(patt, "\\1", x1, ignore.case = TRUE, perl = TRUE)
     if (!identical(sep, x1))

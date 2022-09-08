@@ -15,7 +15,10 @@ IsDateTime <- function(x)
     if (is.factor(x))
         x <- as.character(x)
 
-    return(!any(is.na(suppressWarnings(AsDateTime(x, on.parse.failure = "silent")))))
+    res <- try(suppressWarnings(AsDateTime(x, on.parse.failure = "silent")), silent = TRUE)
+    if (inherits(res, "try-error"))
+        return(FALSE)
+    return(!any(is.na(res)))
 }
 
 
