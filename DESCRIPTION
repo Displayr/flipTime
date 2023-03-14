@@ -12,6 +12,8 @@ Imports:
     lubridate,
     plotly,
     stats
+Remotes:
+    Displayr/plotly
 Suggests:
     testthat
 RoxygenNote: 7.2.1
