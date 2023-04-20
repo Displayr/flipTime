@@ -2,7 +2,7 @@
 % Please edit documentation in R/period.R
 \name{Period}
 \alias{Period}
-\title{\code{Period}}
+\title{Convert date objects to character strings}
 \usage{
 Period(x, by, anchor.date = as.Date("1970-01-01"), long.name = FALSE, ...)
 }
@@ -30,6 +30,10 @@ period for "2022-07-04", should the period cover the 2 weeks commencing
 will be determined relative to the first day in the week which contains
 the \code{anchor.date}. Note that this function uses lubridate, where the
 default week start day is Sunday.}
+
+\item{long.name}{Logical; if \code{TRUE} the output string is more verbose:
+months will be their full names, quarters will be written as \code{"Quarter"},
+and \code{"week commencing"} will be added when code{'week"} is \code{"week"}.}
 
 \item{...}{Additional arguments passed to lubridate}
 }

@@ -309,7 +309,7 @@ CompleteListPeriodNames <- function(x, by)
     Period(seq(min(observed.dates), max(observed.dates), by = by), by)
 }
 
-#' \code{Period}
+#' Convert date objects to character strings
 #'
 #' @description Converts a date into a character.
 #' @param x The date.
@@ -333,6 +333,9 @@ CompleteListPeriodNames <- function(x, by)
 #' will be determined relative to the first day in the week which contains
 #' the \code{anchor.date}. Note that this function uses lubridate, where the
 #' default week start day is Sunday.
+#' @param long.name Logical; if \code{TRUE} the output string is more verbose:
+#' months will be their full names, quarters will be written as \code{"Quarter"},
+#' and \code{"week commencing"} will be added when code{'week"} is \code{"week"}.
 #' @param ... Additional arguments passed to lubridate
 #' @importFrom lubridate floor_date make_difftime
 #' @export
