@@ -88,18 +88,16 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
 #' @noRd
 asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
 {
+    if (inherits(x, "POSIXct"))
+        return(x)
     if (is.null(time.zone) || time.zone == "")
         time.zone <- "UTC"
     else if (!time.zone %in% OlsonNames())
         stop("Time zone not recognized.")
 
-    if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
-    {
-        out <- as.POSIXct(x, tz = time.zone)
-        if (inherits(x, "QDate"))
-            class(out) <- c(class(x), "QDate")
-        return(out)
-    }
+    if (inherits(x, c("Date", "POSIXt", "POSIXlt")))
+        return(as.POSIXct(x, tz = time.zone))
+
     if (is.factor(x))
         x <- as.character(x)
 
