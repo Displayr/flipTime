@@ -204,3 +204,11 @@ test_that("DS-2940: Keep names",
         structure(c(A = 1578873600, B = 1578960000, D = NA),
             class = c("POSIXct", "POSIXt"), tzone = "UTC"))
 })
+
+test_that("DS-4683: Date inputs are returned as POSIXlt",
+{
+    expect_is(AsDateTime(as.Date("2012-02-13")), "POSIXct")
+    x <- as.POSIXlt("2012-02-13 02:10:45")
+    class(x) <- c(class(x), "QDate")
+    expect_is(AsDateTime(x), c("POSIXct", "QDate"))
+})

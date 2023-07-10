@@ -3,8 +3,8 @@
 #' Parse dates assuming some common (unknown) formats
 #' popular either in the U.S. or internationally
 #' @param x character; vector of dates or date intervals/periods to be parsed, which
-#' should all be in the same format. If timestamps are detected, they will be parsed
-#' using \code{AsDateTime}.
+#' should all be in the same format (excluding missing values). If timestamps are
+#' detected, they will be parsed using \code{AsDateTime}.
 #' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
 #' in which case both U.S. formats and international formats will be checked
 #' @param exact see \code{\link[lubridate]{parse_date_time2}}
