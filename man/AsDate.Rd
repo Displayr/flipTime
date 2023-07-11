@@ -10,7 +10,9 @@ AsDate(x, us.format = NULL, exact = FALSE, on.parse.failure = "error")
 ParseDates(x, us.format = NULL)
 }
 \arguments{
-\item{x}{character; vector to be parsed}
+\item{x}{character; vector of dates or date intervals/periods to be parsed, which
+should all be in the same format (excluding missing values). If timestamps are
+detected, they will be parsed using \code{AsDateTime}.}
 
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}
@@ -24,7 +26,9 @@ in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the s
 as \code{x}; any other value results in a vector of NAs being returned silently.}
 }
 \value{
-A vector of \code{\link{Date}} objects.
+A vector of \code{\link{Date}} objects, if all elements of \code{x} have
+the same, valid format; otherwise, when \code{on.parse.failure} is \emph{not}
+\code{"error"}, a vector of NA values with the same length as \code{x}.
 }
 \description{
 Parse dates assuming some common (unknown) formats

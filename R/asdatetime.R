@@ -35,13 +35,20 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #'
 #' Parses date-time character vectors to POSIXct
 #' @inheritParams AsDate
+#' @param x A character vector of dates with timestamps, which should all be in the same
+#' format (excluding missing values). Can also be of class \code{Date}, \code{QDate},
+#' or \code{POSIXlt}, in which case it will be coerced to \code{POSIXct}
+#' using \code{as.POSIXct}.
 #' @param time.zone An optional time zone (default \code{"UTC"}).
-#' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
+#' @references See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}
+#' for a list of time zones.
 #' @examples
 #' AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 #' AsDateTime(c("2018-06-19T16:45:30.045Z", "2018-06-20T06:12:34.125+06"))
-#' @seealso \code{\link[lubridate]{parse_date_time2}}
-#' @return a vector of POSIXct date-time objects
+#' @seealso \code{\link[lubridate]{parse_date_time2}}, \code{\link{DateTimeClasses}}
+#' @return A vector of POSIXct date-time objects, if all elements of \code{x} have
+#' the same, valid format; otherwise, when \code{on.parse.failure} is \emph{not}
+#' \code{"error"}, a vector of NA values with the same length as \code{x}.
 #' @importFrom lubridate parse_date_time2
 #' @export
 AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
@@ -81,14 +88,18 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
 #' @noRd
 asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
 {
-    if (inherits(x, c("Date", "POSIXct", "POSIXt", "POSIXlt")))
+    if (inherits(x, "POSIXct"))
         return(x)
-    if (is.factor(x))
-        x <- as.character(x)
     if (is.null(time.zone) || time.zone == "")
         time.zone <- "UTC"
     else if (!time.zone %in% OlsonNames())
         stop("Time zone not recognized.")
+
+    if (inherits(x, c("Date", "POSIXt", "POSIXlt")))
+        return(as.POSIXct(x, tz = time.zone))
+
+    if (is.factor(x))
+        x <- as.character(x)
 
     if (!isNotAllNonEmptyText(x))
     {

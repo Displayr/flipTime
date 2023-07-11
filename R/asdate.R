@@ -2,7 +2,9 @@
 #'
 #' Parse dates assuming some common (unknown) formats
 #' popular either in the U.S. or internationally
-#' @param x character; vector to be parsed
+#' @param x character; vector of dates or date intervals/periods to be parsed, which
+#' should all be in the same format (excluding missing values). If timestamps are
+#' detected, they will be parsed using \code{AsDateTime}.
 #' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
 #' in which case both U.S. formats and international formats will be checked
 #' @param exact see \code{\link[lubridate]{parse_date_time2}}
@@ -11,7 +13,9 @@
 #' \code{\link{stop}} in the event that \code{x} cannot be parsed;  specifying \code{"warn"} results
 #' in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the same length
 #' as \code{x}; any other value results in a vector of NAs being returned silently.
-#' @return A vector of \code{\link{Date}} objects.
+#' @return A vector of \code{\link{Date}} objects, if all elements of \code{x} have
+#' the same, valid format; otherwise, when \code{on.parse.failure} is \emph{not}
+#' \code{"error"}, a vector of NA values with the same length as \code{x}.
 #' @seealso \code{\link{Date}}
 #' @details Time intervals or periods (start and end dates
 #' representing a specific time span) are also supported. If periods

@@ -16,7 +16,10 @@ AsDateTime(
 )
 }
 \arguments{
-\item{x}{character; vector to be parsed}
+\item{x}{A character vector of dates with timestamps, which should all be in the same
+format (excluding missing values). Can also be of class \code{Date} or \code{POSIXlt},
+in which case it will be coerced
+to \code{POSIXct} using \code{as.POSIXct}.}
 
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}
@@ -32,7 +35,9 @@ in a \code{\link{warning}} be thrown and a vector of \code{NA} values with the s
 as \code{x}; any other value results in a vector of NAs being returned silently.}
 }
 \value{
-a vector of POSIXct date-time objects
+A vector of POSIXct date-time objects, if all elements of \code{x} have
+the same, valid format; otherwise, when \code{on.parse.failure} is \emph{not}
+\code{"error"}, a vector of NA values with the same length as \code{x}.
 }
 \description{
 Parses date-time character vectors to POSIXct
@@ -45,8 +50,9 @@ AsDateTime("1-2-2017 12:34:56", us.format = FALSE)
 AsDateTime(c("2018-06-19T16:45:30.045Z", "2018-06-20T06:12:34.125+06"))
 }
 \references{
-See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones} for a list of time zones.
+See \url{https://en.wikipedia.org/wiki/List_of_tz_database_time_zones}
+for a list of time zones.
 }
 \seealso{
-\code{\link[lubridate]{parse_date_time2}}
+\code{\link[lubridate]{parse_date_time2}}, \code{\link{DateTimeClasses}}
 }
