@@ -85,6 +85,7 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
 }
 
 #' Main parsing function for AsDateTime
+#' @importFrom flipU StopForUserError
 #' @noRd
 asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
 {
@@ -93,7 +94,7 @@ asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
     if (is.null(time.zone) || time.zone == "")
         time.zone <- "UTC"
     else if (!time.zone %in% OlsonNames())
-        stop("Time zone not recognized.")
+        StopForUserError("Time zone not recognized.")
 
     if (inherits(x, c("Date", "POSIXt", "POSIXlt")))
         return(as.POSIXct(x, tz = time.zone))

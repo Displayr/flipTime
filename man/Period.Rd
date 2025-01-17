@@ -12,20 +12,20 @@ Period(x, by, anchor.date = as.Date("1970-01-01"), long.name = FALSE, ...)
 \item{by}{The period used in the conversion (e.g., "week", "year"). Special
 cases include:
 \itemize{
-   \item \code{"quarter"}, which provides the month for the quarter as 
+   \item \code{"quarter"}, which provides the month for the quarter as
 YYYY-MM
-   \item \code{"nice.quarter"}, which provides the quarter in the form 
+   \item \code{"nice.quarter"}, which provides the quarter in the form
 Q1 2022
    \item \code{"2-week"}, \code{"4-week"} , etc which provides multi-week
-periods labeled with the first date in the corresponding period, e.g. "2 
+periods labeled with the first date in the corresponding period, e.g. "2
 weeks commencing 2022-07-03". Requires to use to specify the anchor.date
 argument as a point of reference.
 }}
 
 \item{anchor.date}{Supply a Date value to disambiguate multi-week periods.
 When asking for two-week periods, four week-periods, etc, for a given
-value of x, the choice is ambiguous. For example, when wanting the two-week 
-period for "2022-07-04", should the period cover the 2 weeks commencing 
+value of x, the choice is ambiguous. For example, when wanting the two-week
+period for "2022-07-04", should the period cover the 2 weeks commencing
 "2022-07-03" or the two weeks commencing "2022-06-26"? All multi-week periods
 will be determined relative to the first day in the week which contains
 the \code{anchor.date}. Note that this function uses lubridate, where the

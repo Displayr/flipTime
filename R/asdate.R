@@ -291,15 +291,15 @@ makeFormatFromOrder <- function(x1, seps, ord)
     {
         ord <- sub("d", "", ord)
         if (!is.b && !grepl("[[:space:]]*[/-][[:space:]]*", seps))
-            stop("Only '-' or '/' are allowed as separators for formats with ",
-                 "numeric months and no days.")
+            StopForUserError("Only '-' or '/' are allowed as separators for formats with ",
+                             "numeric months and no days.")
     }else if (!is.b && any(seps == "")){
-        stop("Separators cannot be omitted with numeric month formats.")
+        StopForUserError("Separators cannot be omitted with numeric month formats.")
     }else
     {
         if ((grepl("^yd", ord) && seps[1L] == "") ||
             (grepl("dy$", ord) && seps[2L] == ""))
-            stop("Numeric day and year must have a separator between them.")
+            StopForUserError("Numeric day and year must have a separator between them.")
     }
 
     if (is.Y)
@@ -322,7 +322,7 @@ handleParseFailure <- function(var.name, len.x, on.parse.failure)
     msg <- sprintf("Could not parse %s into a valid date in any format.",
                    var.name)
     if (grepl("error", on.parse.failure, ignore.case = TRUE))
-        stop(msg, call. = TRUE)
+        StopForUserError(msg)
     else if (grepl("warn", on.parse.failure, ignore.case = TRUE))
         warning(msg, call. = TRUE)
     return(rep.int(NA, len.x))
