@@ -7,7 +7,7 @@ parameters:
     default: ""
   remote-deps:
     type: string
-    default: ""
+    default: "Displayr/flipU@master"
   plugins-branch:
     type: string
     default: ""
