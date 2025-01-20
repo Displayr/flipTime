@@ -17,9 +17,9 @@ AsDateTime(
 }
 \arguments{
 \item{x}{A character vector of dates with timestamps, which should all be in the same
-format (excluding missing values). Can also be of class \code{Date} or \code{POSIXlt},
-in which case it will be coerced
-to \code{POSIXct} using \code{as.POSIXct}.}
+format (excluding missing values). Can also be of class \code{Date}, \code{QDate},
+or \code{POSIXlt}, in which case it will be coerced to \code{POSIXct}
+using \code{as.POSIXct}.}
 
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}

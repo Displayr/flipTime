@@ -27,6 +27,7 @@
 #'                                                            by = "quarters"),
 #'                              x = as.numeric(presidents))
 #' AggregateByDate(df, by = "year", FUN = median, na.rm = TRUE)
+#' @importFrom flipU StopForUserError
 #' @export
 AggregateByDate <- function(x, by, dates, FUN = sum, ...)
 {
@@ -43,7 +44,7 @@ AggregateByDate <- function(x, by, dates, FUN = sum, ...)
         } else if (is.matrix(x) && ncol(x) == 1)
             dates <- rownames(x)
     } else if (NCOL(x) > 1)
-        stop("'dates' has been provided and 'x' has more than 1 column. You may have either, but not both.")
+        StopForUserError("'dates' has been provided and 'x' has more than 1 column. You may have either, but not both.")
     out <- tapply(x, list(Period(AsDate(dates), by)), FUN = FUN, ...)
     nms <- names(out)
     out <- as.vector(out)

@@ -11,13 +11,14 @@
 #' @examples
 #' DiffPeriod("2015/05/06", "2017/05/06", by = "year")
 #' @importFrom lubridate years interval as.period days
+#' @importFrom flipU StopForUserError
 #' @export
 DiffPeriod <- function(from, to, by, ceiling = FALSE)
 {
     n <- length(from)
     n.to <- length(to)
     if (n != n.to)
-        stop("'from' and 'to' have different lengths.")
+        StopForUserError("'from' and 'to' have different lengths.")
     from <- Change29FebTo28th(as.Date(AsDateTime(from)))
     to <- Change29FebTo28th(as.Date(AsDateTime(to)))
     if (by == "day" || by == "week")
@@ -61,6 +62,7 @@ Change29FebTo28th <- function(x)
 #' DecimalDate("2000/01/01", by = "month")
 #' DecimalDate("2000/02/01", by = "month")
 #' DecimalDate("2000/06/16", by = "month")
+#' @importFrom flipU StopForUserError
 #' @export
 DecimalDate <- function(x, by) {
 
@@ -82,5 +84,5 @@ DecimalDate <- function(x, by) {
     day.in.year <- d$yday
     return(year + day.in.year/ days.in.year)
     }
-    stop("Unknown 'by'.")
+    StopForUserError("Unknown 'by'.")
 }

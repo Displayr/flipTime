@@ -3,12 +3,13 @@
 #' @param x The period expressed in \code{units} units.
 #' @param units The time unit, which can be seconds, minutes, hours, days, weeks or months.
 #' @importFrom lubridate %m+%
+#' @importFrom flipU StopForUserError
 #' @export
 TimeUnitsToSeconds <- function(x, units = "seconds") {
 
     unit.list <- c("seconds", "minutes", "hours", "days", "weeks", "months")
     if (!(units %in% unit.list)) {
-        stop("Unrecognized units.")
+        StopForUserError("Unrecognized units.")
     }
 
     if (units == "months")
@@ -34,12 +35,13 @@ TimeUnitsToSeconds <- function(x, units = "seconds") {
 #' RefreshIfOlderThan(2, "hours")
 #' RefreshIfOlderThan(1, "weeks")
 #' @seealso \code{\link{UpdateEvery}}, \code{\link{UpdateAt}}
+#' @importFrom flipU StopForUserError
 #' @export
 RefreshIfOlderThan <- function(x, units = "seconds") {
 
     seconds <- TimeUnitsToSeconds(x, units)
     if (seconds < 600)
-        stop("Update frequency must be at least 600 seconds.")
+        StopForUserError("Update frequency must be at least 600 seconds.")
 
     message(paste("R output expires in", seconds, "seconds"))
 }
@@ -60,12 +62,13 @@ RefreshIfOlderThan <- function(x, units = "seconds") {
 #' UpdateEvery(5, "days", "snapshot")
 #' UpdateEvery(1, "months", NULL)
 #' @seealso \code{\link{RefreshIfOlderThan}}, \code{\link{UpdateAt}}
+#' @importFrom flipU StopForUserError
 #' @export
 UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 
     seconds <- TimeUnitsToSeconds(x, units)
     if (seconds < 600)
-        stop("Update frequency must be at least 600 seconds.")
+        StopForUserError("Update frequency must be at least 600 seconds.")
 
     message.string <- paste0("R output expires in ", seconds, " seconds")
     message.string <- appendUpdateOption(message.string, options)
@@ -101,11 +104,12 @@ UpdateEvery <- function(x, units = "seconds", options = "snapshot") {
 #' units = "days", frequency = 3, options = "snapshot")
 #' @seealso \code{\link{RefreshIfOlderThan}}, \code{\link{UpdateEvery}}
 #' @importFrom lubridate %m+%
+#' @importFrom flipU StopForUserError
 #' @export
 UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", frequency = 1, options = "snapshot") {
 
     if (TimeUnitsToSeconds(frequency, units) < 600)
-        stop("Update frequency must be at least 600 seconds.")
+        StopForUserError("Update frequency must be at least 600 seconds.")
 
     first.update <- AsDateTime(x, us.format = us.format, time.zone = time.zone,
                                on.parse.failure = "error")
@@ -143,6 +147,7 @@ UpdateAt <- function(x, us.format = FALSE, time.zone = "UTC", units = "days", fr
     message(message.string)
 }
 
+#' @importFrom flipU StopForUserError
 appendUpdateOption <- function(message.string, options)
 {
     if (is.null(options) || options == "snapshot")
@@ -154,7 +159,7 @@ appendUpdateOption <- function(message.string, options)
         # don't need to append anything
     }
     else
-        stop("Unrecognized options: ", options)
+        StopForUserError("Unrecognized options: ", options)
 
     message.string
 }
