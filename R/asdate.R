@@ -45,7 +45,8 @@ AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error
 
     ## Remove NAs and reinstate them before returning
     x.names <- names(x)
-    na.ind <- is.na(x)
+    na.ind <- if (is.character(x)) is.na(x) | x == ''
+              else is.na(x)
     x <- x[!na.ind]
 
     parsed <- asDate(x, us.format, exact)

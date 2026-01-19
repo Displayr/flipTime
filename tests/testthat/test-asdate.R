@@ -231,15 +231,15 @@ test_that("Dates with time stamps are parsed, with times dropped; DS-2193",
 
 test_that("DS-2798: deal with NAs",
 {
-    expect_equal(AsDate(c("2015","2015", NA, "2013", "2016"),
+    expect_equal(AsDate(c("2015","2015", NA, "2013", "2016", ""),
                         on.parse.failure = "ignore"),
-                 structure(c(16436, 16436, NA, 15706, 16801), class = "Date"))
+                 structure(c(16436, 16436, NA, 15706, 16801, NA), class = "Date"))
 })
 
 test_that("DS-2940: Keep names",
 {
-    expect_equal(AsDate(c(A = "2020-01-13", B = "2020-01-14", D = NA), on.parse.failure = "ignore"),
-        structure(c(A = 18274, B = 18275, D = NA), class = "Date"))
+    expect_equal(AsDate(c(A = "2020-01-13", B = "2020-01-14", D = NA, E = ""), on.parse.failure = "ignore"),
+        structure(c(A = 18274, B = 18275, D = NA, E = NA), class = "Date"))
 })
 
 test_that("RS-11414: '%' sign in names",

@@ -192,9 +192,9 @@ test_that("IP addresses fail to parse; DS-2189",
 
 test_that("DS-2798: deal with NAs",
 {
-    expect_equal(AsDateTime(c("2020-03-09 16:26", NA, "2020-02-02 20:02"),
+    expect_equal(AsDateTime(c("2020-03-09 16:26", NA, "2020-02-02 20:02", ""),
                               on.parse.failure = "ignore"),
-                 structure(c(1583771160, NA, 1580673720),
+                 structure(c(1583771160, NA, 1580673720, NA),
                            class = c("POSIXct", "POSIXt"), tzone = "UTC"))
 })
 
