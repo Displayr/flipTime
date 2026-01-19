@@ -60,7 +60,8 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
 
     ## Remove NAs and reinstate them before returning
     x.names <- names(x)
-    na.ind <- is.na(x)
+    na.ind <- if (is.character(x)) is.na(x) | x == ''
+              else is.na(x)
     x <- x[!na.ind]
 
     parsed <- asDateTime(x, us.format, time.zone, exact)
