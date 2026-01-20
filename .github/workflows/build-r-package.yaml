@@ -1,0 +1,18 @@
+name: Build flipTime
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    name: Build flipTime
+    permissions:
+      checks: write
+      contents: read
+    uses: Displayr/nixr-public/.github/workflows/build-flake-installable.yaml@master
+    with:
+      installable-path: pkgs.x86_64-linux.rPackages.flipTime
+      build-args: --override-input flipTime .
+      installable-name: flipTime
+    secrets: inherit
