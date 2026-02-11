@@ -23,7 +23,8 @@ detected, they will be parsed using \code{AsDateTime}.}
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}
 
-\item{locale}{See \link{locales}.}
+\item{locale}{Controls the language used. But use "fr_FR.utf8" instead of "French" to avoid
+errors with non-ascii characters. See \link{locales} for more info.}
 
 \item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 

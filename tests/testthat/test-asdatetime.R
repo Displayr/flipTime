@@ -138,8 +138,8 @@ test_that("AsDateTime",
     expect_equal(AsDateTime("Saturday January 02 2016 12:34AM"), dt2)
 
     # other languages including day of the week need the locale to be set
-    expect_equal(AsDateTime("samedi 2 janvier 2016 00:34:56", locale = "fr_CA.utf8"), dt1)
-    expect_equal(AsDateTime("Samstag, 2. Januar 2016 00:34:56", locale = "de_DE.UTF-8"), dt1)
+    expect_equal(AsDateTime("samedi 2 janvier 2016 00:34:56", locale = "fr_FR.utf8"), dt1)
+    expect_equal(AsDateTime("Samstag, 2. Januar 2016 00:34:56", locale = "de_DE.utf8"), dt1)
 })
 
 test_that("AsDateTime: additional support for two-digit years",

@@ -32,7 +32,8 @@ in which case both U.S. formats and international formats will be checked}
 
 \item{time.zone}{An optional time zone (default \code{"UTC"}).}
 
-\item{locale}{See \link{locales}.}
+\item{locale}{Controls the language used. But use "fr_FR.utf8" instead of "French" to avoid
+errors with non-ascii characters. See \link{locales} for more info.}
 
 \item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 

@@ -7,7 +7,8 @@
 #' detected, they will be parsed using \code{AsDateTime}.
 #' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
 #' in which case both U.S. formats and international formats will be checked
-#' @param locale See \link{locales}.
+#' @param locale Controls the language used. But use "fr_FR.utf8" instead of "French" to avoid
+#'  errors with non-ascii characters. See \link{locales} for more info.
 #' @param exact see \code{\link[lubridate]{parse_date_time2}}
 #' @param on.parse.failure Character string specifying how parse failures should be handled;
 #' \code{"error"}, the default, results in an error being thrown with
@@ -108,7 +109,7 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
         }
 
         parsed <- checkFormatsWithDay(x, us.format, exact)
-        if (!any(is.na(parsed)))
+        if (!anyNA(parsed))
             return(parsed)
 
         ## Try formats with month and year, but no day

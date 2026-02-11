@@ -36,12 +36,12 @@ test_that("AsDate", {
     expect_equal(AsDate("2. Januar 2016", locale = "de_DE.UTF-8"), dt1)
     expect_equal(AsDate("2016年1月2日"), dt1)
     expect_equal(AsDate("2016年1月2日"), dt2)
-    expect_equal(AsDate("2 Janvier 2016", locale = "fr_CA.utf8"), dt1)
-    expect_equal(AsDate("Le samedi 2 janvier 2016", locale = "fr_CA.utf8"), dt1)
+    expect_equal(AsDate("2 Janvier 2016", locale = "fr_FR.utf8"), dt1)
+    expect_equal(AsDate("Le samedi 2 janvier 2016", locale = "fr_FR.utf8"), dt1)
 
     # other languages including day of the week need the locale to be set
-    expect_equal(AsDate("samedi 2 janvier 2016", locale = "fr_CA.utf8"), dt1)
-    expect_equal(AsDate("Samstag, 2. Januar 2016", locale = "de_DE.UTF-8"), dt1)
+    expect_equal(AsDate("samedi 2 janvier 2016", locale = "fr_FR.utf8"), dt1)
+    expect_equal(AsDate("Samstag, 2. Januar 2016", locale = "de_DE.utf8"), dt1)
 
     # Numeric year month date
     expect_equal(AsDate("2010-02-03"), dt6)
