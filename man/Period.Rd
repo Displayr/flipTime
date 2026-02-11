@@ -33,7 +33,7 @@ default week start day is Sunday.}
 
 \item{long.name}{Logical; if \code{TRUE} the output string is more verbose:
 months will be their full names, quarters will be written as \code{"Quarter"},
-and \code{"week commencing"} will be added when code{'week"} is \code{"week"}.}
+and \code{"week commencing"} will be added when \code{by} is \code{"week"}.}
 
 \item{...}{Additional arguments passed to lubridate}
 }

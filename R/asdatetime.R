@@ -3,10 +3,11 @@
 #' Returns bool indicating whether text can be parsed as a date-time
 #' @export
 #' @param x Vector of input text
+#' @param locale See \link{locales}.
 #' @examples
 #' IsDateTime("2007")
 #' IsDateTime("abc")
-IsDateTime <- function(x)
+IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
 {
     if (length(x) == 0)
         return (FALSE)
@@ -15,7 +16,7 @@ IsDateTime <- function(x)
     if (is.factor(x))
         x <- as.character(x)
 
-    res <- try(suppressWarnings(AsDateTime(x, on.parse.failure = "silent")), silent = TRUE)
+    res <- try(suppressWarnings(AsDateTime(x, locale = locale, on.parse.failure = "silent")), silent = TRUE)
     if (inherits(res, "try-error"))
         return(FALSE)
     return(!any(is.na(res)))
@@ -26,9 +27,9 @@ IsDateTime <- function(x)
 #' @export
 #' @rdname AsDateTime
 #' @details \code{ParseDateTime} is deprecated and merely calls \code{AsDateTime}
-ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
+ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC", locale = Sys.getlocale("LC_TIME"))
 {
-    AsDateTime(x, us.format, time.zone)
+    AsDateTime(x, us.format, time.zone, locale)
 }
 
 #' Parse Character Date-Times to POSIXct Objects
@@ -51,7 +52,11 @@ ParseDateTime <- function(x, us.format = TRUE, time.zone = "UTC")
 #' \code{"error"}, a vector of NA values with the same length as \code{x}.
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
+AsDateTime <- function(x,
+                       us.format = NULL,
+                       time.zone = "UTC",
+                       locale = Sys.getlocale("LC_TIME"),
+                       exact = FALSE,
                        on.parse.failure = "error")
 {
     ## DS-2028 ugliness for turning off date parsing in GUI
@@ -64,7 +69,7 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
               else is.na(x)
     x <- x[!na.ind]
 
-    parsed <- asDateTime(x, us.format, time.zone, exact)
+    parsed <- asDateTime(x, us.format, time.zone, locale, exact)
 
     ## try to parse as dates with no times
     ## need to explicitly add time.zone as attr b/c
@@ -88,7 +93,10 @@ AsDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE,
 #' Main parsing function for AsDateTime
 #' @importFrom flipU StopForUserError
 #' @noRd
-asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
+asDateTime <- function(x, us.format = NULL,
+                       time.zone = "UTC",
+                       locale = Sys.getlocale("LC_TIME"),
+                       exact = FALSE)
 {
     if (inherits(x, "POSIXct"))
         return(x)
@@ -105,8 +113,22 @@ asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
 
     if (!isNotAllNonEmptyText(x))
     {
-        if (isIPAddress(x[1L]))
+        x1 <- x[1L]
+        if (isIPAddress(x1))
             return(rep.int(NA, length(x)))
+
+        # Try out date formats with weekdays and months because these are unambiguous
+        orders <- c("ABdYT", "AdBYT", "aBdYT", "adBYT", "abdYT",
+                    "ABdYImp", "AdBYIMp", "aBdYIMp", "adBYIMp", "abdYIMp")
+        for (ord in orders)
+        {
+            if (is.na(parse_date_time(x1, ord, tz = time.zone, locale = locale, quiet = TRUE)))
+                next
+            parsed <- parse_date_time(x, ord, tz = time.zone, locale = locale, quiet = TRUE)
+            if (all(!is.na(parsed)))
+                return(parsed)
+        }
+
         orders <- if (is.null(us.format))
                           c("mdYIMSp", "dmYIMSp", "mdYHMS", "dmYHMS", "mdYIMp", "dmYIMp",
                             "mdYHM", "dmYHM", "mdyIMSp", "dmyIMSp", "mdyIMp", "dmyIMp",
@@ -118,25 +140,19 @@ asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
                             c("dmYIMSp", "dmYHMS", "dmYIMp", "dmYHM", "dmyIMSp", "dmyIMp",
                               "dmyHMS")
 
-        ## OLD:
-        ## orders <- c(orders, "YmdIMSp", "YmdHMS", "YmdIMp", "YmdHM", "Ymd", "Ym", "Y",
-        ##             "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd", "Yb",
-        ##             "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "bdY", "dbYIMSp",
-        ##             "dbyIMSp", "dbYHMS", "dbyHMS", "dbYIMp", "dbyIMp",
-        ##             "dbYHM", "dbyHM", "dbY", "dby", "mY")
-        orders <- c(orders, "YmdIMSp", "YmdHMOSz", "YmdHMOS", "YmdHMSz", "YmdHMS",
+
+        # Try the formats containing 2-digit years last because they can be ambiguous
+        orders <- c("YmdIMSp", "YmdHMOSz", "YmdHMOS", "YmdHMSz", "YmdHMS",
                     "YmdIMp", "YmdHM", "YbdIMSp", "YbdHMS", "YbdIMp", "YbdHM", "Ybd",
-                    "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp", "dbyIMSp",
-                    "dbYIMp", "dbyIMp", "dbYHMS", "dbYHM", "dbyHMS", "dbyHM")
-        ## e.g. 20-12-99 20:56; 00-10-30 12:30
+                    "bdYIMSz", "bdYIMSp", "bdYHMS", "bdYIMp", "bdYHM", "dbYIMSp",
+                    "dbYIMp", "dbYHMS", "dbYHM", "dbyIMp", "dbyIMSp", "dbyHMS", "dbyHM",
+                    orders)
         orders <- c(orders, if (is.null(us.format))
                                 c("mdyHM", "dmyHM")
                             else if (us.format)
                                 "mdyHM"
                             else "dmyHM",
                     "ymdHM")
-
-        x1 <- x[1L]
 
         for (ord in orders)
         {  ## setting the exact arg to TRUE caused the format dbYHM to fail
@@ -147,9 +163,12 @@ asDateTime <- function(x, us.format = NULL, time.zone = "UTC", exact = FALSE)
                 parsed <- checkUSformatAndParse(x, ord, time.zone,
                                                 is.null(us.format))
                 if (all(!is.na(parsed)))
-                    break
+                    return(parsed)
             }
         }
+
+
+
     }else
         parsed <- NA
 

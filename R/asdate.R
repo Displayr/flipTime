@@ -7,6 +7,7 @@
 #' detected, they will be parsed using \code{AsDateTime}.
 #' @param us.format logical; whether to use the US convention for dates; can be \code{NULL}
 #' in which case both U.S. formats and international formats will be checked
+#' @param locale See \link{locales}.
 #' @param exact see \code{\link[lubridate]{parse_date_time2}}
 #' @param on.parse.failure Character string specifying how parse failures should be handled;
 #' \code{"error"}, the default, results in an error being thrown with
@@ -37,7 +38,11 @@
 #' AsDate("2010-February")
 #' @importFrom lubridate parse_date_time2
 #' @export
-AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error")
+AsDate <- function(x,
+                   us.format = NULL,
+                   locale = Sys.getlocale("LC_TIME"),
+                   exact = FALSE,
+                   on.parse.failure = "error")
 {
     ## DS-2028 ugliness for turning off date parsing in GUI
     if (length(us.format) == 1 && grepl("^No date", us.format))
@@ -49,11 +54,11 @@ AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error
               else is.na(x)
     x <- x[!na.ind]
 
-    parsed <- asDate(x, us.format, exact)
+    parsed <- asDate(x, us.format, locale, exact)
 
     ## DS-2193 check if date has a time stamp
     if (any(is.na(parsed)))
-        parsed <- asDateTime(x, us.format = us.format, exact = exact)
+        parsed <- asDateTime(x, us.format = us.format, locale = locale, exact = exact)
 
     if (any(is.na(parsed)))
     {
@@ -69,7 +74,7 @@ AsDate <- function(x, us.format = NULL, exact = FALSE, on.parse.failure = "error
 
 #' Main parsing function for AsDate
 #' @noRd
-asDate <- function(x, us.format = NULL, exact = FALSE)
+asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact = FALSE)
 {
     if (is.factor(x))
         x <- as.character(x)
@@ -87,6 +92,20 @@ asDate <- function(x, us.format = NULL, exact = FALSE)
         pd <- parsePeriodDate(x, us.format)
         if (!any(is.na(pd)))
             return(as.Date(pd))
+
+        # Try out date formats with weekdays and month names first
+        # because these are unambiguous
+        x1 <- x[1L]
+        orders <- c("ABdY", "AdBY", "aBdY", "adBY", "abdY", "YmdA",
+                    "BdY", "dBY", "bdY", "Ymd")
+        for (ord in orders)
+        {
+            if (is.na(parse_date_time(x1, ord, locale = locale, quiet = TRUE)))
+                next
+            parsed <- parse_date_time(x, ord, locale = locale, quiet = TRUE)
+            if (all(!is.na(parsed)))
+                return(parsed)
+        }
 
         parsed <- checkFormatsWithDay(x, us.format, exact)
 

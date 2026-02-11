@@ -5,7 +5,13 @@
 \alias{ParseDates}
 \title{Parse Character Dates To POSIXct Objects}
 \usage{
-AsDate(x, us.format = NULL, exact = FALSE, on.parse.failure = "error")
+AsDate(
+  x,
+  us.format = NULL,
+  locale = Sys.getlocale("LC_TIME"),
+  exact = FALSE,
+  on.parse.failure = "error"
+)
 
 ParseDates(x, us.format = NULL)
 }
@@ -16,6 +22,8 @@ detected, they will be parsed using \code{AsDateTime}.}
 
 \item{us.format}{logical; whether to use the US convention for dates; can be \code{NULL}
 in which case both U.S. formats and international formats will be checked}
+
+\item{locale}{See \link{locales}.}
 
 \item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 
