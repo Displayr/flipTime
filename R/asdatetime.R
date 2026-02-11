@@ -125,7 +125,7 @@ asDateTime <- function(x, us.format = NULL,
             if (is.na(parse_date_time(x1, ord, tz = time.zone, locale = locale, quiet = TRUE)))
                 next
             parsed <- parse_date_time(x, ord, tz = time.zone, locale = locale, quiet = TRUE)
-            if (all(!is.na(parsed)))
+            if (!any(is.na(parsed)))
                 return(parsed)
         }
 
@@ -166,13 +166,8 @@ asDateTime <- function(x, us.format = NULL,
                     return(parsed)
             }
         }
-
-
-
-    }else
-        parsed <- NA
-
-    return(parsed)
+    }
+    return(NA)
 }
 
 #' Check if a string can be parsed to "bY" or "by" date format

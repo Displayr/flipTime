@@ -103,26 +103,27 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
             if (is.na(parse_date_time(x1, ord, locale = locale, quiet = TRUE)))
                 next
             parsed <- parse_date_time(x, ord, locale = locale, quiet = TRUE)
-            if (all(!is.na(parsed)))
+            if (!any(is.na(parsed)))
                 return(parsed)
         }
 
         parsed <- checkFormatsWithDay(x, us.format, exact)
+        if (!any(is.na(parsed)))
+            return(parsed)
 
         ## Try formats with month and year, but no day
         ## lubridate <= 1.6.0 fails to parse bY and by orders
         ## and returns many false positives for my and ym
-        if (any(is.na(parsed)))
-            parsed <- checkMonthYearFormats(x)
+        parsed <- checkMonthYearFormats(x)
+        if (!any(is.na(parsed)))
+            return(parsed)
 
-        if (any(is.na(parsed)))
-            parsed <- fast_strptime(x, "%Y")
-            #parsed <- parse_date_time2(x, "Y", exact = TRUE)
+        parsed <- fast_strptime(x, "%Y")
+        if (!any(is.na(parsed)))
+            return(parsed)
 
-    }else
-        parsed <- NA
-
-    return(parsed)
+    }
+    return(NA)
 }
 
 #' Check if a supplied vector contains non-empty text in every element
