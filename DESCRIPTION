@@ -1,7 +1,7 @@
 Package: flipTime
 Type: Package
 Title: Tools for Manipulating Dates and Time Series
-Version: 2.10.2
+Version: 2.10.3
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Functions to aggregate time series into strings, and convert
@@ -18,5 +18,5 @@ Remotes:
     Displayr/plotly
 Suggests:
     testthat
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Encoding: UTF-8

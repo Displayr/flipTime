@@ -109,6 +109,37 @@ test_that("AsDateTime",
     ## this example confuses lubridate very badily if ym format tried
     ## lubridate::parse_date_time2("jan-214", "ym", exact = TRUE)
     ## expect_equal(AsDateTime("jan-214"), NA)
+
+    # including timezones
+    expect_equal(AsDateTime("2016-01-02 00:34:56"), dt1)
+    expect_equal(AsDateTime("2016-01-02 00:34:56 AM"), dt1)
+    expect_equal(AsDateTime("2016-01-02 00:34:56 GMT"), dt1)
+    expect_equal(AsDateTime("2016-01-02 00:34:56 AEST"), dt1)
+    expect_equal(AsDateTime("2016-01-02T00:34:56Z"), dt1)
+
+    # including time offset
+    expect_equal(AsDateTime("2016-01-02 10:34:56 GMT+1000"), dt1)
+    expect_equal(AsDateTime("2016-01-02T10:34:56+10:00"), dt1)
+    AsDateTime("Jan 02 2016 10:34:56 GMT+1000")
+
+    # other languages
+    expect_equal(AsDateTime("2. Januar 2016 00:34:56"), dt1)
+    expect_equal(AsDateTime("2016年1月2日 00:34:56"), dt1)
+    expect_equal(AsDateTime("2016年1月2日 12:34AM"), dt2)
+    expect_equal(AsDateTime("2 Janvier 2016 00:34:56"), dt1)
+    expect_equal(AsDateTime("Le samedi 2 janvier 2016 00:34:56"), dt1)
+
+    # 2-digit month can be mis-parsed if we try 2-digit years first
+    expect_equal(AsDateTime("2004年10月6日 10:34AM"), AsDateTime("2004-10-06 10:34"))
+
+    # including day of week
+    expect_equal(AsDateTime("Sat Jan 02 2016 00:34:56"), dt1)
+    expect_equal(AsDateTime("Saturday January 02 2016 00:34:56"), dt1)
+    expect_equal(AsDateTime("Saturday January 02 2016 12:34AM"), dt2)
+
+    # other languages including day of the week need the locale to be set
+    expect_equal(AsDateTime("samedi 2 janvier 2016 00:34:56", locale = "fr_FR.utf8"), dt1)
+    expect_equal(AsDateTime("Samstag, 2. Januar 2016 00:34:56", locale = "de_DE.utf8"), dt1)
 })
 
 test_that("AsDateTime: additional support for two-digit years",

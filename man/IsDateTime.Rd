@@ -4,10 +4,12 @@
 \alias{IsDateTime}
 \title{Check whether text can be parsed as date/time}
 \usage{
-IsDateTime(x)
+IsDateTime(x, locale = Sys.getlocale("LC_TIME"))
 }
 \arguments{
 \item{x}{Vector of input text}
+
+\item{locale}{See \link{locales}.}
 }
 \description{
 Returns bool indicating whether text can be parsed as a date-time

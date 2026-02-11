@@ -5,12 +5,18 @@
 \alias{AsDateTime}
 \title{Parse Character Date-Times to POSIXct Objects}
 \usage{
-ParseDateTime(x, us.format = TRUE, time.zone = "UTC")
+ParseDateTime(
+  x,
+  us.format = TRUE,
+  time.zone = "UTC",
+  locale = Sys.getlocale("LC_TIME")
+)
 
 AsDateTime(
   x,
   us.format = NULL,
   time.zone = "UTC",
+  locale = Sys.getlocale("LC_TIME"),
   exact = FALSE,
   on.parse.failure = "error"
 )
@@ -25,6 +31,9 @@ using \code{as.POSIXct}.}
 in which case both U.S. formats and international formats will be checked}
 
 \item{time.zone}{An optional time zone (default \code{"UTC"}).}
+
+\item{locale}{Controls the language used. But use "fr_FR.utf8" instead of "French" to avoid
+errors with non-ascii characters. See \link{locales} for more info.}
 
 \item{exact}{see \code{\link[lubridate]{parse_date_time2}}}
 
