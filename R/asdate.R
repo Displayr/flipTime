@@ -58,10 +58,10 @@ AsDate <- function(x,
     parsed <- asDate(x, us.format, locale, exact)
 
     ## DS-2193 check if date has a time stamp
-    if (any(is.na(parsed)))
+    if (anyNA(parsed))
         parsed <- asDateTime(x, us.format = us.format, locale = locale, exact = exact)
 
-    if (any(is.na(parsed)))
+    if (anyNA(parsed))
     {
         result <- handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure)
         names(result) <- x.names
@@ -91,7 +91,7 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
         ## First check for period dates of form
         ## Jan-Mar 2015 and 30/10/1999-27/11/2000
         pd <- parsePeriodDate(x, us.format)
-        if (!any(is.na(pd)))
+        if (!anyNA(pd))
             return(as.Date(pd))
 
         # Try out date formats with weekdays and month names first
@@ -104,7 +104,7 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
             if (is.na(parse_date_time(x1, ord, locale = locale, quiet = TRUE)))
                 next
             parsed <- parse_date_time(x, ord, locale = locale, quiet = TRUE)
-            if (!any(is.na(parsed)))
+            if (!anyNA(parsed))
                 return(parsed)
         }
 
@@ -116,11 +116,11 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
         ## lubridate <= 1.6.0 fails to parse bY and by orders
         ## and returns many false positives for my and ym
         parsed <- checkMonthYearFormats(x)
-        if (!any(is.na(parsed)))
+        if (!anyNA(parsed))
             return(parsed)
 
         parsed <- fast_strptime(x, "%Y")
-        if (!any(is.na(parsed)))
+        if (!anyNA(parsed))
             return(parsed)
 
     }
@@ -134,7 +134,7 @@ asDate <- function(x, us.format = NULL, locale = Sys.getlocale("LC_TIME"), exact
 #' @noRd
 isNotAllNonEmptyText <- function(x)
 {
-    is.null(x) || any(is.na(x)) || any(grepl("^[[:space:]]*$",
+    is.null(x) || anyNA(x) || any(grepl("^[[:space:]]*$",
         x, useBytes = TRUE))
 }
 
@@ -174,20 +174,20 @@ checkMonthYearFormats <- function(
     out <- checkMonthYearFormatAndParse(x, b.month, year, "%b", "%y",
                                         sep.regex.patt)
 
-    if (any(is.na(out)))  # check yb or Yb
+    if (anyNA(out))  # check yb or Yb
         out <- checkMonthYearFormatAndParse(x, year, b.month, "%y", "%b",
                                             sep.regex.patt)
 
     sep.regex.patt <- "([/-])"
-    if (any(is.na(out))) # check my or mY
+    if (anyNA(out)) # check my or mY
         out <- checkMonthYearFormatAndParse(x, m.month, year, "%m", "%y",
                                             sep.regex.patt)
 
-    if (any(is.na(out)))   # check ym or Ym
+    if (anyNA(out))   # check ym or Ym
         out <- checkMonthYearFormatAndParse(x, year, m.month, "%y", "%m",
                                             sep.regex.patt)
 
-    if (any(is.na(out)))
+    if (anyNA(out))
         return(rep.int(NA, length(x)))
 
     out
@@ -219,7 +219,7 @@ checkFormatsWithDay <- function(
     }
 
     out <- checkFormat(x, patt, ord, us.format, exact)
-    if (!any(is.na(out)))
+    if (!anyNA(out))
         return(out)
 
     ## if us.format not specified, need to check dmy
@@ -227,23 +227,22 @@ checkFormatsWithDay <- function(
     {
         patt <- dayMonthYearRegexPatt(sep.regex.patt, FALSE)
         out <- checkFormat(x, patt, "dmy", us.format, exact)
-        if (!any(is.na(out)))
+        if (!anyNA(out))
             return(out)
     }
 
     ## check formats with year first
     patt <- yearMonthDayRegexPatt(sep.regex.patt, FALSE)
     out <- checkFormat(x, patt, "ymd", us.format, exact)
-    if (!any(is.na(out)))
+    if (!anyNA(out))
         return(out)
 
     patt <- yearDayMonthRegexPatt(sep.regex.patt, FALSE)
     out <- checkFormat(x, patt, "ydm", us.format, exact)
+    if (!anyNA(out))
+        return(out)
 
-    if (any(is.na(out)))
-        return(rep.int(NA, length(x)))
-
-    out
+    return(rep.int(NA, length(x)))
 }
 
 

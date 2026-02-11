@@ -19,7 +19,7 @@ IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
     res <- try(suppressWarnings(AsDateTime(x, locale = locale, on.parse.failure = "silent")), silent = TRUE)
     if (inherits(res, "try-error"))
         return(FALSE)
-    return(!any(is.na(res)))
+    return(!anyNA(res))
 }
 
 
@@ -74,11 +74,11 @@ AsDateTime <- function(x,
     ## try to parse as dates with no times
     ## need to explicitly add time.zone as attr b/c
     ## as.POSIXct ignores it when it's not required for conversion
-    if (any(is.na(parsed)))
+    if (anyNA(parsed))
         parsed <- structure(as.POSIXct(asDate(x, us.format = us.format, exact = exact)),
                             tzone = time.zone)
 
-    if (any(is.na(parsed)))
+    if (anyNA(parsed))
     {
         result <- handleParseFailure(deparse(substitute(x)), length(na.ind), on.parse.failure)
         names(result) <- x.names
@@ -125,7 +125,7 @@ asDateTime <- function(x, us.format = NULL,
             if (is.na(parse_date_time(x1, ord, tz = time.zone, locale = locale, quiet = TRUE)))
                 next
             parsed <- parse_date_time(x, ord, tz = time.zone, locale = locale, quiet = TRUE)
-            if (!any(is.na(parsed)))
+            if (!anyNA(parsed))
                 return(parsed)
         }
 
@@ -224,7 +224,7 @@ checkUSformatAndParse <- function(x, ord, time.zone = "UTC",
         fmt <- ord
 
     out <- parse.fun(fmt)
-    if (any(is.na(out)))  # don't bother checking if haven't found a match yet
+    if (anyNA(out))  # don't bother checking if haven't found a match yet
         return(out)
 
     ## because md orders are checked first in AsDate and AsDateTime,
