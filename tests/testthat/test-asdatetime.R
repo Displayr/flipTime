@@ -136,6 +136,9 @@ test_that("AsDateTime",
     expect_equal(AsDateTime("Sat Jan 02 2016 00:34:56"), dt1)
     expect_equal(AsDateTime("Saturday January 02 2016 00:34:56"), dt1)
     expect_equal(AsDateTime("Saturday January 02 2016 12:34AM"), dt2)
+    expect_equal(AsDateTime("Sat Jan 02 2016 00:34:56 GMT"), dt1)
+    expect_equal(AsDateTime("Sat Jan 02 2016 10:34:56 GMT+1000 (Australian Eastern Standard Time"), dt1)
+    expect_equal(AsDateTime("Saturday January 02 2016 10:34:56 GMT+1000 (Australian Eastern Standard Time"), dt1)
 
     # other languages including day of the week need the locale to be set
     expect_equal(AsDateTime("samedi 2 janvier 2016 00:34:56", locale = "fr_FR.utf8"), dt1)

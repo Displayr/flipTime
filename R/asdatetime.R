@@ -119,6 +119,7 @@ asDateTime <- function(x, us.format = NULL,
 
         # Try out date formats with weekdays and months because these are unambiguous
         orders <- c("ABdYT", "AdBYT", "aBdYT", "adBYT", "abdYT",
+                    "ABdYTz", "AdBYTz", "aBdYTz", "adBYTz", "abdYTz",
                     "ABdYImp", "AdBYIMp", "aBdYIMp", "adBYIMp", "abdYIMp")
         for (ord in orders)
         {
