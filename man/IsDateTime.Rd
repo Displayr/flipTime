@@ -4,19 +4,20 @@
 \alias{IsDateTime}
 \title{Check whether text can be parsed as date/time}
 \usage{
-IsDateTime(x, locale = Sys.getlocale("LC_TIME"), date.only = FALSE)
+IsDateTime(x, locale = Sys.getlocale("LC_TIME"), allow.extra.text = TRUE)
 }
 \arguments{
 \item{x}{Vector of input text}
 
 \item{locale}{See \link{locales}.}
 
-\item{date.only}{Whether to also require that every element is a date and nothing else.
-Parsing is deliberately lenient, because its usual job is to salvage a date out of messy
-text: any text the parser cannot interpret is skipped, so \code{"Jan 2025 (1212)"} parses
-as 2025-12-12 - the month name is discarded and the annotation read as month and day. Set
-this when the text itself is shown to the user (axis labels, say) and a date that appears
-nowhere in it would be wrong. Formats are unaffected by \code{locale}.}
+\item{allow.extra.text}{Whether text surrounding the date is tolerated, as it is by default:
+parsing exists mainly to salvage a date out of messy text, so anything the parser cannot
+interpret is skipped. That makes \code{"Jan 2025 (1212)"} a date-time - it parses as
+2025-12-12, discarding the month name and reading the annotation as month and day. Pass
+\code{FALSE} where the text itself is shown to the user (axis labels, say) and a date that
+appears nowhere in it would be wrong. Timestamps are accepted either way; this says nothing
+about whether a time is present. The answer is unaffected by \code{locale}.}
 }
 \description{
 Returns bool indicating whether text can be parsed as a date-time
@@ -24,6 +25,6 @@ Returns bool indicating whether text can be parsed as a date-time
 \examples{
 IsDateTime("2007")
 IsDateTime("abc")
-IsDateTime("Jan 2025 (1212)")                    # TRUE - a date can be salvaged
-IsDateTime("Jan 2025 (1212)", date.only = TRUE)  # FALSE - it is not only a date
+IsDateTime("Jan 2025 (1212)")                          # TRUE - a date can be salvaged
+IsDateTime("Jan 2025 (1212)", allow.extra.text = FALSE) # FALSE - it is not only a date
 }

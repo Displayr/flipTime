@@ -19,64 +19,64 @@ test_that("IsDateTime",
     expect_silent(IsDateTime("24/9/17"))  # DS-1854
 })
 
-# date.only asks a stricter question than IsDateTime's default: not "can a date be salvaged from this
-# text?" but "is this text a date and nothing else?". Callers displaying the text itself need the
-# second question, because the parser will otherwise read an annotation as date parts.
-test_that("IsDateTime date.only accepts text that is only a date",
+# Refusing extra text asks a stricter question than IsDateTime's default: not "can a date be salvaged
+# from this text?" but "is this text a date and nothing else?". Callers displaying the text itself need
+# the second question, because the parser will otherwise read an annotation as date parts.
+test_that("IsDateTime with extra text disallowed accepts text that is only a date",
 {
-    expect_true(IsDateTime(c("Jan 2025", "Feb 2025"), date.only = TRUE))
-    expect_true(IsDateTime(c("2020-01-01", "2020-01-02"), date.only = TRUE))
-    expect_true(IsDateTime(c("Feb 25 2025", "Mar 25 2025"), date.only = TRUE))
-    expect_true(IsDateTime(c("25 Feb 2025", "25 Mar 2025"), date.only = TRUE))
-    expect_true(IsDateTime(c("2007", "2008"), date.only = TRUE))
+    expect_true(IsDateTime(c("Jan 2025", "Feb 2025"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("2020-01-01", "2020-01-02"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("Feb 25 2025", "Mar 25 2025"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("25 Feb 2025", "25 Mar 2025"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("2007", "2008"), allow.extra.text = FALSE))
     ## Period labels, as written for quarterly and weekly aggregation.
-    expect_true(IsDateTime(c("Apr-Jun 08", "Jul-Sep 08"), date.only = TRUE))
-    expect_true(IsDateTime(c("1/02/1999-8/02/1999", "9/02/1999-16/02/1999"), date.only = TRUE))
+    expect_true(IsDateTime(c("Apr-Jun 08", "Jul-Sep 08"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("1/02/1999-8/02/1999", "9/02/1999-16/02/1999"), allow.extra.text = FALSE))
     ## Ordinal suffixes, which the parser binds to the day.
-    expect_true(IsDateTime(c("1st Feb 2010", "2nd Mar 2010"), date.only = TRUE))
+    expect_true(IsDateTime(c("1st Feb 2010", "2nd Mar 2010"), allow.extra.text = FALSE))
     expect_true(IsDateTime(c("Wednesday, 3rd February, 2010", "Thursday, 4th March, 2010"),
-                           date.only = TRUE))
+                           allow.extra.text = FALSE))
     ## CJK year/month/day markers.
     expect_true(IsDateTime(c(paste0("2016", intToUtf8(0x5E74), "1", intToUtf8(0x6708), "2",
                                     intToUtf8(0x65E5)),
                              paste0("2016", intToUtf8(0x5E74), "2", intToUtf8(0x6708), "2",
-                                    intToUtf8(0x65E5))), date.only = TRUE))
+                                    intToUtf8(0x65E5))), allow.extra.text = FALSE))
     ## A timezone name following a timestamp.
     expect_true(IsDateTime(c("2020-01-01 10:00:00 UTC", "2020-01-02 10:00:00 UTC"),
-                           date.only = TRUE))
+                           allow.extra.text = FALSE))
     expect_true(IsDateTime(c("2020-01-01 10:00:00 AEST", "2020-01-02 10:00:00 AEST"),
-                           date.only = TRUE))
+                           allow.extra.text = FALSE))
 })
 
-test_that("IsDateTime date.only rejects text carrying more than the date",
+test_that("IsDateTime with extra text disallowed rejects text carrying more than the date",
 {
-    ## A sample size appended to a date label. Without date.only the parser discards the month name
-    ## and reads the annotation as month/day, returning a date that is nowhere in the data.
-    expect_false(IsDateTime(c("Jan 2025 (1212)", "Feb 2025 (1007)"), date.only = TRUE))
-    expect_false(IsDateTime(c("Jan 2025 - 1212", "Feb 2025 - 1007"), date.only = TRUE))
-    expect_false(IsDateTime(c("Jan 2025 n = 1212", "Feb 2025 n = 1007"), date.only = TRUE))
-    expect_false(IsDateTime(c("2025 Q2 n = 11", "2025 Q3 n = 16"), date.only = TRUE))
-    expect_false(IsDateTime(c("W1'19 n-1212 W1", "W2'19 n-1105 W2"), date.only = TRUE))
-    expect_false(IsDateTime(c("Jan 2025 respondents", "Feb 2025 respondents"), date.only = TRUE))
+    ## A sample size appended to a date label. With extra text allowed the parser discards the month
+    ## name and reads the annotation as month/day, returning a date that is nowhere in the data.
+    expect_false(IsDateTime(c("Jan 2025 (1212)", "Feb 2025 (1007)"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("Jan 2025 - 1212", "Feb 2025 - 1007"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("Jan 2025 n = 1212", "Feb 2025 n = 1007"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2025 Q2 n = 11", "2025 Q3 n = 16"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("W1'19 n-1212 W1", "W2'19 n-1105 W2"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("Jan 2025 respondents", "Feb 2025 respondents"), allow.extra.text = FALSE))
     ## An all-caps metric suffix is not a timezone: there is no time for one to qualify.
-    expect_false(IsDateTime(c("Jan 2025 NPS", "Feb 2025 NPS"), date.only = TRUE))
+    expect_false(IsDateTime(c("Jan 2025 NPS", "Feb 2025 NPS"), allow.extra.text = FALSE))
     ## A range separated by a word is not a period - every separator parsePeriodDate takes is
     ## punctuation - so only the leading date is read, and not even correctly: "Jan 2025 to Mar 2025"
     ## gives 2025-01-20, taking "20" for the day and "25" for the year.
-    expect_false(IsDateTime(c("Jan 2025 to Mar 2025", "Apr 2025 to Jun 2025"), date.only = TRUE))
+    expect_false(IsDateTime(c("Jan 2025 to Mar 2025", "Apr 2025 to Jun 2025"), allow.extra.text = FALSE))
     expect_false(IsDateTime(c("Jan 2025 through Mar 2025", "Apr 2025 through Jun 2025"),
-                            date.only = TRUE))
-    ## Rejected for the usual reason, before date.only is even consulted.
-    expect_false(IsDateTime(c("Feb 3 2000", "not date"), date.only = TRUE))
+                            allow.extra.text = FALSE))
+    ## Rejected for the usual reason, before extra text is even considered.
+    expect_false(IsDateTime(c("Feb 3 2000", "not date"), allow.extra.text = FALSE))
 })
 
-test_that("IsDateTime date.only defaults off, leaving the lenient behaviour alone",
+test_that("IsDateTime allows extra text by default, leaving the lenient behaviour alone",
 {
     expect_true(IsDateTime(c("Jan 2025 (1212)", "Feb 2025 (1007)")))
     expect_true(IsDateTime(c("2025 Q2 n = 11", "2025 Q3 n = 16")))
 })
 
-test_that("IsDateTime date.only does not depend on LC_TIME",
+test_that("IsDateTime extra-text check does not depend on LC_TIME",
 {
     original.locale <- Sys.getlocale("LC_TIME")
     on.exit(suppressWarnings(Sys.setlocale("LC_TIME", original.locale)))
@@ -91,10 +91,10 @@ test_that("IsDateTime date.only does not depend on LC_TIME",
         }
     }
     skip_if_not(set, "no French locale available on this platform")
-    ## English labels still parse under a French locale, so they must still be seen as date-only,
-    ## and a locale whose encoding differs from the session's must not raise an error.
-    expect_true(IsDateTime(c("Jan 2020", "Feb 2020"), date.only = TRUE))
-    expect_false(IsDateTime(c("Jan 2020 n = 11", "Feb 2020 n = 16"), date.only = TRUE))
+    ## English labels still parse under a French locale, so they must still be seen as carrying
+    ## nothing but a date, and a locale whose encoding differs from the session's must not error.
+    expect_true(IsDateTime(c("Jan 2020", "Feb 2020"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("Jan 2020 n = 11", "Feb 2020 n = 16"), allow.extra.text = FALSE))
 })
 
 

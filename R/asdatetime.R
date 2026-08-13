@@ -4,18 +4,19 @@
 #' @export
 #' @param x Vector of input text
 #' @param locale See \link{locales}.
-#' @param date.only Whether to also require that every element is a date and nothing else.
-#' Parsing is deliberately lenient, because its usual job is to salvage a date out of messy
-#' text: any text the parser cannot interpret is skipped, so \code{"Jan 2025 (1212)"} parses
-#' as 2025-12-12 - the month name is discarded and the annotation read as month and day. Set
-#' this when the text itself is shown to the user (axis labels, say) and a date that appears
-#' nowhere in it would be wrong. Formats are unaffected by \code{locale}.
+#' @param allow.extra.text Whether text surrounding the date is tolerated, as it is by default:
+#' parsing exists mainly to salvage a date out of messy text, so anything the parser cannot
+#' interpret is skipped. That makes \code{"Jan 2025 (1212)"} a date-time - it parses as
+#' 2025-12-12, discarding the month name and reading the annotation as month and day. Pass
+#' \code{FALSE} where the text itself is shown to the user (axis labels, say) and a date that
+#' appears nowhere in it would be wrong. Timestamps are accepted either way; this says nothing
+#' about whether a time is present. The answer is unaffected by \code{locale}.
 #' @examples
 #' IsDateTime("2007")
 #' IsDateTime("abc")
-#' IsDateTime("Jan 2025 (1212)")                    # TRUE - a date can be salvaged
-#' IsDateTime("Jan 2025 (1212)", date.only = TRUE)  # FALSE - it is not only a date
-IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"), date.only = FALSE)
+#' IsDateTime("Jan 2025 (1212)")                          # TRUE - a date can be salvaged
+#' IsDateTime("Jan 2025 (1212)", allow.extra.text = FALSE) # FALSE - it is not only a date
+IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"), allow.extra.text = TRUE)
 {
     if (length(x) == 0)
         return (FALSE)
@@ -29,20 +30,20 @@ IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"), date.only = FALSE)
         return(FALSE)
     if (anyNA(res))
         return(FALSE)
-    return(!date.only || isDateOnlyText(x))
+    return(allow.extra.text || textIsNothingButADate(x))
 }
 
-## Orders offered to guess_formats when deciding whether text is only a date. Deliberately wider than
-## the orders asDate parses with: the question here is which format the text matches, not which parse
-## wins, so a shape we would never choose still has to be recognised as a date.
-DATE_ONLY_ORDERS <- c("ABdY", "AdBY", "aBdY", "adBY", "abdY", "YmdA", "BdY", "dBY", "bdY", "Ymd",
-                      "dmY", "mdY", "Ymd HMS", "Ymd HM", "dmY HMS", "mdY HMS", "BdY HMS",
-                      "Ym", "bY", "BY", "Y")
+## Orders offered to guess_formats when working out which format text matched. Deliberately wider than
+## the orders asDate parses with, times included: the question is which format the text matches, not
+## which parse wins, so a shape we would never choose still has to be recognised.
+FORMAT_GUESS_ORDERS <- c("ABdY", "AdBY", "aBdY", "adBY", "abdY", "YmdA", "BdY", "dBY", "bdY", "Ymd",
+                         "dmY", "mdY", "Ymd HMS", "Ymd HM", "dmY HMS", "mdY HMS", "BdY HMS",
+                         "Ym", "bY", "BY", "Y")
 
-#' TRUE when every element of x is a date and nothing else. Asked of the text rather than of the
-#' parsed result, because the parse succeeds either way - see the date.only argument of IsDateTime.
+#' TRUE when no element of x carries anything besides its date. Asked of the text rather than of the
+#' parsed result, because the parse succeeds either way - see IsDateTime's allow.extra.text.
 #' @noRd
-isDateOnlyText <- function(x)
+textIsNothingButADate <- function(x)
 {
     ## Period labels ("Apr-Jun 08", "1/02/1999-8/02/1999") are matched by parsePeriodDate rather than
     ## by a single format, so guess_formats has nothing to report for them; accept them here. Returns
@@ -50,14 +51,14 @@ isDateOnlyText <- function(x)
     periods <- suppressWarnings(parsePeriodDate(x))
     if (length(periods) == length(x) && !anyNA(periods))
         return(TRUE)
-    all(vapply(x, isSingleDateOnly, logical(1), USE.NAMES = FALSE))
+    all(vapply(x, elementIsNothingButADate, logical(1), USE.NAMES = FALSE))
 }
 
 #' @importFrom lubridate guess_formats
 #' @noRd
-isSingleDateOnly <- function(text)
+elementIsNothingButADate <- function(text)
 {
-    formats <- suppressWarnings(guess_formats(text, DATE_ONLY_ORDERS))
+    formats <- suppressWarnings(guess_formats(text, FORMAT_GUESS_ORDERS))
     formats <- unique(formats[!is.na(formats)])
     ## No format at all means nothing in the text was recognised as a date shape.
     length(formats) > 0 && any(vapply(formats, formatIsAllDateParts, logical(1), USE.NAMES = FALSE))
@@ -65,8 +66,8 @@ isSingleDateOnly <- function(text)
 
 #' A guessed format spells out verbatim whatever guess_formats could not read as a date part, so
 #' "Jan 2025 (1212)" guesses "Jan %Y (%m%d)" - the month name stayed literal while the annotation was
-#' taken for month and day. The text is therefore only a date when its format holds nothing but date
-#' tokens and separators.
+#' taken for month and day. The text therefore carries nothing besides its date when its format holds
+#' nothing but date tokens and separators.
 #' @noRd
 formatIsAllDateParts <- function(format)
 {
