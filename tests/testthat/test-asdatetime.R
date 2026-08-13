@@ -60,6 +60,12 @@ test_that("IsDateTime date.only rejects text carrying more than the date",
     expect_false(IsDateTime(c("Jan 2025 respondents", "Feb 2025 respondents"), date.only = TRUE))
     ## An all-caps metric suffix is not a timezone: there is no time for one to qualify.
     expect_false(IsDateTime(c("Jan 2025 NPS", "Feb 2025 NPS"), date.only = TRUE))
+    ## A range separated by a word is not a period - every separator parsePeriodDate takes is
+    ## punctuation - so only the leading date is read, and not even correctly: "Jan 2025 to Mar 2025"
+    ## gives 2025-01-20, taking "20" for the day and "25" for the year.
+    expect_false(IsDateTime(c("Jan 2025 to Mar 2025", "Apr 2025 to Jun 2025"), date.only = TRUE))
+    expect_false(IsDateTime(c("Jan 2025 through Mar 2025", "Apr 2025 through Jun 2025"),
+                            date.only = TRUE))
     ## Rejected for the usual reason, before date.only is even consulted.
     expect_false(IsDateTime(c("Feb 3 2000", "not date"), date.only = TRUE))
 })
