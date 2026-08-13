@@ -4,10 +4,18 @@
 #' @export
 #' @param x Vector of input text
 #' @param locale See \link{locales}.
+#' @param date.only Whether to also require that every element is a date and nothing else.
+#' Parsing is deliberately lenient, because its usual job is to salvage a date out of messy
+#' text: any text the parser cannot interpret is skipped, so \code{"Jan 2025 (1212)"} parses
+#' as 2025-12-12 - the month name is discarded and the annotation read as month and day. Set
+#' this when the text itself is shown to the user (axis labels, say) and a date that appears
+#' nowhere in it would be wrong. Formats are unaffected by \code{locale}.
 #' @examples
 #' IsDateTime("2007")
 #' IsDateTime("abc")
-IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
+#' IsDateTime("Jan 2025 (1212)")                    # TRUE - a date can be salvaged
+#' IsDateTime("Jan 2025 (1212)", date.only = TRUE)  # FALSE - it is not only a date
+IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"), date.only = FALSE)
 {
     if (length(x) == 0)
         return (FALSE)
@@ -19,7 +27,63 @@ IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
     res <- try(suppressWarnings(AsDateTime(x, locale = locale, on.parse.failure = "silent")), silent = TRUE)
     if (inherits(res, "try-error"))
         return(FALSE)
-    return(!anyNA(res))
+    if (anyNA(res))
+        return(FALSE)
+    return(!date.only || isDateOnlyText(x))
+}
+
+## Orders offered to guess_formats when deciding whether text is only a date. Deliberately wider than
+## the orders asDate parses with: the question here is which format the text matches, not which parse
+## wins, so a shape we would never choose still has to be recognised as a date.
+DATE_ONLY_ORDERS <- c("ABdY", "AdBY", "aBdY", "adBY", "abdY", "YmdA", "BdY", "dBY", "bdY", "Ymd",
+                      "dmY", "mdY", "Ymd HMS", "Ymd HM", "dmY HMS", "mdY HMS", "BdY HMS",
+                      "Ym", "bY", "BY", "Y")
+
+#' TRUE when every element of x is a date and nothing else. Asked of the text rather than of the
+#' parsed result, because the parse succeeds either way - see the date.only argument of IsDateTime.
+#' @noRd
+isDateOnlyText <- function(x)
+{
+    ## Period labels ("Apr-Jun 08", "1/02/1999-8/02/1999") are matched by parsePeriodDate rather than
+    ## by a single format, so guess_formats has nothing to report for them; accept them here. Returns
+    ## a bare NA when x is not periods at all, and all NA if any element failed.
+    periods <- suppressWarnings(parsePeriodDate(x))
+    if (length(periods) == length(x) && !anyNA(periods))
+        return(TRUE)
+    all(vapply(x, isSingleDateOnly, logical(1), USE.NAMES = FALSE))
+}
+
+#' @importFrom lubridate guess_formats
+#' @noRd
+isSingleDateOnly <- function(text)
+{
+    formats <- suppressWarnings(guess_formats(text, DATE_ONLY_ORDERS))
+    formats <- unique(formats[!is.na(formats)])
+    ## No format at all means nothing in the text was recognised as a date shape.
+    length(formats) > 0 && any(vapply(formats, formatIsAllDateParts, logical(1), USE.NAMES = FALSE))
+}
+
+#' A guessed format spells out verbatim whatever guess_formats could not read as a date part, so
+#' "Jan 2025 (1212)" guesses "Jan %Y (%m%d)" - the month name stayed literal while the annotation was
+#' taken for month and day. The text is therefore only a date when its format holds nothing but date
+#' tokens and separators.
+#' @noRd
+formatIsAllDateParts <- function(format)
+{
+    ## An ordinal suffix counts as date content only where the parser bound one to a day number.
+    format <- gsub("%O?d(st|nd|rd|th)", "%d", format, ignore.case = TRUE)
+    has.time <- grepl("%O?[HMS]", format)
+    ## Drop the date tokens first, so every letter still standing is literal text. Tokens carry an
+    ## optional O modifier for locale-specific names ("%Ob"), which is all guess_formats offers for a
+    ## month name under a non-English LC_TIME - miss it and the stray letter reads as literal text.
+    literal <- gsub("%O?[a-zA-Z]", "", format)
+    ## A timezone name qualifies a time, so allow one only where the format has a time to qualify.
+    if (has.time)
+        literal <- gsub("[A-Z]{2,5}", "", literal)
+    ## CJK year/month/day markers separate date parts: "2016<U+5E74>1<U+6708>2<U+65E5>".
+    literal <- gsub(paste0("[", intToUtf8(c(0x5E74, 0x6708, 0x65E5, 0xB144, 0xC6D4, 0xC77C)), "]"),
+                    "", literal)
+    !nzchar(gsub("[[:space:][:punct:]]", "", literal))
 }
 
 
