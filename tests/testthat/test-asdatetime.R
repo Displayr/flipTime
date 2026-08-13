@@ -41,11 +41,26 @@ test_that("IsDateTime with extra text disallowed accepts text that is only a dat
                                     intToUtf8(0x65E5)),
                              paste0("2016", intToUtf8(0x5E74), "2", intToUtf8(0x6708), "2",
                                     intToUtf8(0x65E5))), allow.extra.text = FALSE))
-    ## A timezone name following a timestamp.
+    ## A timezone name following a timestamp, with or without an offset, and a meridiem.
     expect_true(IsDateTime(c("2020-01-01 10:00:00 UTC", "2020-01-02 10:00:00 UTC"),
                            allow.extra.text = FALSE))
     expect_true(IsDateTime(c("2020-01-01 10:00:00 AEST", "2020-01-02 10:00:00 AEST"),
                            allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("2020-01-01 10:00:00 GMT+10", "2020-01-02 10:00:00 GMT+10"),
+                           allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("2020-01-01 10:00 AM", "2020-01-02 11:00 AM"), allow.extra.text = FALSE))
+    ## Two-digit years and month/year labels are everyday category labels, and the ISO T separator.
+    ## Every one of these parses, so none of them may be dismissed as "not a date at all".
+    expect_true(IsDateTime(c("Jan-17", "Feb-17"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("Jan 17", "Feb 17"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("24/9/17", "25/9/17"), allow.extra.text = FALSE))    # DS-1854
+    expect_true(IsDateTime(c("1/2/99", "3/4/99"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("12/25/17", "11/25/17"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("Feb 25 25", "Mar 25 25"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("09/2017", "10/2017"), allow.extra.text = FALSE))
+    expect_true(IsDateTime(c("2020-01-01T10:00:00", "2020-01-02T10:00:00"), allow.extra.text = FALSE))
+    ## A period label beside a plain one: judged per element, not by whichever comes first.
+    expect_true(IsDateTime(c("Apr-Jun 2025", "Jan 2025"), allow.extra.text = FALSE))
 })
 
 test_that("IsDateTime with extra text disallowed rejects text carrying more than the date",
@@ -68,6 +83,50 @@ test_that("IsDateTime with extra text disallowed rejects text carrying more than
                             allow.extra.text = FALSE))
     ## Rejected for the usual reason, before extra text is even considered.
     expect_false(IsDateTime(c("Feb 3 2000", "not date"), allow.extra.text = FALSE))
+})
+
+test_that("IsDateTime rejects an annotation that parsed cleanly as date parts",
+{
+    ## With no month name to stay literal there is nothing wrong with the shape of the format:
+    ## "2019 (1212)" guesses "%Y (%m%d)", all date tokens. What gives it away is one group of digits
+    ## being split across two tokens while the rest of the text is separated.
+    expect_false(IsDateTime(c("2019 (1212)", "2020 (1007)"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2019 - 1212", "2020 - 1007"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2019 1212", "2020 1007"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2019, 1212", "2020, 1007"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2019 [1212]", "2020 [1007]"), allow.extra.text = FALSE))
+    ## A sample size read as hours and minutes, which would vanish from a label shown as it is.
+    expect_false(IsDateTime(c("2020-01-15 (1212)", "2020-02-15 (1007)"), allow.extra.text = FALSE))
+})
+
+test_that("IsDateTime rejects punctuation that is not a date separator",
+{
+    ## An asterisk marking a small base, or any other annotation made of punctuation, would otherwise be
+    ## absorbed and quietly dropped from text shown as it is.
+    expect_false(IsDateTime(c("2020-01-01", "2020-01-02*"), allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2020-01-01 (p)", "2020-01-02 (p)"), allow.extra.text = FALSE))
+})
+
+test_that("IsDateTime judges each period label rather than trusting the first",
+{
+    ## parsePeriodDate regex-tests only its first element and parses the rest leniently, so an
+    ## annotated label sitting below a well-formed one used to inherit its verdict. Here the "12" of
+    ## "n = 12" is read as the year, giving 2011-10-01 for a label that says 2008.
+    expect_false(IsDateTime(c("Apr-Jun 08", "Jul-Sep 08", "Oct-Dec 08 n = 12"),
+                            allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("Apr-Jun 08", "Jul-Sep 08 12"), allow.extra.text = FALSE))
+})
+
+test_that("IsDateTime only takes a timezone where a time makes one possible",
+{
+    ## An all-caps annotation in the same position is not a zone, and would otherwise be dropped from
+    ## the text as though it were one.
+    expect_false(IsDateTime(c("2020-01-01 10:00:00 NPS", "2020-01-02 10:00:00 NPS"),
+                            allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2020-01-01 10:00:00 SALES", "2020-01-02 10:00:00 SALES"),
+                            allow.extra.text = FALSE))
+    expect_false(IsDateTime(c("2020-01-01 10:00:00 TOTAL", "2020-01-02 10:00:00 TOTAL"),
+                            allow.extra.text = FALSE))
 })
 
 test_that("IsDateTime allows extra text by default, leaving the lenient behaviour alone",
