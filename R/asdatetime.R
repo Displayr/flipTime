@@ -4,10 +4,19 @@
 #' @export
 #' @param x Vector of input text
 #' @param locale See \link{locales}.
+#' @param allow.extra.text Whether text surrounding the date is tolerated, as it is by default:
+#' parsing exists mainly to salvage a date out of messy text, so anything the parser cannot
+#' interpret is skipped. That makes \code{"Jan 2025 (1212)"} a date-time - it parses as
+#' 2025-12-12, discarding the month name and reading the annotation as month and day. Pass
+#' \code{FALSE} where the text itself is shown to the user (axis labels, say) and a date that
+#' appears nowhere in it would be wrong. Timestamps are accepted either way; this says nothing
+#' about whether a time is present. The answer is unaffected by \code{locale}.
 #' @examples
 #' IsDateTime("2007")
 #' IsDateTime("abc")
-IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
+#' IsDateTime("Jan 2025 (1212)")                          # TRUE - a date can be salvaged
+#' IsDateTime("Jan 2025 (1212)", allow.extra.text = FALSE) # FALSE - it is not only a date
+IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"), allow.extra.text = TRUE)
 {
     if (length(x) == 0)
         return (FALSE)
@@ -19,7 +28,106 @@ IsDateTime <- function(x, locale = Sys.getlocale("LC_TIME"))
     res <- try(suppressWarnings(AsDateTime(x, locale = locale, on.parse.failure = "silent")), silent = TRUE)
     if (inherits(res, "try-error"))
         return(FALSE)
-    return(!anyNA(res))
+    if (anyNA(res))
+        return(FALSE)
+    return(allow.extra.text || textIsNothingButADate(x))
+}
+
+## Orders offered to guess_formats when working out which format text matched. Deliberately wider than
+## the orders asDate parses with, times and two-digit years included: the question is which format the
+## text matches, not which parse wins, so a shape we would never choose still has to be recognised.
+## Anything missing here reads as "not a date at all", which is the wrong answer for text the parser
+## handles perfectly well - two-digit years and month/year labels are everyday category labels.
+FORMAT_GUESS_ORDERS <- c(
+    ## Month or weekday names, which are unambiguous.
+    "ABdY", "AdBY", "aBdY", "adBY", "abdY", "YmdA", "BdY", "dBY", "bdY", "Bdy", "dBy", "bdy", "dby",
+    ## All numeric, four- and two-digit years.
+    "Ymd", "dmY", "mdY", "ymd", "dmy", "mdy",
+    ## Month and year, or year alone.
+    "Ym", "mY", "bY", "BY", "by", "yb", "ym", "my", "Y",
+    ## With a time, including a meridiem.
+    "Ymd HMS", "Ymd HM", "ymd HMS", "ymd HM", "dmY HMS", "mdY HMS", "dmy HMS", "mdy HMS", "BdY HMS",
+    "Ymd IMS p", "Ymd IM p", "Ymd HMS p", "Ymd HM p", "BdY IM p",
+    ## With a UTC offset, which guess_formats only reports where an order asks for one.
+    "Ymd HMS z", "Ymd HM z", "ymd HMS z")
+
+## Literal characters that may separate date parts. Anything else - a bracket, an asterisk, an equals -
+## says the text carries more than its date, however neatly the digits around it happen to parse.
+DATE_PART_SEPARATORS <- " ./:,+-"
+
+## Timezone names that may follow a time. OlsonNames() holds regions ("Australia/Sydney") rather than
+## the abbreviations that appear in text, so the abbreviations are spelled out.
+TIME_ZONE_NAMES <- c("UTC", "UT", "GMT", "Z", "EST", "EDT", "CST", "CDT", "MST", "MDT", "PST", "PDT",
+                     "AKST", "AKDT", "HST", "HDT", "AEST", "AEDT", "ACST", "ACDT", "AWST", "AWDT",
+                     "NZST", "NZDT", "BST", "WET", "WEST", "CET", "CEST", "EET", "EEST", "MSK",
+                     "JST", "KST", "IST", "SGT", "HKT")
+
+#' TRUE when no element of x carries anything besides its date. Asked of the text rather than of the
+#' parsed result, because the parse succeeds either way - see IsDateTime's allow.extra.text.
+#' @noRd
+textIsNothingButADate <- function(x)
+{
+    all(vapply(x, elementIsNothingButADate, logical(1), USE.NAMES = FALSE))
+}
+
+#' @importFrom lubridate guess_formats
+#' @noRd
+elementIsNothingButADate <- function(text)
+{
+    ## A period label ("Apr-Jun 08", "1/02/1999-8/02/1999") is matched by parsePeriodDate rather than by
+    ## a single format, so guess_formats has nothing to report for it. Asked one element at a time:
+    ## parsePeriodDate regex-tests only its first element and then parses the rest leniently, so putting
+    ## a whole vector to it would let "Oct-Dec 08 n = 12" through on the strength of the label above it.
+    if (!anyNA(suppressWarnings(parsePeriodDate(text))))
+        return(TRUE)
+    formats <- suppressWarnings(guess_formats(text, FORMAT_GUESS_ORDERS))
+    formats <- unique(formats[!is.na(formats)])
+    ## No format at all means nothing in the text was recognised as a date shape.
+    length(formats) > 0 && any(vapply(formats, formatIsAllDateParts, logical(1), USE.NAMES = FALSE))
+}
+
+#' A guessed format spells out verbatim whatever guess_formats could not read as a date part, so
+#' "Jan 2025 (1212)" guesses "Jan %Y (%m%d)" - the month name stayed literal while the annotation was
+#' taken for month and day. The text therefore carries nothing besides its date when its format holds
+#' nothing but date tokens and separators.
+#' @noRd
+formatIsAllDateParts <- function(format)
+{
+    ## An ordinal suffix counts as date content only where the parser bound one to a day number.
+    format <- gsub("%O?d(st|nd|rd|th)", "%d", format, ignore.case = TRUE)
+    separator.class <- paste0("[", DATE_PART_SEPARATORS, "]")
+    has.time <- grepl("%O?[HIMSp]", format)
+
+    ## Two numeric tokens with nothing between them mean one group of digits was split to fill both, as
+    ## in "2019 (1212)" -> "%Y (%m%d)", where an annotation was read as month and day. Nothing in the
+    ## format shape objects to that, so catch it here. Genuinely unseparated dates ("20200101") are one
+    ## group throughout, so adjacency is only allowed where the format has no separators at all.
+    if (grepl("%O?[YymdHIMS]%O?[YymdHIMS]", format) && grepl(separator.class, format))
+        return(FALSE)
+
+    if (has.time)
+    {
+        ## A timezone name closing a format that has a time for it to qualify, with an optional UTC
+        ## offset - which guess_formats reports as a token ("GMT%Oo") where an order asked for one, and
+        ## otherwise leaves as digits. Anything else in that position is an annotation rather than a
+        ## zone, and a zone anywhere but the end is not one either.
+        zone <- paste0("[ ]?(", paste(TIME_ZONE_NAMES, collapse = "|"),
+                       ")(%O?[a-zA-Z])?([+-][0-9]{1,2}(:?[0-9]{2})?)?$")
+        format <- sub(zone, "", format)
+        ## A bare offset, and a meridiem where guess_formats left it literal rather than reading %p.
+        format <- sub("[ ]?[+-][0-9]{2}(:?[0-9]{2})?$", "", format)
+        format <- sub("[ ]?(AM|PM)$", "", format, ignore.case = TRUE)
+        ## T separates the date from the time in ISO 8601.
+        format <- gsub("T", "", format)
+    }
+    ## CJK year/month/day markers separate date parts: "2016<U+5E74>1<U+6708>2<U+65E5>".
+    format <- gsub(paste0("[", intToUtf8(c(0x5E74, 0x6708, 0x65E5, 0xB144, 0xC6D4, 0xC77C)), "]"),
+                   "", format)
+    ## Drop the date tokens, so every character still standing is literal text. Tokens carry an optional
+    ## O modifier for locale-specific names ("%Ob"), which is all guess_formats offers for a month name
+    ## under a non-English LC_TIME - miss it and the stray letter reads as literal text.
+    literal <- gsub("%O?[a-zA-Z]", "", format)
+    !nzchar(gsub(separator.class, "", literal))
 }
 
 
